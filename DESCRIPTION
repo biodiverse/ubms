@@ -2,7 +2,8 @@ Package: ubms
 Version: 0.1.1-9000
 Date: 2020-04-06
 Title: Fit Unmarked Bayesian Models using Stan
-Author: Ken Kellner
+Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
+                  role=c("cre","aut"))
 Depends: 
     R (>= 3.4.0),
     unmarked
@@ -14,7 +15,8 @@ Imports:
     rstan (>= 2.18.1),
     rstantools (>= 2.0.0),
     stats
-Suggests: roxygen2
+Suggests: devtools, roxygen2
+Description: Fits hierarchical models of animal abundance and occurrence using the 'rstan' package, which provides the R interface to the Stan C++ library for Bayesian estimation. Provides a formula-based interface for specifying models similar to package 'unmarked', while also allowing for estimation of random effects.
 License: GPL (>=3)
 Encoding: UTF-8
 RoxygenNote: 6.1.1

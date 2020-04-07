@@ -6,7 +6,7 @@
 \alias{ubms-package}
 \title{ubms}
 \description{
-unmarked bayesian models using stan
+Unmarked Bayesian Models using Stan
 }
 \author{
 Ken Kellner

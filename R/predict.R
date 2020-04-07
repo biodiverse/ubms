@@ -1,40 +1,25 @@
+#' @include fit.R 
 #' @export
-setMethod("predict", "ubmsFit", function(object, type, random=TRUE, 
-                                           summary=TRUE, ...){  
+setMethod("predict", "ubmsFit", 
+  function(object, type, fun=mean, random=TRUE, summary=TRUE, ...){  
   
-  #Use submodels for this
-  inp <- build_inputs(object@psiformula, object@pformula, object@data) 
+  sm <- object[type]
+  include_random <- !is.na(sm@sigma_names) & random
 
-  switch(type,
-    state = {
-      has_random <- as.logical(inp$stan_data$occ_has_random)
-      fix_param <- 'beta_occ'
-      rand_param <- 'b_occ'
-      X <- inp$stan_data$X_occ
-      Z <- inp$stan_data$Z_occ
-    },
-    det = {
-      has_random <- as.logical(inp$stan_data$det_has_random)
-      fix_param <- 'beta_det'
-      rand_param <- 'b_det'
-      X <- inp$stan_data$X_det
-      Z <- inp$stan_data$Z_det
-    })
+  beta <- extract(object, paste0('beta_',type))[[1]]
+  lp <- model.matrix(sm) %*% t(beta)
   
-  beta <- rstan::extract(object@stanfit, fix_param)[[1]]
-  lp <- X %*% t(beta)
-  
-  if(has_random & random){
-    b <- rstan::extract(object@stanfit, rand_param)[[1]]
-    lp <- lp + Z %*% t(b)
+  if(include_random){
+    b <- extract(object, paste0('b_', type))[[1]]
+    lp <- lp + sm@Z %*% t(b)
   }
 
-  lp <- plogis(lp)
+  lp <- do.call(sm@link , list(lp))
 
   if(!summary) return(lp)
 
   stats <- apply(lp, 1, function(x){
-      c(Predicted = mean(x),
+      c(Predicted = fun(x),
         SD = stats::sd(x),
         `2.5%` = as.numeric(stats::quantile(x, 0.025)),
         `97.5%` = as.numeric(stats::quantile(x, 0.975))
@@ -44,5 +29,4 @@ setMethod("predict", "ubmsFit", function(object, type, random=TRUE,
   as.data.frame(t(stats))
 
 })
-
 

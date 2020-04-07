@@ -6,10 +6,10 @@ stan_occu <- function(formula, data, ...){
                            deparse(formula[[3]])))
 
   #Need to process data first
-  state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), psiformula, "logit")
-  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), pformula, "logit")
+  state <- ubmsSubmodel("Occupancy", "state", siteCovs(data), psiformula, "plogis")
+  det <- ubmsSubmodel("Detection", "det", obsCovs(data), pformula, "plogis")
 
-  inp <- build_stan_inputs(umf, state, det)
+  inp <- build_stan_inputs(data, state, det)
 
   fit <- rstan::sampling(stanmodels$occupancy, data=inp$stan_data, 
                          pars=inp$pars, ...)

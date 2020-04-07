@@ -24,3 +24,22 @@ setMethod("show", "ubmsFit", function(object){
   cat("\n")
 
 })
+
+#' @importFrom rstan extract
+#' @export
+setMethod("extract", "ubmsFit", 
+  function(object, pars, permuted=TRUE, inc_warmup=FALSE,
+          include=TRUE){
+  rstan::extract(object@stanfit, pars, permuted, inc_warmup, include)
+})
+
+setMethod("[", c("ubmsFit", "character", "missing", "missing"),
+  function(x, i){
+
+  types <- names(x@submodels@submodels)
+  if(! i %in% types){
+    stop(paste("Possible types are:", paste(types, collapse=", ")),
+         call. = FALSE)
+  }
+  x@submodels@submodels[[i]]
+})
