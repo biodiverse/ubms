@@ -26,3 +26,11 @@ LinkingTo:
     rstan (>= 2.18.1),
     StanHeaders (>= 2.18.0)
 SystemRequirements: GNU make
+Collate: 
+    'submodel.R'
+    'build_stan_inputs.R'
+    'fit.R'
+    'getZ.R'
+    'predict.R'
+    'stanmodels.R'
+    'ubms-package.R'

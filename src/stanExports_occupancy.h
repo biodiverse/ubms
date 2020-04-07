@@ -33,7 +33,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_occupancy");
-    reader.add_event(104, 102, "end", "model_occupancy");
+    reader.add_event(103, 101, "end", "model_occupancy");
     return reader;
 }
 template <typename T1__, typename T2__>
@@ -147,17 +147,17 @@ private:
         int J;
         std::vector<std::vector<int> > y;
         std::vector<int> no_detects;
-        int occ_has_random;
-        int det_has_random;
-        int nFP_occ;
-        int nFP_det;
-        int n_grpvars_occ;
-        int n_grpvars_det;
-        std::vector<int> nRE_occ;
-        std::vector<int> nRE_det;
-        matrix_d X_occ;
+        int has_random_state;
+        int has_random_det;
+        int n_fixed_state;
+        int n_fixed_det;
+        int n_group_vars_state;
+        int n_group_vars_det;
+        std::vector<int> n_random_state;
+        std::vector<int> n_random_det;
+        matrix_d X_state;
         matrix_d X_det;
-        matrix_d Z_occ;
+        matrix_d Z_state;
         matrix_d Z_det;
 public:
     model_occupancy(stan::io::var_context& context__,
@@ -226,83 +226,83 @@ public:
                 no_detects[k_0__] = vals_i__[pos__++];
             }
             current_statement_begin__ = 31;
-            context__.validate_dims("data initialization", "occ_has_random", "int", context__.to_vec());
-            occ_has_random = int(0);
-            vals_i__ = context__.vals_i("occ_has_random");
+            context__.validate_dims("data initialization", "has_random_state", "int", context__.to_vec());
+            has_random_state = int(0);
+            vals_i__ = context__.vals_i("has_random_state");
             pos__ = 0;
-            occ_has_random = vals_i__[pos__++];
+            has_random_state = vals_i__[pos__++];
             current_statement_begin__ = 32;
-            context__.validate_dims("data initialization", "det_has_random", "int", context__.to_vec());
-            det_has_random = int(0);
-            vals_i__ = context__.vals_i("det_has_random");
+            context__.validate_dims("data initialization", "has_random_det", "int", context__.to_vec());
+            has_random_det = int(0);
+            vals_i__ = context__.vals_i("has_random_det");
             pos__ = 0;
-            det_has_random = vals_i__[pos__++];
+            has_random_det = vals_i__[pos__++];
             current_statement_begin__ = 33;
-            context__.validate_dims("data initialization", "nFP_occ", "int", context__.to_vec());
-            nFP_occ = int(0);
-            vals_i__ = context__.vals_i("nFP_occ");
+            context__.validate_dims("data initialization", "n_fixed_state", "int", context__.to_vec());
+            n_fixed_state = int(0);
+            vals_i__ = context__.vals_i("n_fixed_state");
             pos__ = 0;
-            nFP_occ = vals_i__[pos__++];
+            n_fixed_state = vals_i__[pos__++];
             current_statement_begin__ = 34;
-            context__.validate_dims("data initialization", "nFP_det", "int", context__.to_vec());
-            nFP_det = int(0);
-            vals_i__ = context__.vals_i("nFP_det");
+            context__.validate_dims("data initialization", "n_fixed_det", "int", context__.to_vec());
+            n_fixed_det = int(0);
+            vals_i__ = context__.vals_i("n_fixed_det");
             pos__ = 0;
-            nFP_det = vals_i__[pos__++];
+            n_fixed_det = vals_i__[pos__++];
             current_statement_begin__ = 35;
-            context__.validate_dims("data initialization", "n_grpvars_occ", "int", context__.to_vec());
-            n_grpvars_occ = int(0);
-            vals_i__ = context__.vals_i("n_grpvars_occ");
+            context__.validate_dims("data initialization", "n_group_vars_state", "int", context__.to_vec());
+            n_group_vars_state = int(0);
+            vals_i__ = context__.vals_i("n_group_vars_state");
             pos__ = 0;
-            n_grpvars_occ = vals_i__[pos__++];
+            n_group_vars_state = vals_i__[pos__++];
             current_statement_begin__ = 36;
-            context__.validate_dims("data initialization", "n_grpvars_det", "int", context__.to_vec());
-            n_grpvars_det = int(0);
-            vals_i__ = context__.vals_i("n_grpvars_det");
+            context__.validate_dims("data initialization", "n_group_vars_det", "int", context__.to_vec());
+            n_group_vars_det = int(0);
+            vals_i__ = context__.vals_i("n_group_vars_det");
             pos__ = 0;
-            n_grpvars_det = vals_i__[pos__++];
+            n_group_vars_det = vals_i__[pos__++];
             current_statement_begin__ = 37;
-            validate_non_negative_index("nRE_occ", "(occ_has_random ? n_grpvars_occ : 1 )", (occ_has_random ? n_grpvars_occ : 1 ));
-            context__.validate_dims("data initialization", "nRE_occ", "int", context__.to_vec((occ_has_random ? n_grpvars_occ : 1 )));
-            nRE_occ = std::vector<int>((occ_has_random ? n_grpvars_occ : 1 ), int(0));
-            vals_i__ = context__.vals_i("nRE_occ");
+            validate_non_negative_index("n_random_state", "(has_random_state ? n_group_vars_state : 1 )", (has_random_state ? n_group_vars_state : 1 ));
+            context__.validate_dims("data initialization", "n_random_state", "int", context__.to_vec((has_random_state ? n_group_vars_state : 1 )));
+            n_random_state = std::vector<int>((has_random_state ? n_group_vars_state : 1 ), int(0));
+            vals_i__ = context__.vals_i("n_random_state");
             pos__ = 0;
-            size_t nRE_occ_k_0_max__ = (occ_has_random ? n_grpvars_occ : 1 );
-            for (size_t k_0__ = 0; k_0__ < nRE_occ_k_0_max__; ++k_0__) {
-                nRE_occ[k_0__] = vals_i__[pos__++];
+            size_t n_random_state_k_0_max__ = (has_random_state ? n_group_vars_state : 1 );
+            for (size_t k_0__ = 0; k_0__ < n_random_state_k_0_max__; ++k_0__) {
+                n_random_state[k_0__] = vals_i__[pos__++];
             }
             current_statement_begin__ = 38;
-            validate_non_negative_index("nRE_det", "(det_has_random ? n_grpvars_det : 1 )", (det_has_random ? n_grpvars_det : 1 ));
-            context__.validate_dims("data initialization", "nRE_det", "int", context__.to_vec((det_has_random ? n_grpvars_det : 1 )));
-            nRE_det = std::vector<int>((det_has_random ? n_grpvars_det : 1 ), int(0));
-            vals_i__ = context__.vals_i("nRE_det");
+            validate_non_negative_index("n_random_det", "(has_random_det ? n_group_vars_det : 1 )", (has_random_det ? n_group_vars_det : 1 ));
+            context__.validate_dims("data initialization", "n_random_det", "int", context__.to_vec((has_random_det ? n_group_vars_det : 1 )));
+            n_random_det = std::vector<int>((has_random_det ? n_group_vars_det : 1 ), int(0));
+            vals_i__ = context__.vals_i("n_random_det");
             pos__ = 0;
-            size_t nRE_det_k_0_max__ = (det_has_random ? n_grpvars_det : 1 );
-            for (size_t k_0__ = 0; k_0__ < nRE_det_k_0_max__; ++k_0__) {
-                nRE_det[k_0__] = vals_i__[pos__++];
+            size_t n_random_det_k_0_max__ = (has_random_det ? n_group_vars_det : 1 );
+            for (size_t k_0__ = 0; k_0__ < n_random_det_k_0_max__; ++k_0__) {
+                n_random_det[k_0__] = vals_i__[pos__++];
             }
             current_statement_begin__ = 39;
-            validate_non_negative_index("X_occ", "M", M);
-            validate_non_negative_index("X_occ", "nFP_occ", nFP_occ);
-            context__.validate_dims("data initialization", "X_occ", "matrix_d", context__.to_vec(M,nFP_occ));
-            X_occ = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(M, nFP_occ);
-            vals_r__ = context__.vals_r("X_occ");
+            validate_non_negative_index("X_state", "M", M);
+            validate_non_negative_index("X_state", "n_fixed_state", n_fixed_state);
+            context__.validate_dims("data initialization", "X_state", "matrix_d", context__.to_vec(M,n_fixed_state));
+            X_state = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(M, n_fixed_state);
+            vals_r__ = context__.vals_r("X_state");
             pos__ = 0;
-            size_t X_occ_j_2_max__ = nFP_occ;
-            size_t X_occ_j_1_max__ = M;
-            for (size_t j_2__ = 0; j_2__ < X_occ_j_2_max__; ++j_2__) {
-                for (size_t j_1__ = 0; j_1__ < X_occ_j_1_max__; ++j_1__) {
-                    X_occ(j_1__, j_2__) = vals_r__[pos__++];
+            size_t X_state_j_2_max__ = n_fixed_state;
+            size_t X_state_j_1_max__ = M;
+            for (size_t j_2__ = 0; j_2__ < X_state_j_2_max__; ++j_2__) {
+                for (size_t j_1__ = 0; j_1__ < X_state_j_1_max__; ++j_1__) {
+                    X_state(j_1__, j_2__) = vals_r__[pos__++];
                 }
             }
             current_statement_begin__ = 40;
             validate_non_negative_index("X_det", "(M * J)", (M * J));
-            validate_non_negative_index("X_det", "nFP_det", nFP_det);
-            context__.validate_dims("data initialization", "X_det", "matrix_d", context__.to_vec((M * J),nFP_det));
-            X_det = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>((M * J), nFP_det);
+            validate_non_negative_index("X_det", "n_fixed_det", n_fixed_det);
+            context__.validate_dims("data initialization", "X_det", "matrix_d", context__.to_vec((M * J),n_fixed_det));
+            X_det = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>((M * J), n_fixed_det);
             vals_r__ = context__.vals_r("X_det");
             pos__ = 0;
-            size_t X_det_j_2_max__ = nFP_det;
+            size_t X_det_j_2_max__ = n_fixed_det;
             size_t X_det_j_1_max__ = (M * J);
             for (size_t j_2__ = 0; j_2__ < X_det_j_2_max__; ++j_2__) {
                 for (size_t j_1__ = 0; j_1__ < X_det_j_1_max__; ++j_1__) {
@@ -310,28 +310,28 @@ public:
                 }
             }
             current_statement_begin__ = 41;
-            validate_non_negative_index("Z_occ", "(occ_has_random ? M : 0 )", (occ_has_random ? M : 0 ));
-            validate_non_negative_index("Z_occ", "sum(nRE_occ)", sum(nRE_occ));
-            context__.validate_dims("data initialization", "Z_occ", "matrix_d", context__.to_vec((occ_has_random ? M : 0 ),sum(nRE_occ)));
-            Z_occ = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>((occ_has_random ? M : 0 ), sum(nRE_occ));
-            vals_r__ = context__.vals_r("Z_occ");
+            validate_non_negative_index("Z_state", "(has_random_state ? M : 0 )", (has_random_state ? M : 0 ));
+            validate_non_negative_index("Z_state", "sum(n_random_state)", sum(n_random_state));
+            context__.validate_dims("data initialization", "Z_state", "matrix_d", context__.to_vec((has_random_state ? M : 0 ),sum(n_random_state)));
+            Z_state = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>((has_random_state ? M : 0 ), sum(n_random_state));
+            vals_r__ = context__.vals_r("Z_state");
             pos__ = 0;
-            size_t Z_occ_j_2_max__ = sum(nRE_occ);
-            size_t Z_occ_j_1_max__ = (occ_has_random ? M : 0 );
-            for (size_t j_2__ = 0; j_2__ < Z_occ_j_2_max__; ++j_2__) {
-                for (size_t j_1__ = 0; j_1__ < Z_occ_j_1_max__; ++j_1__) {
-                    Z_occ(j_1__, j_2__) = vals_r__[pos__++];
+            size_t Z_state_j_2_max__ = sum(n_random_state);
+            size_t Z_state_j_1_max__ = (has_random_state ? M : 0 );
+            for (size_t j_2__ = 0; j_2__ < Z_state_j_2_max__; ++j_2__) {
+                for (size_t j_1__ = 0; j_1__ < Z_state_j_1_max__; ++j_1__) {
+                    Z_state(j_1__, j_2__) = vals_r__[pos__++];
                 }
             }
             current_statement_begin__ = 42;
-            validate_non_negative_index("Z_det", "(det_has_random ? (M * J) : 0 )", (det_has_random ? (M * J) : 0 ));
-            validate_non_negative_index("Z_det", "sum(nRE_det)", sum(nRE_det));
-            context__.validate_dims("data initialization", "Z_det", "matrix_d", context__.to_vec((det_has_random ? (M * J) : 0 ),sum(nRE_det)));
-            Z_det = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>((det_has_random ? (M * J) : 0 ), sum(nRE_det));
+            validate_non_negative_index("Z_det", "(has_random_det ? (M * J) : 0 )", (has_random_det ? (M * J) : 0 ));
+            validate_non_negative_index("Z_det", "sum(n_random_det)", sum(n_random_det));
+            context__.validate_dims("data initialization", "Z_det", "matrix_d", context__.to_vec((has_random_det ? (M * J) : 0 ),sum(n_random_det)));
+            Z_det = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>((has_random_det ? (M * J) : 0 ), sum(n_random_det));
             vals_r__ = context__.vals_r("Z_det");
             pos__ = 0;
-            size_t Z_det_j_2_max__ = sum(nRE_det);
-            size_t Z_det_j_1_max__ = (det_has_random ? (M * J) : 0 );
+            size_t Z_det_j_2_max__ = sum(n_random_det);
+            size_t Z_det_j_1_max__ = (has_random_det ? (M * J) : 0 );
             for (size_t j_2__ = 0; j_2__ < Z_det_j_2_max__; ++j_2__) {
                 for (size_t j_1__ = 0; j_1__ < Z_det_j_1_max__; ++j_1__) {
                     Z_det(j_1__, j_2__) = vals_r__[pos__++];
@@ -344,23 +344,23 @@ public:
             num_params_r__ = 0U;
             param_ranges_i__.clear();
             current_statement_begin__ = 48;
-            validate_non_negative_index("beta_occ", "nFP_occ", nFP_occ);
-            num_params_r__ += nFP_occ;
+            validate_non_negative_index("beta_state", "n_fixed_state", n_fixed_state);
+            num_params_r__ += n_fixed_state;
             current_statement_begin__ = 49;
-            validate_non_negative_index("beta_det", "nFP_det", nFP_det);
-            num_params_r__ += nFP_det;
+            validate_non_negative_index("beta_det", "n_fixed_det", n_fixed_det);
+            num_params_r__ += n_fixed_det;
             current_statement_begin__ = 50;
-            validate_non_negative_index("sigma_occ", "n_grpvars_occ", n_grpvars_occ);
-            num_params_r__ += n_grpvars_occ;
+            validate_non_negative_index("sigma_state", "n_group_vars_state", n_group_vars_state);
+            num_params_r__ += n_group_vars_state;
             current_statement_begin__ = 51;
-            validate_non_negative_index("sigma_det", "n_grpvars_det", n_grpvars_det);
-            num_params_r__ += n_grpvars_det;
+            validate_non_negative_index("sigma_det", "n_group_vars_det", n_group_vars_det);
+            num_params_r__ += n_group_vars_det;
             current_statement_begin__ = 52;
-            validate_non_negative_index("b_occ", "sum(nRE_occ)", sum(nRE_occ));
-            num_params_r__ += sum(nRE_occ);
+            validate_non_negative_index("b_state", "sum(n_random_state)", sum(n_random_state));
+            num_params_r__ += sum(n_random_state);
             current_statement_begin__ = 53;
-            validate_non_negative_index("b_det", "sum(nRE_det)", sum(nRE_det));
-            num_params_r__ += sum(nRE_det);
+            validate_non_negative_index("b_det", "sum(n_random_det)", sum(n_random_det));
+            num_params_r__ += sum(n_random_det);
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
             // Next line prevents compiler griping about no return
@@ -379,31 +379,31 @@ public:
         std::vector<double> vals_r__;
         std::vector<int> vals_i__;
         current_statement_begin__ = 48;
-        if (!(context__.contains_r("beta_occ")))
-            stan::lang::rethrow_located(std::runtime_error(std::string("Variable beta_occ missing")), current_statement_begin__, prog_reader__());
-        vals_r__ = context__.vals_r("beta_occ");
+        if (!(context__.contains_r("beta_state")))
+            stan::lang::rethrow_located(std::runtime_error(std::string("Variable beta_state missing")), current_statement_begin__, prog_reader__());
+        vals_r__ = context__.vals_r("beta_state");
         pos__ = 0U;
-        validate_non_negative_index("beta_occ", "nFP_occ", nFP_occ);
-        context__.validate_dims("parameter initialization", "beta_occ", "vector_d", context__.to_vec(nFP_occ));
-        Eigen::Matrix<double, Eigen::Dynamic, 1> beta_occ(nFP_occ);
-        size_t beta_occ_j_1_max__ = nFP_occ;
-        for (size_t j_1__ = 0; j_1__ < beta_occ_j_1_max__; ++j_1__) {
-            beta_occ(j_1__) = vals_r__[pos__++];
+        validate_non_negative_index("beta_state", "n_fixed_state", n_fixed_state);
+        context__.validate_dims("parameter initialization", "beta_state", "vector_d", context__.to_vec(n_fixed_state));
+        Eigen::Matrix<double, Eigen::Dynamic, 1> beta_state(n_fixed_state);
+        size_t beta_state_j_1_max__ = n_fixed_state;
+        for (size_t j_1__ = 0; j_1__ < beta_state_j_1_max__; ++j_1__) {
+            beta_state(j_1__) = vals_r__[pos__++];
         }
         try {
-            writer__.vector_unconstrain(beta_occ);
+            writer__.vector_unconstrain(beta_state);
         } catch (const std::exception& e) {
-            stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable beta_occ: ") + e.what()), current_statement_begin__, prog_reader__());
+            stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable beta_state: ") + e.what()), current_statement_begin__, prog_reader__());
         }
         current_statement_begin__ = 49;
         if (!(context__.contains_r("beta_det")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable beta_det missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("beta_det");
         pos__ = 0U;
-        validate_non_negative_index("beta_det", "nFP_det", nFP_det);
-        context__.validate_dims("parameter initialization", "beta_det", "vector_d", context__.to_vec(nFP_det));
-        Eigen::Matrix<double, Eigen::Dynamic, 1> beta_det(nFP_det);
-        size_t beta_det_j_1_max__ = nFP_det;
+        validate_non_negative_index("beta_det", "n_fixed_det", n_fixed_det);
+        context__.validate_dims("parameter initialization", "beta_det", "vector_d", context__.to_vec(n_fixed_det));
+        Eigen::Matrix<double, Eigen::Dynamic, 1> beta_det(n_fixed_det);
+        size_t beta_det_j_1_max__ = n_fixed_det;
         for (size_t j_1__ = 0; j_1__ < beta_det_j_1_max__; ++j_1__) {
             beta_det(j_1__) = vals_r__[pos__++];
         }
@@ -413,31 +413,31 @@ public:
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable beta_det: ") + e.what()), current_statement_begin__, prog_reader__());
         }
         current_statement_begin__ = 50;
-        if (!(context__.contains_r("sigma_occ")))
-            stan::lang::rethrow_located(std::runtime_error(std::string("Variable sigma_occ missing")), current_statement_begin__, prog_reader__());
-        vals_r__ = context__.vals_r("sigma_occ");
+        if (!(context__.contains_r("sigma_state")))
+            stan::lang::rethrow_located(std::runtime_error(std::string("Variable sigma_state missing")), current_statement_begin__, prog_reader__());
+        vals_r__ = context__.vals_r("sigma_state");
         pos__ = 0U;
-        validate_non_negative_index("sigma_occ", "n_grpvars_occ", n_grpvars_occ);
-        context__.validate_dims("parameter initialization", "sigma_occ", "vector_d", context__.to_vec(n_grpvars_occ));
-        Eigen::Matrix<double, Eigen::Dynamic, 1> sigma_occ(n_grpvars_occ);
-        size_t sigma_occ_j_1_max__ = n_grpvars_occ;
-        for (size_t j_1__ = 0; j_1__ < sigma_occ_j_1_max__; ++j_1__) {
-            sigma_occ(j_1__) = vals_r__[pos__++];
+        validate_non_negative_index("sigma_state", "n_group_vars_state", n_group_vars_state);
+        context__.validate_dims("parameter initialization", "sigma_state", "vector_d", context__.to_vec(n_group_vars_state));
+        Eigen::Matrix<double, Eigen::Dynamic, 1> sigma_state(n_group_vars_state);
+        size_t sigma_state_j_1_max__ = n_group_vars_state;
+        for (size_t j_1__ = 0; j_1__ < sigma_state_j_1_max__; ++j_1__) {
+            sigma_state(j_1__) = vals_r__[pos__++];
         }
         try {
-            writer__.vector_lb_unconstrain(0, sigma_occ);
+            writer__.vector_lb_unconstrain(0, sigma_state);
         } catch (const std::exception& e) {
-            stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable sigma_occ: ") + e.what()), current_statement_begin__, prog_reader__());
+            stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable sigma_state: ") + e.what()), current_statement_begin__, prog_reader__());
         }
         current_statement_begin__ = 51;
         if (!(context__.contains_r("sigma_det")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable sigma_det missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("sigma_det");
         pos__ = 0U;
-        validate_non_negative_index("sigma_det", "n_grpvars_det", n_grpvars_det);
-        context__.validate_dims("parameter initialization", "sigma_det", "vector_d", context__.to_vec(n_grpvars_det));
-        Eigen::Matrix<double, Eigen::Dynamic, 1> sigma_det(n_grpvars_det);
-        size_t sigma_det_j_1_max__ = n_grpvars_det;
+        validate_non_negative_index("sigma_det", "n_group_vars_det", n_group_vars_det);
+        context__.validate_dims("parameter initialization", "sigma_det", "vector_d", context__.to_vec(n_group_vars_det));
+        Eigen::Matrix<double, Eigen::Dynamic, 1> sigma_det(n_group_vars_det);
+        size_t sigma_det_j_1_max__ = n_group_vars_det;
         for (size_t j_1__ = 0; j_1__ < sigma_det_j_1_max__; ++j_1__) {
             sigma_det(j_1__) = vals_r__[pos__++];
         }
@@ -447,31 +447,31 @@ public:
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable sigma_det: ") + e.what()), current_statement_begin__, prog_reader__());
         }
         current_statement_begin__ = 52;
-        if (!(context__.contains_r("b_occ")))
-            stan::lang::rethrow_located(std::runtime_error(std::string("Variable b_occ missing")), current_statement_begin__, prog_reader__());
-        vals_r__ = context__.vals_r("b_occ");
+        if (!(context__.contains_r("b_state")))
+            stan::lang::rethrow_located(std::runtime_error(std::string("Variable b_state missing")), current_statement_begin__, prog_reader__());
+        vals_r__ = context__.vals_r("b_state");
         pos__ = 0U;
-        validate_non_negative_index("b_occ", "sum(nRE_occ)", sum(nRE_occ));
-        context__.validate_dims("parameter initialization", "b_occ", "vector_d", context__.to_vec(sum(nRE_occ)));
-        Eigen::Matrix<double, Eigen::Dynamic, 1> b_occ(sum(nRE_occ));
-        size_t b_occ_j_1_max__ = sum(nRE_occ);
-        for (size_t j_1__ = 0; j_1__ < b_occ_j_1_max__; ++j_1__) {
-            b_occ(j_1__) = vals_r__[pos__++];
+        validate_non_negative_index("b_state", "sum(n_random_state)", sum(n_random_state));
+        context__.validate_dims("parameter initialization", "b_state", "vector_d", context__.to_vec(sum(n_random_state)));
+        Eigen::Matrix<double, Eigen::Dynamic, 1> b_state(sum(n_random_state));
+        size_t b_state_j_1_max__ = sum(n_random_state);
+        for (size_t j_1__ = 0; j_1__ < b_state_j_1_max__; ++j_1__) {
+            b_state(j_1__) = vals_r__[pos__++];
         }
         try {
-            writer__.vector_unconstrain(b_occ);
+            writer__.vector_unconstrain(b_state);
         } catch (const std::exception& e) {
-            stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable b_occ: ") + e.what()), current_statement_begin__, prog_reader__());
+            stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable b_state: ") + e.what()), current_statement_begin__, prog_reader__());
         }
         current_statement_begin__ = 53;
         if (!(context__.contains_r("b_det")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable b_det missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("b_det");
         pos__ = 0U;
-        validate_non_negative_index("b_det", "sum(nRE_det)", sum(nRE_det));
-        context__.validate_dims("parameter initialization", "b_det", "vector_d", context__.to_vec(sum(nRE_det)));
-        Eigen::Matrix<double, Eigen::Dynamic, 1> b_det(sum(nRE_det));
-        size_t b_det_j_1_max__ = sum(nRE_det);
+        validate_non_negative_index("b_det", "sum(n_random_det)", sum(n_random_det));
+        context__.validate_dims("parameter initialization", "b_det", "vector_d", context__.to_vec(sum(n_random_det)));
+        Eigen::Matrix<double, Eigen::Dynamic, 1> b_det(sum(n_random_det));
+        size_t b_det_j_1_max__ = sum(n_random_det);
         for (size_t j_1__ = 0; j_1__ < b_det_j_1_max__; ++j_1__) {
             b_det(j_1__) = vals_r__[pos__++];
         }
@@ -506,47 +506,47 @@ public:
             stan::io::reader<local_scalar_t__> in__(params_r__, params_i__);
             // model parameters
             current_statement_begin__ = 48;
-            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> beta_occ;
-            (void) beta_occ;  // dummy to suppress unused var warning
+            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> beta_state;
+            (void) beta_state;  // dummy to suppress unused var warning
             if (jacobian__)
-                beta_occ = in__.vector_constrain(nFP_occ, lp__);
+                beta_state = in__.vector_constrain(n_fixed_state, lp__);
             else
-                beta_occ = in__.vector_constrain(nFP_occ);
+                beta_state = in__.vector_constrain(n_fixed_state);
             current_statement_begin__ = 49;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> beta_det;
             (void) beta_det;  // dummy to suppress unused var warning
             if (jacobian__)
-                beta_det = in__.vector_constrain(nFP_det, lp__);
+                beta_det = in__.vector_constrain(n_fixed_det, lp__);
             else
-                beta_det = in__.vector_constrain(nFP_det);
+                beta_det = in__.vector_constrain(n_fixed_det);
             current_statement_begin__ = 50;
-            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> sigma_occ;
-            (void) sigma_occ;  // dummy to suppress unused var warning
+            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> sigma_state;
+            (void) sigma_state;  // dummy to suppress unused var warning
             if (jacobian__)
-                sigma_occ = in__.vector_lb_constrain(0, n_grpvars_occ, lp__);
+                sigma_state = in__.vector_lb_constrain(0, n_group_vars_state, lp__);
             else
-                sigma_occ = in__.vector_lb_constrain(0, n_grpvars_occ);
+                sigma_state = in__.vector_lb_constrain(0, n_group_vars_state);
             current_statement_begin__ = 51;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> sigma_det;
             (void) sigma_det;  // dummy to suppress unused var warning
             if (jacobian__)
-                sigma_det = in__.vector_lb_constrain(0, n_grpvars_det, lp__);
+                sigma_det = in__.vector_lb_constrain(0, n_group_vars_det, lp__);
             else
-                sigma_det = in__.vector_lb_constrain(0, n_grpvars_det);
+                sigma_det = in__.vector_lb_constrain(0, n_group_vars_det);
             current_statement_begin__ = 52;
-            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> b_occ;
-            (void) b_occ;  // dummy to suppress unused var warning
+            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> b_state;
+            (void) b_state;  // dummy to suppress unused var warning
             if (jacobian__)
-                b_occ = in__.vector_constrain(sum(nRE_occ), lp__);
+                b_state = in__.vector_constrain(sum(n_random_state), lp__);
             else
-                b_occ = in__.vector_constrain(sum(nRE_occ));
+                b_state = in__.vector_constrain(sum(n_random_state));
             current_statement_begin__ = 53;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> b_det;
             (void) b_det;  // dummy to suppress unused var warning
             if (jacobian__)
-                b_det = in__.vector_constrain(sum(nRE_det), lp__);
+                b_det = in__.vector_constrain(sum(n_random_det), lp__);
             else
-                b_det = in__.vector_constrain(sum(nRE_det));
+                b_det = in__.vector_constrain(sum(n_random_det));
             // transformed parameters
             current_statement_begin__ = 59;
             validate_non_negative_index("logit_psi", "M", M);
@@ -565,16 +565,16 @@ public:
             stan::math::fill(log_lik, DUMMY_VAR__);
             // transformed parameters block statements
             current_statement_begin__ = 63;
-            stan::math::assign(logit_psi, multiply(X_occ, beta_occ));
+            stan::math::assign(logit_psi, multiply(X_state, beta_state));
             current_statement_begin__ = 64;
             stan::math::assign(logit_p, multiply(X_det, beta_det));
             current_statement_begin__ = 66;
-            if (as_bool(occ_has_random)) {
+            if (as_bool(has_random_state)) {
                 current_statement_begin__ = 67;
-                stan::math::assign(logit_psi, add(logit_psi, multiply(Z_occ, b_occ)));
+                stan::math::assign(logit_psi, add(logit_psi, multiply(Z_state, b_state)));
             }
             current_statement_begin__ = 69;
-            if (as_bool(det_has_random)) {
+            if (as_bool(has_random_det)) {
                 current_statement_begin__ = 70;
                 stan::math::assign(logit_p, add(logit_p, multiply(Z_det, b_det)));
             }
@@ -618,32 +618,32 @@ public:
             stan::math::fill(idx, std::numeric_limits<int>::min());
             stan::math::assign(idx,1);
             current_statement_begin__ = 81;
-            lp_accum__.add(cauchy_log<propto__>(beta_occ, 0, 2.5));
+            lp_accum__.add(cauchy_log<propto__>(beta_state, 0, 2.5));
             current_statement_begin__ = 82;
             lp_accum__.add(cauchy_log<propto__>(beta_det, 0, 2.5));
-            current_statement_begin__ = 85;
-            if (as_bool(occ_has_random)) {
-                current_statement_begin__ = 86;
-                for (int i = 1; i <= n_grpvars_occ; ++i) {
+            current_statement_begin__ = 84;
+            if (as_bool(has_random_state)) {
+                current_statement_begin__ = 85;
+                for (int i = 1; i <= n_group_vars_state; ++i) {
+                    current_statement_begin__ = 86;
+                    lp_accum__.add(normal_log<propto__>(stan::model::rvalue(b_state, stan::model::cons_list(stan::model::index_min_max(idx, ((get_base1(n_random_state, i, "n_random_state", 1) + idx) - 1)), stan::model::nil_index_list()), "b_state"), 0, get_base1(sigma_state, i, "sigma_state", 1)));
                     current_statement_begin__ = 87;
-                    lp_accum__.add(normal_log<propto__>(stan::model::rvalue(b_occ, stan::model::cons_list(stan::model::index_min_max(idx, ((get_base1(nRE_occ, i, "nRE_occ", 1) + idx) - 1)), stan::model::nil_index_list()), "b_occ"), 0, get_base1(sigma_occ, i, "sigma_occ", 1)));
-                    current_statement_begin__ = 88;
-                    stan::math::assign(idx, (idx + get_base1(nRE_occ, i, "nRE_occ", 1)));
+                    stan::math::assign(idx, (idx + get_base1(n_random_state, i, "n_random_state", 1)));
                 }
             }
-            current_statement_begin__ = 92;
+            current_statement_begin__ = 91;
             stan::math::assign(idx, 1);
-            current_statement_begin__ = 93;
-            if (as_bool(det_has_random)) {
-                current_statement_begin__ = 94;
-                for (int i = 1; i <= n_grpvars_det; ++i) {
+            current_statement_begin__ = 92;
+            if (as_bool(has_random_det)) {
+                current_statement_begin__ = 93;
+                for (int i = 1; i <= n_group_vars_det; ++i) {
+                    current_statement_begin__ = 94;
+                    lp_accum__.add(normal_log<propto__>(stan::model::rvalue(b_det, stan::model::cons_list(stan::model::index_min_max(idx, ((get_base1(n_random_det, i, "n_random_det", 1) + idx) - 1)), stan::model::nil_index_list()), "b_det"), 0, get_base1(sigma_det, i, "sigma_det", 1)));
                     current_statement_begin__ = 95;
-                    lp_accum__.add(normal_log<propto__>(stan::model::rvalue(b_det, stan::model::cons_list(stan::model::index_min_max(idx, ((get_base1(nRE_det, i, "nRE_det", 1) + idx) - 1)), stan::model::nil_index_list()), "b_det"), 0, get_base1(sigma_det, i, "sigma_det", 1)));
-                    current_statement_begin__ = 96;
-                    stan::math::assign(idx, (idx + get_base1(nRE_det, i, "nRE_det", 1)));
+                    stan::math::assign(idx, (idx + get_base1(n_random_det, i, "n_random_det", 1)));
                 }
             }
-            current_statement_begin__ = 100;
+            current_statement_begin__ = 99;
             lp_accum__.add(sum(log_lik));
             }
         } catch (const std::exception& e) {
@@ -666,11 +666,11 @@ public:
     }
     void get_param_names(std::vector<std::string>& names__) const {
         names__.resize(0);
-        names__.push_back("beta_occ");
+        names__.push_back("beta_state");
         names__.push_back("beta_det");
-        names__.push_back("sigma_occ");
+        names__.push_back("sigma_state");
         names__.push_back("sigma_det");
-        names__.push_back("b_occ");
+        names__.push_back("b_state");
         names__.push_back("b_det");
         names__.push_back("logit_psi");
         names__.push_back("logit_p");
@@ -680,22 +680,22 @@ public:
         dimss__.resize(0);
         std::vector<size_t> dims__;
         dims__.resize(0);
-        dims__.push_back(nFP_occ);
+        dims__.push_back(n_fixed_state);
         dimss__.push_back(dims__);
         dims__.resize(0);
-        dims__.push_back(nFP_det);
+        dims__.push_back(n_fixed_det);
         dimss__.push_back(dims__);
         dims__.resize(0);
-        dims__.push_back(n_grpvars_occ);
+        dims__.push_back(n_group_vars_state);
         dimss__.push_back(dims__);
         dims__.resize(0);
-        dims__.push_back(n_grpvars_det);
+        dims__.push_back(n_group_vars_det);
         dimss__.push_back(dims__);
         dims__.resize(0);
-        dims__.push_back(sum(nRE_occ));
+        dims__.push_back(sum(n_random_state));
         dimss__.push_back(dims__);
         dims__.resize(0);
-        dims__.push_back(sum(nRE_det));
+        dims__.push_back(sum(n_random_det));
         dimss__.push_back(dims__);
         dims__.resize(0);
         dims__.push_back(M);
@@ -721,33 +721,33 @@ public:
         static const char* function__ = "model_occupancy_namespace::write_array";
         (void) function__;  // dummy to suppress unused var warning
         // read-transform, write parameters
-        Eigen::Matrix<double, Eigen::Dynamic, 1> beta_occ = in__.vector_constrain(nFP_occ);
-        size_t beta_occ_j_1_max__ = nFP_occ;
-        for (size_t j_1__ = 0; j_1__ < beta_occ_j_1_max__; ++j_1__) {
-            vars__.push_back(beta_occ(j_1__));
+        Eigen::Matrix<double, Eigen::Dynamic, 1> beta_state = in__.vector_constrain(n_fixed_state);
+        size_t beta_state_j_1_max__ = n_fixed_state;
+        for (size_t j_1__ = 0; j_1__ < beta_state_j_1_max__; ++j_1__) {
+            vars__.push_back(beta_state(j_1__));
         }
-        Eigen::Matrix<double, Eigen::Dynamic, 1> beta_det = in__.vector_constrain(nFP_det);
-        size_t beta_det_j_1_max__ = nFP_det;
+        Eigen::Matrix<double, Eigen::Dynamic, 1> beta_det = in__.vector_constrain(n_fixed_det);
+        size_t beta_det_j_1_max__ = n_fixed_det;
         for (size_t j_1__ = 0; j_1__ < beta_det_j_1_max__; ++j_1__) {
             vars__.push_back(beta_det(j_1__));
         }
-        Eigen::Matrix<double, Eigen::Dynamic, 1> sigma_occ = in__.vector_lb_constrain(0, n_grpvars_occ);
-        size_t sigma_occ_j_1_max__ = n_grpvars_occ;
-        for (size_t j_1__ = 0; j_1__ < sigma_occ_j_1_max__; ++j_1__) {
-            vars__.push_back(sigma_occ(j_1__));
+        Eigen::Matrix<double, Eigen::Dynamic, 1> sigma_state = in__.vector_lb_constrain(0, n_group_vars_state);
+        size_t sigma_state_j_1_max__ = n_group_vars_state;
+        for (size_t j_1__ = 0; j_1__ < sigma_state_j_1_max__; ++j_1__) {
+            vars__.push_back(sigma_state(j_1__));
         }
-        Eigen::Matrix<double, Eigen::Dynamic, 1> sigma_det = in__.vector_lb_constrain(0, n_grpvars_det);
-        size_t sigma_det_j_1_max__ = n_grpvars_det;
+        Eigen::Matrix<double, Eigen::Dynamic, 1> sigma_det = in__.vector_lb_constrain(0, n_group_vars_det);
+        size_t sigma_det_j_1_max__ = n_group_vars_det;
         for (size_t j_1__ = 0; j_1__ < sigma_det_j_1_max__; ++j_1__) {
             vars__.push_back(sigma_det(j_1__));
         }
-        Eigen::Matrix<double, Eigen::Dynamic, 1> b_occ = in__.vector_constrain(sum(nRE_occ));
-        size_t b_occ_j_1_max__ = sum(nRE_occ);
-        for (size_t j_1__ = 0; j_1__ < b_occ_j_1_max__; ++j_1__) {
-            vars__.push_back(b_occ(j_1__));
+        Eigen::Matrix<double, Eigen::Dynamic, 1> b_state = in__.vector_constrain(sum(n_random_state));
+        size_t b_state_j_1_max__ = sum(n_random_state);
+        for (size_t j_1__ = 0; j_1__ < b_state_j_1_max__; ++j_1__) {
+            vars__.push_back(b_state(j_1__));
         }
-        Eigen::Matrix<double, Eigen::Dynamic, 1> b_det = in__.vector_constrain(sum(nRE_det));
-        size_t b_det_j_1_max__ = sum(nRE_det);
+        Eigen::Matrix<double, Eigen::Dynamic, 1> b_det = in__.vector_constrain(sum(n_random_det));
+        size_t b_det_j_1_max__ = sum(n_random_det);
         for (size_t j_1__ = 0; j_1__ < b_det_j_1_max__; ++j_1__) {
             vars__.push_back(b_det(j_1__));
         }
@@ -776,16 +776,16 @@ public:
             stan::math::fill(log_lik, DUMMY_VAR__);
             // do transformed parameters statements
             current_statement_begin__ = 63;
-            stan::math::assign(logit_psi, multiply(X_occ, beta_occ));
+            stan::math::assign(logit_psi, multiply(X_state, beta_state));
             current_statement_begin__ = 64;
             stan::math::assign(logit_p, multiply(X_det, beta_det));
             current_statement_begin__ = 66;
-            if (as_bool(occ_has_random)) {
+            if (as_bool(has_random_state)) {
                 current_statement_begin__ = 67;
-                stan::math::assign(logit_psi, add(logit_psi, multiply(Z_occ, b_occ)));
+                stan::math::assign(logit_psi, add(logit_psi, multiply(Z_state, b_state)));
             }
             current_statement_begin__ = 69;
-            if (as_bool(det_has_random)) {
+            if (as_bool(has_random_det)) {
                 current_statement_begin__ = 70;
                 stan::math::assign(logit_p, add(logit_p, multiply(Z_det, b_det)));
             }
@@ -841,37 +841,37 @@ public:
                                  bool include_tparams__ = true,
                                  bool include_gqs__ = true) const {
         std::stringstream param_name_stream__;
-        size_t beta_occ_j_1_max__ = nFP_occ;
-        for (size_t j_1__ = 0; j_1__ < beta_occ_j_1_max__; ++j_1__) {
+        size_t beta_state_j_1_max__ = n_fixed_state;
+        for (size_t j_1__ = 0; j_1__ < beta_state_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "beta_occ" << '.' << j_1__ + 1;
+            param_name_stream__ << "beta_state" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
-        size_t beta_det_j_1_max__ = nFP_det;
+        size_t beta_det_j_1_max__ = n_fixed_det;
         for (size_t j_1__ = 0; j_1__ < beta_det_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
             param_name_stream__ << "beta_det" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
-        size_t sigma_occ_j_1_max__ = n_grpvars_occ;
-        for (size_t j_1__ = 0; j_1__ < sigma_occ_j_1_max__; ++j_1__) {
+        size_t sigma_state_j_1_max__ = n_group_vars_state;
+        for (size_t j_1__ = 0; j_1__ < sigma_state_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "sigma_occ" << '.' << j_1__ + 1;
+            param_name_stream__ << "sigma_state" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
-        size_t sigma_det_j_1_max__ = n_grpvars_det;
+        size_t sigma_det_j_1_max__ = n_group_vars_det;
         for (size_t j_1__ = 0; j_1__ < sigma_det_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
             param_name_stream__ << "sigma_det" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
-        size_t b_occ_j_1_max__ = sum(nRE_occ);
-        for (size_t j_1__ = 0; j_1__ < b_occ_j_1_max__; ++j_1__) {
+        size_t b_state_j_1_max__ = sum(n_random_state);
+        for (size_t j_1__ = 0; j_1__ < b_state_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "b_occ" << '.' << j_1__ + 1;
+            param_name_stream__ << "b_state" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
-        size_t b_det_j_1_max__ = sum(nRE_det);
+        size_t b_det_j_1_max__ = sum(n_random_det);
         for (size_t j_1__ = 0; j_1__ < b_det_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
             param_name_stream__ << "b_det" << '.' << j_1__ + 1;
@@ -904,37 +904,37 @@ public:
                                    bool include_tparams__ = true,
                                    bool include_gqs__ = true) const {
         std::stringstream param_name_stream__;
-        size_t beta_occ_j_1_max__ = nFP_occ;
-        for (size_t j_1__ = 0; j_1__ < beta_occ_j_1_max__; ++j_1__) {
+        size_t beta_state_j_1_max__ = n_fixed_state;
+        for (size_t j_1__ = 0; j_1__ < beta_state_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "beta_occ" << '.' << j_1__ + 1;
+            param_name_stream__ << "beta_state" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
-        size_t beta_det_j_1_max__ = nFP_det;
+        size_t beta_det_j_1_max__ = n_fixed_det;
         for (size_t j_1__ = 0; j_1__ < beta_det_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
             param_name_stream__ << "beta_det" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
-        size_t sigma_occ_j_1_max__ = n_grpvars_occ;
-        for (size_t j_1__ = 0; j_1__ < sigma_occ_j_1_max__; ++j_1__) {
+        size_t sigma_state_j_1_max__ = n_group_vars_state;
+        for (size_t j_1__ = 0; j_1__ < sigma_state_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "sigma_occ" << '.' << j_1__ + 1;
+            param_name_stream__ << "sigma_state" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
-        size_t sigma_det_j_1_max__ = n_grpvars_det;
+        size_t sigma_det_j_1_max__ = n_group_vars_det;
         for (size_t j_1__ = 0; j_1__ < sigma_det_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
             param_name_stream__ << "sigma_det" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
-        size_t b_occ_j_1_max__ = sum(nRE_occ);
-        for (size_t j_1__ = 0; j_1__ < b_occ_j_1_max__; ++j_1__) {
+        size_t b_state_j_1_max__ = sum(n_random_state);
+        for (size_t j_1__ = 0; j_1__ < b_state_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "b_occ" << '.' << j_1__ + 1;
+            param_name_stream__ << "b_state" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
-        size_t b_det_j_1_max__ = sum(nRE_det);
+        size_t b_det_j_1_max__ = sum(n_random_det);
         for (size_t j_1__ = 0; j_1__ < b_det_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
             param_name_stream__ << "b_det" << '.' << j_1__ + 1;

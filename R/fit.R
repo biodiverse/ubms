@@ -8,14 +8,14 @@ setClass("umStanEstimate",
 )
 
 umStanEstimate <- function(object, mod_name, fixed_param, fixed_names,
-                          random_param=NULL, random_names=NULL){
+                          random_param, random_names){
 
   fixed <- rstan::summary(object, fixed_param)$summary
   fixed <- as.data.frame(fixed)
   rownames(fixed) <- fixed_names
 
   random <- data.frame()
-  if(!is.null(random_names)){
+  if(!is.na(random_names)){
     random <- rstan::summary(object, random_param)$summary
     random <- as.data.frame(random)
     rownames(random) <- random_names
@@ -90,16 +90,21 @@ occuStan <- function(formula, data, ...){
   psiformula <- as.formula(paste0(formula[[1]],
                            deparse(formula[[3]])))
 
-  inp <- build_inputs(psiformula, pformula, umf)
+  #Need to process data first
+  state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), psiformula, "logit")
+  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), pformula, "logit")
+
+  inp <- build_stan_inputs(umf, state, det)
 
   fit <- rstan::sampling(stanmodels$occupancy, data=inp$stan_data, 
-                     pars=inp$params, ...)
+                     pars=inp$pars, ...)
+  
+  #Build from submodels in future
+  occ_mod <- umStanEstimate(fit, "Occupancy", "beta_state", state@beta_names,
+                            "sigma_state", state@sigma_names)
 
-  occ_mod <- umStanEstimate(fit, "Occupancy", "beta_occ", inp$fixed_names$occ,
-                            "sigma_occ", inp$random_names$occ)
-
-  det_mod <- umStanEstimate(fit, "Detection", "beta_det", inp$fixed_names$det,
-                            "sigma_det", inp$random_names$det)
+  det_mod <- umStanEstimate(fit, "Detection", "beta_det", det@beta_names,
+                            "sigma_det", det@sigma_names)
 
   new("umFitStan", call=match.call(), psiformula=psiformula, 
       pformula=pformula, data=data, stanfit=fit, 
