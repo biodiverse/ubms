@@ -1,5 +1,7 @@
 ---
-output: md_document
+output: 
+    md_document:
+        variant: markdown_github
 ---
 
 # ubms: Unmarked Bayesian Models with Stan
@@ -21,9 +23,7 @@ Disadvantages over `unmarked`:
 ### Example
 
 ```{r,message=F,warning=F}
-#Simulate occupancy data
-#including random effect on occupancy
-
+#Simulate occupancy data including random effect on occupancy
 set.seed(123)
 dat_occ <- data.frame(x1=rnorm(500))
 dat_p <- data.frame(x2=rnorm(500*5))

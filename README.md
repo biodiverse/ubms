@@ -22,40 +22,40 @@ Disadvantages over `unmarked`:
 
 ### Example
 
-    #Simulate occupancy data
-    #including random effect on occupancy
+``` r
+#Simulate occupancy data including random effect on occupancy
+set.seed(123)
+dat_occ <- data.frame(x1=rnorm(500))
+dat_p <- data.frame(x2=rnorm(500*5))
 
-    set.seed(123)
-    dat_occ <- data.frame(x1=rnorm(500))
-    dat_p <- data.frame(x2=rnorm(500*5))
+y <- matrix(NA, 500, 5)
+z <- rep(NA, 500)
 
-    y <- matrix(NA, 500, 5)
-    z <- rep(NA, 500)
+b <- c(0.4, -0.5, 0.3, 0.5)
 
-    b <- c(0.4, -0.5, 0.3, 0.5)
+re_fac <- factor(sample(letters[1:10], 500, replace=T))
+dat_occ$group <- re_fac
+re <- rnorm(10, 0, 0.25)
+re_idx <- as.numeric(re_fac)
 
-    re_fac <- factor(sample(letters[1:10], 500, replace=T))
-    dat_occ$group <- re_fac
-    re <- rnorm(10, 0, 0.25)
-    re_idx <- as.numeric(re_fac)
+idx <- 1
+for (i in 1:500){
+  z[i] <- rbinom(1,1, plogis(b[1] + b[2]*dat_occ$x1[i] + re[re_idx[i]]))
+  for (j in 1:5){
+    y[i,j] <- z[i]*rbinom(1,1, 
+                    plogis(b[3] + b[4]*dat_p$x2[idx]))
+    idx <- idx + 1
+  }
+}
 
-    idx <- 1
-    for (i in 1:500){
-      z[i] <- rbinom(1,1, plogis(b[1] + b[2]*dat_occ$x1[i] + re[re_idx[i]]))
-      for (j in 1:5){
-        y[i,j] <- z[i]*rbinom(1,1, 
-                        plogis(b[3] + b[4]*dat_p$x2[idx]))
-        idx <- idx + 1
-      }
-    }
+library(ubms)
 
-    library(ubms)
+#Create unmarked frame
+umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
 
-    #Create unmarked frame
-    umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
-
-    #Fit model with random intercept
-    (fm <- occuStan(~x2 ~x1 + (1|group), umf, refresh=0))
+#Fit model with random intercept
+(fm <- occuStan(~x2 ~x1 + (1|group), umf, refresh=0))
+```
 
     ## 
     ## Call:
