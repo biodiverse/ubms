@@ -84,7 +84,7 @@ setMethod("show", "umFitStan", function(object){
 })
 
 #' @export
-occuStan <- function(formula, data){
+occuStan <- function(formula, data, ...){
   
   pformula <- as.formula(formula[[2]])
   psiformula <- as.formula(paste0(formula[[1]],
@@ -93,7 +93,7 @@ occuStan <- function(formula, data){
   inp <- build_inputs(psiformula, pformula, umf)
 
   fit <- rstan::sampling(stanmodels$occupancy, data=inp$stan_data, 
-                     pars=inp$params)
+                     pars=inp$params, ...)
 
   occ_mod <- umStanEstimate(fit, "Occupancy", "beta_occ", inp$fixed_names$occ,
                             "sigma_occ", inp$random_names$occ)
