@@ -1,0 +1,28 @@
+Package: ubms
+Version: 0.1.1-9000
+Date: 2020-04-06
+Title: Fit Unmarked Bayesian Models using Stan
+Author: Ken Kellner
+Depends: 
+    R (>= 3.4.0),
+    unmarked
+Imports: 
+    lme4,
+    loo,
+    methods,
+    Rcpp (>= 0.12.0),
+    rstan (>= 2.18.1),
+    rstantools (>= 2.0.0),
+    stats
+Suggests: roxygen2
+License: GPL (>=3)
+Encoding: UTF-8
+RoxygenNote: 6.1.1
+Biarch: true
+LinkingTo: 
+    BH (>= 1.66.0),
+    Rcpp (>= 0.12.0),
+    RcppEigen (>= 0.3.3.3.0),
+    rstan (>= 2.18.1),
+    StanHeaders (>= 2.18.0)
+SystemRequirements: GNU make
