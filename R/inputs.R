@@ -20,8 +20,8 @@ get_pars <- function(submodels){
 
   pars <- c(paste0("beta_", types), "log_lik")
   for (i in submodels){
-    if(get_group_vars(i@formula) > 0){
-      pars <- c(pars, paste0(c("b_", "sigma_"), i@type)) 
+    if(has_random(i)){
+      pars <- c(pars, b_par(i), sig_par(i))
     }
   }
   pars
@@ -45,11 +45,11 @@ setGeneric("get_stan_data", function(object, ...){
 #' @include submodel.R
 setMethod("get_stan_data", "ubmsSubmodel", function(object, ...){
   n_group_vars <- get_group_vars(object@formula)
-  has_random <- ifelse(n_group_vars > 0, 1, 0)
+  has_rand <- has_random(object)
   n_random <- get_nrandom(object@formula, object@data)
 
   out <- list(X=object@X, n_fixed=ncol(object@X), Z=object@Z, 
-              n_group_vars=n_group_vars, has_random=has_random,
+              n_group_vars=n_group_vars, has_random=has_rand,
               n_random=n_random)
   names(out) <- paste0(names(out), "_", object@type)
   out

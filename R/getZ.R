@@ -1,6 +1,4 @@
-setGeneric("getZ", function(object, ...){
-                    standardGeneric("getZ")
-            })
+setGeneric("getZ", function(object, ...) standardGeneric("getZ"))
 
 #' @export
 setMethod("getZ", "ubmsFit", function(object, ...){

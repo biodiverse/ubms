@@ -4,13 +4,12 @@ setMethod("predict", "ubmsFit",
   function(object, type, fun=mean, random=TRUE, summary=TRUE, ...){  
   
   sm <- object[type]
-  include_random <- !is.na(sm@sigma_names) & random
 
-  beta <- extract(object, paste0('beta_',type))[[1]]
+  beta <- extract(object, beta_par(sm))[[1]]
   lp <- model.matrix(sm) %*% t(beta)
   
-  if(include_random){
-    b <- extract(object, paste0('b_', type))[[1]]
+  if(has_random(sm) & random){
+    b <- extract(object, b_par(sm))[[1]]
     lp <- lp + sm@Z %*% t(b)
   }
 
@@ -29,4 +28,3 @@ setMethod("predict", "ubmsFit",
   as.data.frame(t(stats))
 
 })
-

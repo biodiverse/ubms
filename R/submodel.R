@@ -102,14 +102,13 @@ setGeneric("add_estimates", function(object, stanfit, ...){
 })
 
 setMethod("add_estimates", "ubmsSubmodel", function(object, stanfit, ...){
-  type <- object@type
-  fixed <- rstan::summary(stanfit, paste0("beta_", type))
+  fixed <- rstan::summary(stanfit, beta_par(object))
   fixed <- as.data.frame(fixed$summary)
   rownames(fixed) <- object@beta_names
   object@fixed_estimates <- fixed
 
   if(!is.na(object@sigma_names)){
-    random <- rstan::summary(stanfit, paste0("sigma_",type))
+    random <- rstan::summary(stanfit, sig_par(object))
     random <- as.data.frame(random$summary)
     rownames(random) <- object@sigma_names
     object@random_estimates <- random
@@ -134,6 +133,27 @@ setMethod("show", "ubmsSubmodel", function(object){
   cat(paste0(object@name,":\n"))
   print(out_df, digits=3)
 })
+
+setGeneric("has_random", function(object){
+  standardGeneric("has_random")
+})
+
+setMethod("has_random", "ubmsSubmodel", function(object){
+  !is.null(lme4::findbars(object@formula))
+})
+
+#Quickly generate parameter names from ubmsSubmodel
+b_par <- function(object){
+  paste0("b_", object@type)
+}
+
+beta_par <- function(object){
+  paste0("beta_", object@type)
+}
+
+sig_par <- function(object){
+  paste0("sigma_", object@type)
+}
 
 setClass("ubmsSubmodelList", slots=c(submodels="list"),
          prototype=list(submodels=list()))
