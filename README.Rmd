@@ -54,6 +54,6 @@ library(ubms)
 umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
 
 #Fit model with random intercept
-(fm <- occuStan(~x2 ~x1 + (1|group), umf, refresh=0))
+(fm <- stan_occu(~x2 ~x1 + (1|group), umf, refresh=0))
 ```
 

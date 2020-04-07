@@ -28,9 +28,10 @@ LinkingTo:
 SystemRequirements: GNU make
 Collate: 
     'submodel.R'
-    'build_stan_inputs.R'
     'fit.R'
     'getZ.R'
+    'inputs.R'
+    'occupancy.R'
     'predict.R'
     'stanmodels.R'
     'ubms-package.R'

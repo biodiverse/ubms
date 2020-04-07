@@ -1,7 +1,8 @@
 #' @export
-setMethod("predict", "umFitStan", function(object, type, random=TRUE, 
+setMethod("predict", "ubmsFit", function(object, type, random=TRUE, 
                                            summary=TRUE, ...){  
   
+  #Use submodels for this
   inp <- build_inputs(object@psiformula, object@pformula, object@data) 
 
   switch(type,

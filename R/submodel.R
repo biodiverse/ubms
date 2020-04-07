@@ -9,7 +9,9 @@ setClass("ubmsSubmodel",
     Z = "matrix",
     beta_names = "character",
     b_names = "character",
-    sigma_names = "character"
+    sigma_names = "character",
+    fixed_estimates = "data.frame",
+    random_estimates = "data.frame"
   ),
   prototype = list(
     name = NA_character_,
@@ -21,7 +23,9 @@ setClass("ubmsSubmodel",
     Z = matrix(0,0,0),
     beta_names = NA_character_,
     b_names = "NA_character_",
-    sigma_names = "NA_character_"
+    sigma_names = "NA_character_",
+    fixed_estimates = data.frame(),
+    random_estimates = data.frame()
   )
 )
 
@@ -90,5 +94,68 @@ setMethod("model.matrix", "ubmsSubmodel", function(object, newdata, ...){
   xlevs <- xlevs[names(xlevs) %in% names(mf)]
   model.matrix(formula, model.frame(stats::terms(mf), newdata, 
                                     na.action=stats::na.pass, xlev=xlevs))
+
+})
+
+setGeneric("add_estimates", function(object, stanfit, ...){
+  standardGeneric("add_estimates")
+})
+
+setMethod("add_estimates", "ubmsSubmodel", function(object, stanfit, ...){
+  type <- object@type
+  fixed <- rstan::summary(stanfit, paste0("beta_", type))
+  fixed <- as.data.frame(fixed$summary)
+  rownames(fixed) <- object@beta_names
+  object@fixed_estimates <- fixed
+
+  if(!is.na(object@sigma_names)){
+    random <- rstan::summary(stanfit, paste0("sigma_",type))
+    random <- as.data.frame(random$summary)
+    rownames(random) <- object@sigma_names
+    object@random_estimates <- random
+  }
+  return(object)
+})
+
+setMethod("show", "ubmsSubmodel", function(object){
+  
+  if(nrow(object@fixed_estimates) == 0){
+    cat(paste0(object@name,":\n"))
+    cat("No estimates yet\n")
+    return(invisible)
+  }
+  out_df <- object@fixed_estimates[,c(1,3,4,8:10)]
+
+  if(nrow(object@random_estimates)>0){
+    out_df <- rbind(out_df, object@random_estimates[,c(1,3,4,8:10)])
+  }
+  names(out_df)[1:2] <- c("Estimate", "SD")
+
+  cat(paste0(object@name,":\n"))
+  print(out_df, digits=3)
+})
+
+setClass("ubmsSubmodelList", slots=c(submodels="list"),
+         prototype=list(submodels=list()))
+
+ubmsSubmodelList <- function(...){
+  submodels <- list(...)
+  names(submodels) <- sapply(submodels, function(x) x@type)
+  new("ubmsSubmodelList", submodels=submodels)
+}
+
+setMethod("add_estimates", "ubmsSubmodelList", function(object, stanfit, ...){
+  for (i in 1:length(object@submodels)){
+    object@submodels[[i]] <- add_estimates(object@submodels[[i]], stanfit)
+  }
+  object
+})
+
+setMethod("show", "ubmsSubmodelList", function(object){
+
+  for (est in object@submodels){
+    show(est)
+    cat("\n")
+  }
 
 })

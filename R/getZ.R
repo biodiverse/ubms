@@ -3,7 +3,7 @@ setGeneric("getZ", function(object, ...){
             })
 
 #' @export
-setMethod("getZ", "umFitStan", function(object, ...){
+setMethod("getZ", "ubmsFit", function(object, ...){
 
   p_post <- predict(object, 'det', summary=FALSE)
   psi_post <- predict(object, 'state', summary=FALSE)
