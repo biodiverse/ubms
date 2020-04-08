@@ -50,17 +50,35 @@ get_X <- function(formula, data){
 }
 
 get_Z <- function(formula, data){
-
+  check_formula(formula, data)
   rand <- lme4::findbars(formula)
   if(is.null(rand)) return(matrix(0,0,0))
+  Z <- get_reTrms(formula, data)$Zt
+  t(as.matrix(Z))
+}
 
+get_reTrms <- function(formula, data){
   #For compatibility with rhs-only formulas
   new_data <- cbind(dummy=0, data)
   new_formula <- as.formula(paste0("dummy", 
                             paste(as.character(formula), collapse="")))
+  lme4::glFormula(new_formula, new_data)$reTrms
+}
 
-  Z <- lme4::glFormula(new_formula, new_data)$reTrms$Zt
-  t(as.matrix(Z))
+check_formula <- function(formula, data){
+  rand <- lme4::findbars(formula)
+  if(is.null(rand)) return(invisible())
+ 
+  char <- paste(deparse(formula))
+  if(grepl(":|/", char)){
+    stop("Nested random effects (using / and :) are not supported",
+         call.=FALSE)
+  }
+  theta <- lme4::mkReTrms(rand, data)$theta
+  if(0 %in% theta){
+    stop("Correlated slopes and intercepts are not supported. Use || instead of |.",
+         call.=FALSE)
+  }
 }
 
 get_Z_names <- function(Z){
@@ -70,16 +88,12 @@ get_Z_names <- function(Z){
 }
 
 get_sigma_names <- function(formula, data){
-
   rand <- lme4::findbars(formula)
-  if(length(rand)==0) return(NA_character_)
-
-  sapply(rand, function(x){
-    col_nm <- as.character(x[[3]])
-    dat <- data[col_nm] #check it is in data
-    paste0("sigma [", col_nm, "]")
-  })
-
+  if(length(rand)==0) return(NA_character_)  
+  nms <- get_reTrms(formula, data)$cnms
+  nms <- paste0(unlist(nms), "|", names(nms)) 
+  nms <- gsub("(Intercept)", "1", nms, fixed=TRUE)
+  paste0("sigma [", nms, "]")
 }
 
 setMethod("model.matrix", "ubmsSubmodel", function(object, newdata, ...){
