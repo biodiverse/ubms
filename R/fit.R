@@ -44,8 +44,54 @@ setMethod("[", c("ubmsFit", "character", "missing", "missing"),
   x@submodels@submodels[[i]]
 })
 
-check_stanfit <- function(object){
+process_stanfit <- function(object, submodels){
   if(object@mode == 2L || object@mode == 1L){
     stop("Fitting model failed", call.=FALSE)
   }
+  new_names <- stanfit_names(submodels@submodels)
+  object@sim$fnames_oi[1:length(new_names)] <- new_names
+  object
+}
+
+#Functions for renaming parameters in stanfit output object
+stanfit_names <- function(submodels){
+  c(stanfit_beta_names(submodels),
+    stanfit_b_names(submodels),
+    stanfit_sigma_names(submodels))
+}
+
+stanfit_beta_names <- function(submodels){
+  types <- names(submodels)
+  pars <- lapply(submodels, function(x) x@beta_names)
+  names(pars) <- NULL
+  for (i in 1:length(pars)){
+    pars[[i]] <- paste0("beta_",types[i],"[",pars[[i]],"]")
+  }
+  unlist(pars)
+}
+
+stanfit_b_names <- function(submodels){
+  types <- names(submodels)
+  pars <- lapply(submodels, function(x) x@b_names)
+  names(pars) <- NULL
+  for (i in 1:length(pars)){
+    if(all(is.na(pars[[i]]))){
+      pars[[i]] <- character(0)
+    } else {
+      pars[[i]] <- paste0("b_",types[i],"[",pars[[i]],"]")
+    }
+  }
+  unlist(pars)
+}
+
+stanfit_sigma_names <- function(submodels){
+  nm <- unlist(lapply(submodels, function(x) x@sigma_names))
+  if(all(is.na(nm))) return(character(0))
+  nm <- nm[!is.na(nm)]
+  for (i in 1:length(nm)){
+    nm[i] <- gsub(" ", paste0("_",names(nm)[i]), nm, fixed=TRUE)
+  }
+  nm <- gsub("1|", "(Intercept) ", nm, fixed=TRUE)
+  names(nm) <- NULL
+  nm
 }

@@ -7,13 +7,13 @@ stan_occu <- function(formula, data, ...){
   #Need to process data first
   state <- ubmsSubmodel("Occupancy", "state", siteCovs(data), psiformula, "plogis")
   det <- ubmsSubmodel("Detection", "det", obsCovs(data), pformula, "plogis")
+  submodels <- ubmsSubmodelList(state, det)
 
   inp <- build_stan_inputs(data, state, det)
 
   fit <- sampling(stanmodels$occupancy, data=inp$stan_data, pars=inp$pars, ...)
-  check_stanfit(fit) 
-  #Combine submodels and add estimate summary
-  submodels <- ubmsSubmodelList(state, det)
+
+  fit <- process_stanfit(fit, submodels)
   submodels <- add_estimates(submodels, fit)
 
   new("ubmsFit", call=match.call(), psiformula=psiformula, 

@@ -35,7 +35,7 @@ ubmsSubmodel <- function(name, type, data, formula, link){
   beta_names <- colnames(X)
   
   Z <- get_Z(formula, data)
-  b_names <- get_Z_names(Z)
+  b_names <- get_b_names(formula, data)
 
   sigma_names <- get_sigma_names(formula, data)
   
@@ -81,10 +81,23 @@ check_formula <- function(formula, data){
   }
 }
 
-get_Z_names <- function(Z){
-  out <- colnames(Z)
-  if(is.null(out)) out <- NA_character_
-  out
+get_b_names <- function(formula, data){
+  if(is.null(lme4::findbars(formula))) return(NA_character_)
+  group <- get_reTrms(formula, data)
+  group_nms <- names(group$cnms)
+  z_nms <- character()
+  for (i in seq_along(group$cnms)) {
+    nm <- group_nms[i]
+    nms_i <- paste(group$cnms[[i]], nm)
+    levels(group$flist[[nm]]) <- gsub(" ", "_", levels(group$flist[[nm]]))
+    if (length(nms_i) == 1) {
+      z_nms <- c(z_nms, paste0(nms_i, ":", levels(group$flist[[nm]])))
+    } else {
+      z_nms <- c(z_nms, c(t(sapply(paste0(nms_i), paste0, ":", 
+                                   levels(group$flist[[nm]])))))
+    }
+  }
+  z_nms  
 }
 
 get_sigma_names <- function(formula, data){
