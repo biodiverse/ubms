@@ -9,16 +9,17 @@ output:
 Experimental `R` package for fitting hierarchical models of animal occurrence and abundance.
 The package has a formula-based interface compatible with [unmarked](https://cran.r-project.org/web/packages/unmarked/index.html), but the model is fit using MCMC with [Stan](https://mc-stan.org/) instead of using maximum likelihood.
 
-Advantages over `unmarked`:
+Advantages compared to `unmarked`:
 
   1. Easily obtain posterior distributions of parameters and derived parameters
   2. Include random effects in parameter formulas (same syntax as `lme4`)
 
-Disadvantages over `unmarked`:
+Disadvantages compared to `unmarked`:
 
-  1. MCMC will always be slower than maximum likelihood
+  1. MCMC is slower than maximum likelihood
   2. Potential convergence issues
   3. Only one model (single-season occupancy) is available for now
+  4. Does not handle missing values
 
 ### Example
 
@@ -33,9 +34,9 @@ z <- rep(NA, 500)
 
 b <- c(0.4, -0.5, 0.3, 0.5)
 
-re_fac <- factor(sample(letters[1:10], 500, replace=T))
+re_fac <- factor(sample(letters[1:26], 500, replace=T))
 dat_occ$group <- re_fac
-re <- rnorm(10, 0, 0.25)
+re <- rnorm(26, 0, 1.2)
 re_idx <- as.numeric(re_fac)
 
 idx <- 1

@@ -8,17 +8,18 @@ compatible with
 but the model is fit using MCMC with [Stan](https://mc-stan.org/)
 instead of using maximum likelihood.
 
-Advantages over `unmarked`:
+Advantages compared to `unmarked`:
 
 1.  Easily obtain posterior distributions of parameters and derived
     parameters
 2.  Include random effects in parameter formulas (same syntax as `lme4`)
 
-Disadvantages over `unmarked`:
+Disadvantages compared to `unmarked`:
 
-1.  MCMC will always be slower than maximum likelihood
+1.  MCMC is slower than maximum likelihood
 2.  Potential convergence issues
 3.  Only one model (single-season occupancy) is available for now
+4.  Does not handle missing values
 
 ### Example
 
@@ -33,9 +34,9 @@ z <- rep(NA, 500)
 
 b <- c(0.4, -0.5, 0.3, 0.5)
 
-re_fac <- factor(sample(letters[1:10], 500, replace=T))
+re_fac <- factor(sample(letters[1:26], 500, replace=T))
 dat_occ$group <- re_fac
-re <- rnorm(10, 0, 0.25)
+re <- rnorm(26, 0, 1.2)
 re_idx <- as.numeric(re_fac)
 
 idx <- 1
@@ -62,14 +63,14 @@ umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
     ## stan_occu(formula = ~x2 ~ x1 + (1 | group), data = umf, refresh = 0)
     ## 
     ## Occupancy:
-    ##               Estimate    SD    2.5%  97.5% n_eff Rhat
-    ## (Intercept)      0.486 0.148  0.1905  0.785  2298    1
-    ## x1              -0.942 0.121 -1.1916 -0.714  3760    1
-    ## sigma [group]    0.318 0.184  0.0598  0.744   673    1
+    ##                 Estimate    SD   2.5%  97.5% n_eff  Rhat
+    ## (Intercept)        0.314 0.288 -0.298  0.870  1118 1.001
+    ## x1                -0.463 0.117 -0.690 -0.242  8090 0.999
+    ## sigma [1|group]    1.392 0.287  0.937  2.063  2723 1.001
     ## 
     ## Detection:
     ##             Estimate     SD  2.5% 97.5% n_eff  Rhat
-    ## (Intercept)    0.247 0.0562 0.133 0.357  3848 1.000
-    ## x2             0.492 0.0598 0.376 0.612  3756 0.999
+    ## (Intercept)    0.382 0.0608 0.263 0.503  6634 0.999
+    ## x2             0.587 0.0615 0.469 0.708  9528 1.000
     ## 
-    ## WAIC: 2522.421
+    ## WAIC: 2267.501

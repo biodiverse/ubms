@@ -35,5 +35,6 @@ Collate:
     'inputs.R'
     'occu.R'
     'predict.R'
+    'ranef.R'
     'stanmodels.R'
     'ubms-package.R'
