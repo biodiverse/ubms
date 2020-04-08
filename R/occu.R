@@ -11,7 +11,7 @@ stan_occu <- function(formula, data, ...){
   inp <- build_stan_inputs(data, state, det)
 
   fit <- sampling(stanmodels$occupancy, data=inp$stan_data, pars=inp$pars, ...)
-  
+  check_stanfit(fit) 
   #Combine submodels and add estimate summary
   submodels <- ubmsSubmodelList(state, det)
   submodels <- add_estimates(submodels, fit)

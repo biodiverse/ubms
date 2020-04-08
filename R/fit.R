@@ -43,3 +43,9 @@ setMethod("[", c("ubmsFit", "character", "missing", "missing"),
   }
   x@submodels@submodels[[i]]
 })
+
+check_stanfit <- function(object){
+  if(object@mode == 2L || object@mode == 1L){
+    stop("Fitting model failed", call.=FALSE)
+  }
+}

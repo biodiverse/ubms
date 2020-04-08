@@ -17,14 +17,13 @@ build_stan_inputs <- function(umf, ...){
 get_pars <- function(submodels){
 
   types <- sapply(submodels, function(x) x@type)
-
-  pars <- c(paste0("beta_", types), "log_lik")
+  pars <- paste0("beta_", types)
   for (i in submodels){
     if(has_random(i)){
       pars <- c(pars, b_par(i), sig_par(i))
     }
   }
-  pars
+  c(pars, "log_lik")
 }
 
 setGeneric("get_y_data", function(object, ...){
@@ -47,13 +46,25 @@ setMethod("get_stan_data", "ubmsSubmodel", function(object, ...){
   n_group_vars <- get_group_vars(object@formula)
   has_rand <- has_random(object)
   n_random <- get_nrandom(object@formula, object@data)
-
-  out <- list(X=object@X, n_fixed=ncol(object@X), Z=object@Z, 
+  Zinfo <- get_sparse_Z(object@Z)
+  out <- list(X=object@X, n_fixed=ncol(object@X), 
               n_group_vars=n_group_vars, has_random=has_rand,
               n_random=n_random)
+  out <- c(out, Zinfo)
   names(out) <- paste0(names(out), "_", object@type)
   out
 })
+
+get_sparse_Z <- function(Z){
+  if(all(dim(Z)==c(0,0))){
+    return(list(Zdim=c(0,0,1,1,1), Zw=as.array(0), 
+                Zv=as.array(0), Zu=as.array(0)))
+  }
+  wvu <- rstan::extract_sparse_parts(Matrix(Z))
+  #Zdim = Z rows, Z cols, length w, length v, length u
+  Zdim <- c(dim(Z), sapply(wvu, length))
+  list(Zdim=Zdim, Zw=wvu$w, Zv=wvu$v, Zu=wvu$u)
+}
 
 get_group_vars <- function(formula){
   rand <- lme4::findbars(formula)

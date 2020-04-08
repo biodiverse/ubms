@@ -38,8 +38,19 @@ int n_random_state[has_random_state ? n_group_vars_state : 1];
 int n_random_det[has_random_det ? n_group_vars_det: 1];
 matrix[M, n_fixed_state] X_state;
 matrix[M*J, n_fixed_det] X_det;
-matrix[has_random_state ? M : 0,sum(n_random_state)] Z_state;
-matrix[has_random_det ? M*J : 0,sum(n_random_det)] Z_det;
+
+int Zdim_state[5];
+vector[Zdim_state[3]] Zw_state;
+int Zv_state[Zdim_state[4]];
+int Zu_state[Zdim_state[5]];
+
+int Zdim_det[5];
+vector[Zdim_det[3]] Zw_det;
+int Zv_det[Zdim_det[4]];
+int Zu_det[Zdim_det[5]];
+
+//matrix[has_random_state ? M : 0,sum(n_random_state)] Z_state;
+//matrix[has_random_det ? M*J : 0,sum(n_random_det)] Z_det;
 
 }
 
@@ -64,10 +75,16 @@ logit_psi = X_state * beta_state;
 logit_p = X_det * beta_det;
 
 if(has_random_state){
-  logit_psi = logit_psi + Z_state * b_state; 
+  //logit_psi = logit_psi + Z_state * b_state;
+  logit_psi = logit_psi + 
+              csr_matrix_times_vector(Zdim_state[1], Zdim_state[2], Zw_state,
+                                      Zv_state, Zu_state, b_state);
 }
 if(has_random_det){
-  logit_p = logit_p + Z_det * b_det;
+  //logit_p = logit_p + Z_det * b_det;
+  logit_p = logit_p + 
+            csr_matrix_times_vector(Zdim_det[1], Zdim_det[2], Zw_det,
+                                    Zv_det, Zu_det, b_det);
 }
 
 log_lik = get_loglik(y, M, J, logit_psi, logit_p, no_detects);
