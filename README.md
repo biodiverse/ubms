@@ -17,8 +17,9 @@ Advantages compared to `unmarked`:
 Disadvantages compared to `unmarked`:
 
 1.  MCMC is slower than maximum likelihood
-2.  Potential convergence issues
-3.  Only one model (single-season occupancy) is available for now
+2.  Only one model (single-season occupancy) is available for now, and
+    some classes of models might never be practical
+3.  Potential convergence issues
 4.  Does not handle missing values
 
 ### Example

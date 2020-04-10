@@ -1,4 +1,5 @@
-#' @include fit.R 
+#' @include fit.R
+#' @importFrom unmarked predict
 #' @export
 setMethod("predict", "ubmsFit", 
   function(object, type, fun=mean, random=TRUE, summary=TRUE, ...){  

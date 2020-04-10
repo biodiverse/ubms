@@ -8,9 +8,11 @@ using namespace Rcpp;
 
 
 RcppExport SEXP _rcpp_module_boot_stan_fit4occupancy_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4pcount_mod();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rcpp_module_boot_stan_fit4occupancy_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4occupancy_mod, 0},
+    {"_rcpp_module_boot_stan_fit4pcount_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4pcount_mod, 0},
     {NULL, NULL, 0}
 };
 

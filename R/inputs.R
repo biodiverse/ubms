@@ -60,7 +60,7 @@ get_sparse_Z <- function(Z){
     return(list(Zdim=c(0,0,1,1,1), Zw=as.array(0), 
                 Zv=as.array(0), Zu=as.array(0)))
   }
-  wvu <- rstan::extract_sparse_parts(Matrix(Z))
+  wvu <- rstan::extract_sparse_parts(Matrix::Matrix(Z))
   #Zdim = Z rows, Z cols, length w, length v, length u
   Zdim <- c(dim(Z), sapply(wvu, length))
   list(Zdim=Zdim, Zw=wvu$w, Zv=wvu$v, Zu=wvu$u)

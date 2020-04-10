@@ -10,6 +10,7 @@ Depends:
 Imports: 
     lme4,
     loo,
+    Matrix,
     methods,
     Rcpp (>= 0.12.0),
     rstan (>= 2.18.1),
@@ -36,5 +37,6 @@ Collate:
     'occu.R'
     'predict.R'
     'ranef.R'
+    'simulate.R'
     'stanmodels.R'
     'ubms-package.R'

@@ -3,6 +3,7 @@ setOldClass("waic")
 #' @importClassesFrom rstan stanfit
 #' @importFrom loo waic
 #' @include submodel.R
+#' @export
 setClass("ubmsFit",
   slots=c(call="call",
           psiformula="formula",
@@ -44,6 +45,13 @@ setMethod("[", c("ubmsFit", "character", "missing", "missing"),
   x@submodels@submodels[[i]]
 })
 
+#' @importFrom rstan traceplot
+#' @export
+setMethod("traceplot", "ubmsFit", function(object, ...){
+  rstan::traceplot(object@stanfit, ...)
+})
+
+#Do some cleanup on stanfit object
 process_stanfit <- function(object, submodels){
   if(object@mode == 2L || object@mode == 1L){
     stop("Fitting model failed", call.=FALSE)
