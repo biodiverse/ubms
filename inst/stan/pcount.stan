@@ -9,12 +9,33 @@ real lp_pcount_pois(int[] y, real log_lambda, vector logit_p, int K, int Kmin){
   return out;
 }
 
+real lp_pcount_rec(int[] y, real log_lambda, vector logit_p, int K, int Kmin){
+
+  real fac = 1;
+  real ff = exp(log_lambda) * prod(1 - inv_logit(logit_p));
+  real N;
+  real ky;
+  int numN = K - Kmin;
+  for (i in 1:numN){
+    N = K - i + 1; 
+    ky = 1;
+    for (j in 1:size(y)){
+      ky *= N / (N - y[j]);
+    }
+    fac = 1 + fac * ff * ky / N;
+  }
+  return  poisson_log_lpmf(Kmin | log_lambda) + 
+          binomial_logit_lpmf(y | Kmin, logit_p) +
+          log(fac);
+}
+
 vector get_loglik_pcount(int[,] y, int M, int J, vector log_lambda, vector logit_p, 
                          int mixture, real mix_param, int K, int[] Kmin){
   vector[M] out;
   int idx = 1;
   for (i in 1:M){
-    out[i] = lp_pcount_pois(y[i], log_lambda[i], logit_p[idx:(idx+J-1)], K, Kmin[i]);
+    //out[i] = lp_pcount_pois(y[i], log_lambda[i], logit_p[idx:(idx+J-1)], K, Kmin[i]);
+    out[i] = lp_pcount_rec(y[i], log_lambda[i], logit_p[idx:(idx+J-1)], K, Kmin[i]);
     idx += J;
   }
   return out;
