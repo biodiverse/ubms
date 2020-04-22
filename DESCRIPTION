@@ -25,16 +25,19 @@ Biarch: true
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),
+    RcppArmadillo (>= 0.9.300.2.0),
     RcppEigen (>= 0.3.3.3.0),
     rstan (>= 2.18.1),
     StanHeaders (>= 2.18.0)
 SystemRequirements: GNU make
 Collate: 
+    'RcppExports.R'
     'submodel.R'
     'fit.R'
+    'pcount.R'
+    'occu.R'
     'getZ.R'
     'inputs.R'
-    'occu.R'
     'predict.R'
     'ranef.R'
     'simulate.R'

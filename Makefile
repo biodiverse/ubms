@@ -5,6 +5,7 @@ install:
 	R CMD INSTALL .
 
 build:
+	Rscript -e "Rcpp::compileAttributes()"
 	cd ..; R CMD build $(NAME)
 
 check:

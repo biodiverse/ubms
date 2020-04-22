@@ -1,7 +1,8 @@
+#' @export
 setGeneric("getZ", function(object, ...) standardGeneric("getZ"))
 
-#' @export
-setMethod("getZ", "ubmsFit", function(object, ...){
+#' @include occu.R
+setMethod("getZ", "ubmsFitOccu", function(object, ...){
 
   p_post <- predict(object, 'det', summary=FALSE)
   psi_post <- predict(object, 'state', summary=FALSE)
@@ -33,5 +34,25 @@ setMethod("getZ", "ubmsFit", function(object, ...){
 
   Zpost
 
+
+})
+
+#' @include pcount.R
+setMethod("getZ", "ubmsFitPcount", function(object, ...){
+
+  p_post <- predict(object, 'det', summary=FALSE)
+  lam_post <- predict(object, 'state', summary=FALSE)
+  
+  M <- nrow(lam_post)
+  J <- nrow(p_post) / M
+  nsamples <- dim(lam_post)[2]
+
+  p_post <- array(p_post, c(J,M,nsamples))
+  p_post <- aperm(p_post, c(2,1,3)) 
+  
+  y <- getY(object@data)
+  Kinfo <- get_K(y, object@call[["K"]])
+
+  getZ_pcount(y, lam_post, p_post, Kinfo$K, Kinfo$Kmin, 0:Kinfo$K)
 
 })

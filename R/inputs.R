@@ -1,8 +1,8 @@
-build_stan_inputs <- function(umf, ...){
+build_stan_inputs <- function(umf, submodels, ...){
 
-  y_data <- get_y_data(umf)
+  y_data <- get_y_data(umf, ...)
 
-  submodels <- list(...)
+  submodels <- unname(submodels@submodels)
   types <- sapply(submodels, function(x) x@type)
   submodel_data <- lapply(submodels, get_stan_data)
   submodel_data <- do.call("c", submodel_data)
@@ -29,14 +29,37 @@ get_pars <- function(submodels){
 setGeneric("get_y_data", function(object, ...){
              standardGeneric("get_y_data")})
 
-setMethod("get_y_data", "unmarkedFrameOccu", function(object, ...){
-  
+setMethod("get_y_data", "unmarkedFrame", function(object, ...){
   y <- getY(object)
-  no_detects <- apply(y, 1, function(x) ifelse(sum(x)>0, 0, 1))
-  
-  list(y=y, M=nrow(y), J=ncol(y), no_detects=no_detects)
+  list(y=y, M=nrow(y), J=ncol(y))
 })
 
+setMethod("get_y_data", "unmarkedFrameOccu", function(object, ...){
+  out <- callNextMethod(object, ...)
+  no_detects <- apply(out$y, 1, function(x) ifelse(sum(x)>0, 0, 1)) 
+  c(out, no_detects=list(no_detects))
+})
+
+setMethod("get_y_data", "unmarkedFramePCount", 
+          function(object, K=NULL, mixture="P", ...){
+  out <- callNextMethod(object, ...)
+  Kinfo <- get_K(out$y, K)
+  mixture <- switch(mixture, P={1})
+  c(out, Kinfo, mixture=list(mixture))
+})
+
+get_K <- function(y, K=NULL){
+  ymax <- max(y, na.rm=TRUE)
+  if(is.null(K)){
+    K <- ymax + 20
+  } else {
+    if(K < ymax){
+      stop("K must be larger than the maximum observed count", call.=FALSE)
+    }
+  }
+  Kmin <- apply(y, 1, max, na.rm=TRUE)
+  list(K=K, Kmin=Kmin)
+}
 
 setGeneric("get_stan_data", function(object, ...){
              standardGeneric("get_stan_data")})
@@ -80,4 +103,10 @@ get_nrandom <- function(formula, data){
     length(unique(data[[col_nm]]))
   })
   as.array(out)
+}
+
+split_formula <- function(formula){ 
+  p1 <- as.formula(formula[[2]])
+  p2 <- as.formula(paste0(formula[[1]], deparse(formula[[3]])))
+  list(p1, p2)
 }
