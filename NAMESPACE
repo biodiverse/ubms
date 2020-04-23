@@ -2,6 +2,7 @@
 
 export(getZ)
 export(stan_occu)
+export(stan_occuRN)
 export(stan_pcount)
 exportMethods(extract)
 exportMethods(predict)

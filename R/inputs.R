@@ -34,10 +34,16 @@ setMethod("get_y_data", "unmarkedFrame", function(object, ...){
   list(y=y, M=nrow(y), J=ncol(y))
 })
 
-setMethod("get_y_data", "unmarkedFrameOccu", function(object, ...){
+setMethod("get_y_data", "unmarkedFrameOccu", function(object, K, ...){
   out <- callNextMethod(object, ...)
+  
   no_detects <- apply(out$y, 1, function(x) ifelse(sum(x)>0, 0, 1)) 
-  c(out, no_detects=list(no_detects))
+  if(missing(K)){
+    #Regular occupancy
+    return(c(out, no_detects=list(no_detects)))
+  } 
+  #RN occupancy
+  c(out, list(K=ifelse(is.null(K), 15, K), Kmin=1-no_detects))
 })
 
 setMethod("get_y_data", "unmarkedFramePCount", 

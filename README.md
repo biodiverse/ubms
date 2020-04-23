@@ -1,24 +1,22 @@
-ubms: Unmarked Bayesian Models with Stan
-========================================
+# ubms: Unmarked Bayesian Models with Stan
 
-Experimental `R` package for fitting hierarchical models of animal
-occurrence and abundance. The package has a formula-based interface
-compatible with
+In-development `R` package for fitting Bayesian hierarchical models of
+animal occurrence and abundance. The package has a formula-based
+interface compatible with
 [unmarked](https://cran.r-project.org/web/packages/unmarked/index.html),
 but the model is fit using MCMC with [Stan](https://mc-stan.org/)
 instead of using maximum likelihood.
 
 Advantages compared to `unmarked`:
 
-1.  Easily obtain posterior distributions of parameters and derived
-    parameters
+1.  Obtain posterior distributions of parameters and derived parameters
 2.  Include random effects in parameter formulas (same syntax as `lme4`)
 
 Disadvantages compared to `unmarked`:
 
 1.  MCMC is slower than maximum likelihood
-2.  Only one model (single-season occupancy) is available for now, and
-    some classes of models might never be practical
+2.  Only a few models available for now, and some classes of models
+    might never be practical
 3.  Potential convergence issues
 4.  Does not handle missing values
 
