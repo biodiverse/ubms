@@ -2,12 +2,12 @@
 
 #include <Rcpp.h>
 using namespace Rcpp ;
-#include "stanExports_occupancy.h"
+#include "stanExports_occu.h"
 
-RCPP_MODULE(stan_fit4occupancy_mod) {
+RCPP_MODULE(stan_fit4occu_mod) {
 
 
-    class_<rstan::stan_fit<stan_model, boost::random::ecuyer1988> >("model_occupancy")
+    class_<rstan::stan_fit<stan_model, boost::random::ecuyer1988> >("model_occu")
 
     .constructor<SEXP,SEXP,SEXP>()
 

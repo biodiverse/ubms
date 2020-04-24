@@ -7,9 +7,9 @@
 
 using namespace Rcpp;
 
-// getZ_pcount
-arma::umat getZ_pcount(arma::umat y, arma::mat lam_post, arma::cube p_post, unsigned K, arma::uvec Kmin, arma::uvec kvals);
-RcppExport SEXP _ubms_getZ_pcount(SEXP ySEXP, SEXP lam_postSEXP, SEXP p_postSEXP, SEXP KSEXP, SEXP KminSEXP, SEXP kvalsSEXP) {
+// simz_pcount
+arma::umat simz_pcount(arma::umat y, arma::mat lam_post, arma::cube p_post, unsigned K, arma::uvec Kmin, arma::uvec kvals);
+RcppExport SEXP _ubms_simz_pcount(SEXP ySEXP, SEXP lam_postSEXP, SEXP p_postSEXP, SEXP KSEXP, SEXP KminSEXP, SEXP kvalsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -19,19 +19,36 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< unsigned >::type K(KSEXP);
     Rcpp::traits::input_parameter< arma::uvec >::type Kmin(KminSEXP);
     Rcpp::traits::input_parameter< arma::uvec >::type kvals(kvalsSEXP);
-    rcpp_result_gen = Rcpp::wrap(getZ_pcount(y, lam_post, p_post, K, Kmin, kvals));
+    rcpp_result_gen = Rcpp::wrap(simz_pcount(y, lam_post, p_post, K, Kmin, kvals));
+    return rcpp_result_gen;
+END_RCPP
+}
+// simz_occuRN
+arma::umat simz_occuRN(arma::umat y, arma::mat lam_post, arma::cube r_post, unsigned K, arma::uvec Kmin, arma::uvec kvals);
+RcppExport SEXP _ubms_simz_occuRN(SEXP ySEXP, SEXP lam_postSEXP, SEXP r_postSEXP, SEXP KSEXP, SEXP KminSEXP, SEXP kvalsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::umat >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type lam_post(lam_postSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type r_post(r_postSEXP);
+    Rcpp::traits::input_parameter< unsigned >::type K(KSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type Kmin(KminSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type kvals(kvalsSEXP);
+    rcpp_result_gen = Rcpp::wrap(simz_occuRN(y, lam_post, r_post, K, Kmin, kvals));
     return rcpp_result_gen;
 END_RCPP
 }
 
+RcppExport SEXP _rcpp_module_boot_stan_fit4occu_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4occuRN_mod();
-RcppExport SEXP _rcpp_module_boot_stan_fit4occupancy_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4pcount_mod();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_ubms_getZ_pcount", (DL_FUNC) &_ubms_getZ_pcount, 6},
+    {"_ubms_simz_pcount", (DL_FUNC) &_ubms_simz_pcount, 6},
+    {"_ubms_simz_occuRN", (DL_FUNC) &_ubms_simz_occuRN, 6},
+    {"_rcpp_module_boot_stan_fit4occu_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4occu_mod, 0},
     {"_rcpp_module_boot_stan_fit4occuRN_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4occuRN_mod, 0},
-    {"_rcpp_module_boot_stan_fit4occupancy_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4occupancy_mod, 0},
     {"_rcpp_module_boot_stan_fit4pcount_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4pcount_mod, 0},
     {NULL, NULL, 0}
 };

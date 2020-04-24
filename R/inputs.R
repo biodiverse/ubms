@@ -43,7 +43,7 @@ setMethod("get_y_data", "unmarkedFrameOccu", function(object, K, ...){
     return(c(out, no_detects=list(no_detects)))
   } 
   #RN occupancy
-  c(out, list(K=ifelse(is.null(K), 15, K), Kmin=1-no_detects))
+  c(out, list(K=ifelse(is.null(K), 20, K), Kmin=1-no_detects))
 })
 
 setMethod("get_y_data", "unmarkedFramePCount", 

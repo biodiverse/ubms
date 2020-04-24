@@ -14,7 +14,7 @@ stan_occu <- function(formula, data, ...){
 
   inp <- build_stan_inputs(data, submodels)
 
-  fit <- sampling(stanmodels$occupancy, data=inp$stan_data, pars=inp$pars, ...)
+  fit <- sampling(stanmodels$occu, data=inp$stan_data, pars=inp$pars, ...)
 
   fit <- process_stanfit(fit, submodels)
   submodels <- add_estimates(submodels, fit)

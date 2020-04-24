@@ -7,7 +7,8 @@ Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com",
 Depends: 
     R (>= 3.4.0),
     unmarked
-Imports: 
+Imports:
+    ggplot2 (>= 2.0.0),
     lme4,
     loo,
     Matrix,
@@ -36,13 +37,15 @@ Collate:
     'RcppExports.R'
     'submodel.R'
     'fit.R'
-    'pcount.R'
     'occu.R'
-    'getZ.R'
-    'inputs.R'
-    'occuRN.R'
     'predict.R'
-    'ranef.R'
+    'occuRN.R'
+    'pcount.R'
+    'simy.R'
+    'simz.R'
     'simulate.R'
+    'gof.R'
+    'inputs.R'
+    'ranef.R'
     'stanmodels.R'
     'ubms-package.R'

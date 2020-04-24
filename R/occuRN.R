@@ -2,7 +2,7 @@
 setClass("ubmsFitOccuRN", contains = "ubmsFit")
 
 #' @export
-stan_occuRN <- function(formula, data, K=15, ...){
+stan_occuRN <- function(formula, data, K=20, ...){
   
   pformula <- split_formula(formula)[[1]]
   lamformula <- split_formula(formula)[[2]]
