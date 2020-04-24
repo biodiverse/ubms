@@ -31,13 +31,16 @@ setGeneric("get_y_data", function(object, ...){
 
 setMethod("get_y_data", "unmarkedFrame", function(object, ...){
   y <- getY(object)
-  list(y=y, M=nrow(y), J=ncol(y))
+  ylong <- as.vector(t(y))
+  list(y=ylong, M=nrow(y), J=ncol(y))
 })
 
 setMethod("get_y_data", "unmarkedFrameOccu", function(object, K, ...){
   out <- callNextMethod(object, ...)
   
-  no_detects <- apply(out$y, 1, function(x) ifelse(sum(x)>0, 0, 1)) 
+  ymat <- matrix(out$y, nrow=out$M, byrow=TRUE)
+  no_detects <- apply(ymat, 1, function(x) ifelse(sum(x)>0, 0, 1)) 
+
   if(missing(K)){
     #Regular occupancy
     return(c(out, no_detects=list(no_detects)))
@@ -49,7 +52,8 @@ setMethod("get_y_data", "unmarkedFrameOccu", function(object, K, ...){
 setMethod("get_y_data", "unmarkedFramePCount", 
           function(object, K=NULL, mixture="P", ...){
   out <- callNextMethod(object, ...)
-  Kinfo <- get_K(out$y, K)
+  ymat <- matrix(out$y, nrow=out$M, byrow=TRUE)
+  Kinfo <- get_K(ymat, K)
   mixture <- switch(mixture, P={1})
   c(out, Kinfo, mixture=list(mixture))
 })

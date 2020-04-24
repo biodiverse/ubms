@@ -1,7 +1,7 @@
 //Basic data setup for single-season model
 int M;
 int J;
-int y[M,J];
+int y[M*J];
 int has_random_state;
 int has_random_det;
 int n_fixed_state;

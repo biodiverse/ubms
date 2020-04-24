@@ -9,13 +9,14 @@ real lp_occu(int[] y, real logit_psi, vector logit_p, int nd){
   return log_sum_exp(out, log1m_inv_logit(logit_psi));
 }
 
-vector get_loglik_occu(int[,] y, int M, int J, vector logit_psi,
+vector get_loglik_occu(int[] y, int M, int J, vector logit_psi,
                   vector logit_p, int[] nd){
   vector[M] out;
   int idx = 1;
+  int end;
   for (i in 1:M){
-    out[i] = lp_occu(y[i], logit_psi[i], logit_p[idx:(idx+J-1)],
-             nd[i]);
+    end = idx + J - 1;
+    out[i] = lp_occu(y[idx:end], logit_psi[i], logit_p[idx:end], nd[i]);
     idx += J;
    }
   return out;

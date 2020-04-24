@@ -17,12 +17,14 @@ real lp_rn(int[] y, real log_lambda, vector logit_r, int J, int K, int Kmin){
   return log_sum_exp(lp);
 }
 
-vector get_loglik_rn(int[,] y, int M, int J, vector log_lambda, vector logit_p, 
+vector get_loglik_rn(int[] y, int M, int J, vector log_lambda, vector logit_p, 
                      int K, int[] Kmin){
   vector[M] out;
   int idx = 1;
+  int end;
   for (i in 1:M){
-    out[i] = lp_rn(y[i], log_lambda[i], logit_p[idx:(idx+J-1)], J, K, Kmin[i]);
+    end = idx + J - 1;
+    out[i] = lp_rn(y[idx:end], log_lambda[i], logit_p[idx:end], J, K, Kmin[i]);
     idx += J;
   }
   return out;

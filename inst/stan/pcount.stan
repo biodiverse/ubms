@@ -20,12 +20,14 @@ real lp_pcount_pois(int[] y, real log_lambda, vector logit_p, int K, int Kmin){
           log(fac);
 }
 
-vector get_loglik_pcount(int[,] y, int M, int J, vector log_lambda, vector logit_p, 
+vector get_loglik_pcount(int[] y, int M, int J, vector log_lambda, vector logit_p, 
                          int mixture, real mix_param, int K, int[] Kmin){
   vector[M] out;
   int idx = 1;
+  int end;
   for (i in 1:M){
-    out[i] = lp_pcount_pois(y[i], log_lambda[i], logit_p[idx:(idx+J-1)], K, Kmin[i]);
+    end = idx + J - 1;
+    out[i] = lp_pcount_pois(y[idx:end], log_lambda[i], logit_p[idx:end], K, Kmin[i]);
     idx += J;
   }
   return out;
