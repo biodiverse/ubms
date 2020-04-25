@@ -8,7 +8,7 @@
 using namespace Rcpp;
 
 // simz_pcount
-arma::umat simz_pcount(arma::umat y, arma::mat lam_post, arma::cube p_post, unsigned K, arma::uvec Kmin, arma::uvec kvals);
+arma::imat simz_pcount(arma::umat y, arma::mat lam_post, arma::cube p_post, unsigned K, arma::uvec Kmin, arma::uvec kvals);
 RcppExport SEXP _ubms_simz_pcount(SEXP ySEXP, SEXP lam_postSEXP, SEXP p_postSEXP, SEXP KSEXP, SEXP KminSEXP, SEXP kvalsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -24,7 +24,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // simz_occuRN
-arma::umat simz_occuRN(arma::umat y, arma::mat lam_post, arma::cube r_post, unsigned K, arma::uvec Kmin, arma::uvec kvals);
+arma::imat simz_occuRN(arma::umat y, arma::mat lam_post, arma::cube r_post, unsigned K, arma::uvec Kmin, arma::uvec kvals);
 RcppExport SEXP _ubms_simz_occuRN(SEXP ySEXP, SEXP lam_postSEXP, SEXP r_postSEXP, SEXP KSEXP, SEXP KminSEXP, SEXP kvalsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

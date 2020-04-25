@@ -46,23 +46,26 @@ ubmsSubmodel <- function(name, type, data, formula, link){
 
 get_X <- function(formula, data){
   fixed <- lme4::nobars(formula)
-  model.matrix(fixed, data)
+  mf <- model.frame(fixed, data, na.action=stats::na.pass)
+  model.matrix(fixed, mf)
 }
 
 get_Z <- function(formula, data){
   check_formula(formula, data)
   rand <- lme4::findbars(formula)
   if(is.null(rand)) return(matrix(0,0,0))
-  Z <- get_reTrms(formula, data)$Zt
-  t(as.matrix(Z))
+  Zt <- get_reTrms(formula, data)$Zt
+  t(as.matrix(Zt))
 }
 
 get_reTrms <- function(formula, data){
   #For compatibility with rhs-only formulas
-  new_data <- cbind(dummy=0, data)
-  new_formula <- as.formula(paste0("dummy", 
-                            paste(as.character(formula), collapse="")))
-  lme4::glFormula(new_formula, new_data)$reTrms
+  #new_data <- cbind(dummy=0, data)
+  #new_formula <- as.formula(paste0("dummy", 
+  #                          paste(as.character(formula), collapse="")))  
+  fb <- lme4::findbars(formula)
+  mf <- model.frame(lme4::subbars(formula), data, na.action=stats::na.pass)
+  lme4::mkReTrms(fb, mf)
 }
 
 check_formula <- function(formula, data){
@@ -74,7 +77,7 @@ check_formula <- function(formula, data){
     stop("Nested random effects (using / and :) are not supported",
          call.=FALSE)
   }
-  theta <- lme4::mkReTrms(rand, data)$theta
+  theta <- get_reTrms(formula, data)$theta
   if(0 %in% theta){
     stop("Correlated slopes and intercepts are not supported. Use || instead of |.",
          call.=FALSE)

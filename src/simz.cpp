@@ -5,7 +5,7 @@
 using namespace arma;
 
 // [[Rcpp::export]]
-arma::umat simz_pcount(arma::umat y, arma::mat lam_post, arma::cube p_post, 
+arma::imat simz_pcount(arma::umat y, arma::mat lam_post, arma::cube p_post, 
                        unsigned K, arma::uvec Kmin, arma::uvec kvals){
 
   int M = y.n_rows;
@@ -15,15 +15,22 @@ arma::umat simz_pcount(arma::umat y, arma::mat lam_post, arma::cube p_post,
   vec kprob(K+1);
   double pp, bp;
 
-  umat Zpost(M, nsamples);
+  imat Zpost(M, nsamples);
 
   for (unsigned i=0; i < nsamples; i++){
     for (unsigned m=0; m < M; m++){
+      if(!is_finite(lam_post(m,i))){
+        Zpost(m,i) = NA_INTEGER;
+        continue;
+      }
       kprob.zeros();
       for (unsigned k=Kmin(m); k < (K+1); k++){
         pp = R::dpois(k, lam_post(m, i), 0);
         bp = 1.0;
         for (unsigned j=0; j < J; j++){
+          if(!is_finite(p_post(m,j,i))){
+            continue;
+          }
           bp *= R::dbinom(y(m,j), k, p_post(m,j,i), 0);
         }
         kprob(k) = pp * bp; 
@@ -38,7 +45,7 @@ arma::umat simz_pcount(arma::umat y, arma::mat lam_post, arma::cube p_post,
 }
 
 // [[Rcpp::export]]
-arma::umat simz_occuRN(arma::umat y, arma::mat lam_post, arma::cube r_post, 
+arma::imat simz_occuRN(arma::umat y, arma::mat lam_post, arma::cube r_post, 
                        unsigned K, arma::uvec Kmin, arma::uvec kvals){
 
   int M = y.n_rows;
@@ -48,19 +55,26 @@ arma::umat simz_occuRN(arma::umat y, arma::mat lam_post, arma::cube r_post,
   vec kprob(K+1);
   double pp, bp;
 
-  umat Zpost(M, nsamples);
+  imat Zpost(M, nsamples);
 
   cube q = 1 - r_post;
   double p;
 
   for (unsigned i=0; i < nsamples; i++){
     for (unsigned m=0; m < M; m++){
+      if(!is_finite(lam_post(m,i))){
+        Zpost(m,i) = NA_INTEGER;
+        continue;
+      }
       kprob.zeros();
       for (unsigned k=Kmin(m); k < (K+1); k++){
         pp = R::dpois(k, lam_post(m, i), 0);        
         bp = 1.0;
         for (unsigned j=0; j < J; j++){
           p = 1 - pow(q(m,j,i), k);
+          if(!is_finite(p)){
+            continue;
+          }
           bp *= R::dbinom(y(m,j), 1, p, 0);
         }
         kprob(k) = pp * bp; 

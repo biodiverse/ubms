@@ -1,4 +1,8 @@
 build_stan_inputs <- function(umf, submodels, ...){
+  
+  clean <- remove_NA(umf, submodels)
+  umf <- clean$umf
+  submodels <- clean$submodels
 
   y_data <- get_y_data(umf, ...)
 
@@ -29,18 +33,14 @@ get_pars <- function(submodels){
 setGeneric("get_y_data", function(object, ...){
              standardGeneric("get_y_data")})
 
-setMethod("get_y_data", "unmarkedFrame", function(object, ...){
-  y <- getY(object)
-  ylong <- as.vector(t(y))
-  list(y=ylong, M=nrow(y), J=ncol(y))
-})
-
 setMethod("get_y_data", "unmarkedFrameOccu", function(object, K, ...){
-  out <- callNextMethod(object, ...)
-  
-  ymat <- matrix(out$y, nrow=out$M, byrow=TRUE)
-  no_detects <- apply(ymat, 1, function(x) ifelse(sum(x)>0, 0, 1)) 
+  y <- getY(object)
+  J <- apply(y, 1, function(x) sum(!is.na(x)))
+  no_detects <- apply(y, 1, function(x) ifelse(sum(x, na.rm=TRUE)>0, 0, 1))
+  ylong <- as.vector(t(y))
+  ylong <- ylong[!is.na(ylong)]
 
+  out <- list(y=ylong, M=nrow(y), J=J)  
   if(missing(K)){
     #Regular occupancy
     return(c(out, no_detects=list(no_detects)))
@@ -51,12 +51,49 @@ setMethod("get_y_data", "unmarkedFrameOccu", function(object, K, ...){
 
 setMethod("get_y_data", "unmarkedFramePCount", 
           function(object, K=NULL, mixture="P", ...){
-  out <- callNextMethod(object, ...)
-  ymat <- matrix(out$y, nrow=out$M, byrow=TRUE)
-  Kinfo <- get_K(ymat, K)
+  y <- getY(object)
+  J <- apply(y, 1, function(x) sum(!is.na(x)))
+  ylong <- as.vector(t(y))
+  ylong <- ylong[!is.na(ylong)]
+  Kinfo <- get_K(y, K)
   mixture <- switch(mixture, P={1})
-  c(out, Kinfo, mixture=list(mixture))
+  c(list(y=ylong, M=nrow(y), J=J, mixture=mixture), Kinfo)
 })
+
+
+setGeneric("remove_NA", 
+           function(object, submodels, ...) standardGeneric("remove_NA"))
+
+setMethod("remove_NA", c("unmarkedFrame", "ubmsSubmodelList"),
+          function(object, submodels, ...){
+
+  y <- getY(object)
+  M <- nrow(y)
+  J <- ncol(y)
+
+  state <- submodels@submodels$state
+  det <- submodels@submodels$det
+
+  ylong <- as.vector(t(y))
+  site_idx <- rep(1:M, each=J)
+  state_long <- state@X[site_idx,]
+
+  comb <- cbind(y=ylong, state_long, det@X)
+  keep_obs <- apply(comb, 1, function(x) !any(is.na(x)))
+  
+  ylong[!keep_obs] <- NA
+  det@X <- det@X[keep_obs,]
+  if(has_random(det)) det@Z <- det@Z[keep_obs,]
+  
+  keep_sites <- unique(site_idx[keep_obs]) 
+  state@X <- state@X[keep_sites,]
+  if(has_random(state)) state@Z <- state@Z[keep_sites,] 
+  ymat <- matrix(ylong, nrow=M, byrow=TRUE)[keep_sites,]
+  umf@y <- ymat
+
+  list(umf=umf, submodels=ubmsSubmodelList(state, det))
+})
+
 
 get_K <- function(y, K=NULL){
   ymax <- max(y, na.rm=TRUE)

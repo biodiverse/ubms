@@ -1,7 +1,7 @@
 //Basic data setup for single-season model
 int M;
-int J;
-int y[M*J];
+int J[M];
+int y[sum(J)];
 int has_random_state;
 int has_random_det;
 int n_fixed_state;
@@ -11,7 +11,7 @@ int n_group_vars_det;
 int n_random_state[has_random_state ? n_group_vars_state : 1];
 int n_random_det[has_random_det ? n_group_vars_det: 1];
 matrix[M, n_fixed_state] X_state;
-matrix[M*J, n_fixed_det] X_det;
+matrix[sum(J), n_fixed_det] X_det;
 
 int Zdim_state[5];
 vector[Zdim_state[3]] Zw_state;

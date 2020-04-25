@@ -5,7 +5,9 @@ animal occurrence and abundance. The package has a formula-based
 interface compatible with
 [unmarked](https://cran.r-project.org/web/packages/unmarked/index.html),
 but the model is fit using MCMC with [Stan](https://mc-stan.org/)
-instead of using maximum likelihood.
+instead of using maximum likelihood. Right now there are Stan versions
+of unmarked functions `occu`, `occuRN`, and `pcount` (`stan_occu`,
+`stan_occuRN`, `stan_pcount`).
 
 Advantages compared to `unmarked`:
 
@@ -15,10 +17,8 @@ Advantages compared to `unmarked`:
 Disadvantages compared to `unmarked`:
 
 1.  MCMC is slower than maximum likelihood
-2.  Only a few models available for now, and some classes of models
-    might never be practical
+2.  Limited selection of model types
 3.  Potential convergence issues
-4.  Does not handle missing values
 
 ### Example
 
@@ -62,14 +62,23 @@ umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
     ## stan_occu(formula = ~x2 ~ x1 + (1 | group), data = umf, refresh = 0)
     ## 
     ## Occupancy:
-    ##                 Estimate    SD   2.5%  97.5% n_eff  Rhat
-    ## (Intercept)        0.314 0.288 -0.298  0.870  1118 1.001
-    ## x1                -0.463 0.117 -0.690 -0.242  8090 0.999
-    ## sigma [1|group]    1.392 0.287  0.937  2.063  2723 1.001
+    ##                 Estimate    SD   2.5%  97.5% n_eff Rhat
+    ## (Intercept)        0.329 0.310 -0.278  0.957  1184    1
+    ## x1                -0.464 0.117 -0.692 -0.238  5339    1
+    ## sigma [1|group]    1.406 0.293  0.942  2.094  2432    1
     ## 
     ## Detection:
     ##             Estimate     SD  2.5% 97.5% n_eff  Rhat
-    ## (Intercept)    0.382 0.0608 0.263 0.503  6634 0.999
-    ## x2             0.587 0.0615 0.469 0.708  9528 1.000
+    ## (Intercept)    0.383 0.0592 0.267 0.500  5807 1.000
+    ## x2             0.586 0.0629 0.463 0.714  6628 0.999
     ## 
-    ## WAIC: 2267.501
+    ## WAIC: 2266.865
+
+``` r
+#Goodness-of-fit tests
+gof(fm)
+```
+
+    ##       Statistic Bayesian P-val
+    ## 1      Deviance        0.47775
+    ## 2 Freeman-Tukey        0.48425

@@ -20,15 +20,15 @@ real lp_pcount_pois(int[] y, real log_lambda, vector logit_p, int K, int Kmin){
           log(fac);
 }
 
-vector get_loglik_pcount(int[] y, int M, int J, vector log_lambda, vector logit_p, 
+vector get_loglik_pcount(int[] y, int M, int[] J, vector log_lambda, vector logit_p, 
                          int mixture, real mix_param, int K, int[] Kmin){
   vector[M] out;
   int idx = 1;
   int end;
   for (i in 1:M){
-    end = idx + J - 1;
+    end = idx + J[i] - 1;
     out[i] = lp_pcount_pois(y[idx:end], log_lambda[i], logit_p[idx:end], K, Kmin[i]);
-    idx += J;
+    idx += J[i];
   }
   return out;
 }
@@ -54,7 +54,7 @@ real beta_mix; //2nd parameter for abundance
 transformed parameters{
 
 vector[M] log_lambda;
-vector[M*J] logit_p;
+vector[sum(J)] logit_p;
 vector[M] log_lik;
 
 log_lambda = X_state * beta_state;

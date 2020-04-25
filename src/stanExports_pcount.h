@@ -43,9 +43,9 @@ stan::io::program_reader prog_reader__() {
     reader.add_event(78, 49, "restart", "model_pcount");
     reader.add_event(109, 80, "include", "/include/model_single_season.stan");
     reader.add_event(109, 0, "start", "/include/model_single_season.stan");
-    reader.add_event(132, 23, "end", "/include/model_single_season.stan");
-    reader.add_event(132, 81, "restart", "model_pcount");
-    reader.add_event(136, 83, "end", "model_pcount");
+    reader.add_event(134, 25, "end", "/include/model_single_season.stan");
+    reader.add_event(134, 81, "restart", "model_pcount");
+    reader.add_event(138, 83, "end", "model_pcount");
     return reader;
 }
 template <typename T1__, typename T2__>
@@ -129,7 +129,7 @@ template <typename T3__, typename T4__, typename T6__>
 Eigen::Matrix<typename boost::math::tools::promote_args<T3__, T4__, T6__>::type, Eigen::Dynamic, 1>
 get_loglik_pcount(const std::vector<int>& y,
                       const int& M,
-                      const int& J,
+                      const std::vector<int>& J,
                       const Eigen::Matrix<T3__, Eigen::Dynamic, 1>& log_lambda,
                       const Eigen::Matrix<T4__, Eigen::Dynamic, 1>& logit_p,
                       const int& mixture,
@@ -162,14 +162,14 @@ get_loglik_pcount(const std::vector<int>& y,
         current_statement_begin__ = 28;
         for (int i = 1; i <= M; ++i) {
             current_statement_begin__ = 29;
-            stan::math::assign(end, ((idx + J) - 1));
+            stan::math::assign(end, ((idx + get_base1(J, i, "J", 1)) - 1));
             current_statement_begin__ = 30;
             stan::model::assign(out, 
                         stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                         lp_pcount_pois(stan::model::rvalue(y, stan::model::cons_list(stan::model::index_min_max(idx, end), stan::model::nil_index_list()), "y"), get_base1(log_lambda, i, "log_lambda", 1), stan::model::rvalue(logit_p, stan::model::cons_list(stan::model::index_min_max(idx, end), stan::model::nil_index_list()), "logit_p"), K, get_base1(Kmin, i, "Kmin", 1), pstream__), 
                         "assigning variable out");
             current_statement_begin__ = 31;
-            stan::math::assign(idx, (idx + J));
+            stan::math::assign(idx, (idx + get_base1(J, i, "J", 1)));
         }
         current_statement_begin__ = 33;
         return stan::math::promote_scalar<fun_return_scalar_t__>(out);
@@ -185,7 +185,7 @@ struct get_loglik_pcount_functor__ {
         Eigen::Matrix<typename boost::math::tools::promote_args<T3__, T4__, T6__>::type, Eigen::Dynamic, 1>
     operator()(const std::vector<int>& y,
                       const int& M,
-                      const int& J,
+                      const std::vector<int>& J,
                       const Eigen::Matrix<T3__, Eigen::Dynamic, 1>& log_lambda,
                       const Eigen::Matrix<T4__, Eigen::Dynamic, 1>& logit_p,
                       const int& mixture,
@@ -199,7 +199,7 @@ struct get_loglik_pcount_functor__ {
 class model_pcount : public prob_grad {
 private:
         int M;
-        int J;
+        std::vector<int> J;
         std::vector<int> y;
         int has_random_state;
         int has_random_det;
@@ -259,18 +259,22 @@ public:
             pos__ = 0;
             M = vals_i__[pos__++];
             current_statement_begin__ = 42;
-            context__.validate_dims("data initialization", "J", "int", context__.to_vec());
-            J = int(0);
+            validate_non_negative_index("J", "M", M);
+            context__.validate_dims("data initialization", "J", "int", context__.to_vec(M));
+            J = std::vector<int>(M, int(0));
             vals_i__ = context__.vals_i("J");
             pos__ = 0;
-            J = vals_i__[pos__++];
+            size_t J_k_0_max__ = M;
+            for (size_t k_0__ = 0; k_0__ < J_k_0_max__; ++k_0__) {
+                J[k_0__] = vals_i__[pos__++];
+            }
             current_statement_begin__ = 43;
-            validate_non_negative_index("y", "(M * J)", (M * J));
-            context__.validate_dims("data initialization", "y", "int", context__.to_vec((M * J)));
-            y = std::vector<int>((M * J), int(0));
+            validate_non_negative_index("y", "sum(J)", sum(J));
+            context__.validate_dims("data initialization", "y", "int", context__.to_vec(sum(J)));
+            y = std::vector<int>(sum(J), int(0));
             vals_i__ = context__.vals_i("y");
             pos__ = 0;
-            size_t y_k_0_max__ = (M * J);
+            size_t y_k_0_max__ = sum(J);
             for (size_t k_0__ = 0; k_0__ < y_k_0_max__; ++k_0__) {
                 y[k_0__] = vals_i__[pos__++];
             }
@@ -345,14 +349,14 @@ public:
                 }
             }
             current_statement_begin__ = 53;
-            validate_non_negative_index("X_det", "(M * J)", (M * J));
+            validate_non_negative_index("X_det", "sum(J)", sum(J));
             validate_non_negative_index("X_det", "n_fixed_det", n_fixed_det);
-            context__.validate_dims("data initialization", "X_det", "matrix_d", context__.to_vec((M * J),n_fixed_det));
-            X_det = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>((M * J), n_fixed_det);
+            context__.validate_dims("data initialization", "X_det", "matrix_d", context__.to_vec(sum(J),n_fixed_det));
+            X_det = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(sum(J), n_fixed_det);
             vals_r__ = context__.vals_r("X_det");
             pos__ = 0;
             size_t X_det_j_2_max__ = n_fixed_det;
-            size_t X_det_j_1_max__ = (M * J);
+            size_t X_det_j_1_max__ = sum(J);
             for (size_t j_2__ = 0; j_2__ < X_det_j_2_max__; ++j_2__) {
                 for (size_t j_1__ = 0; j_1__ < X_det_j_1_max__; ++j_1__) {
                     X_det(j_1__, j_2__) = vals_r__[pos__++];
@@ -699,8 +703,8 @@ public:
             stan::math::initialize(log_lambda, DUMMY_VAR__);
             stan::math::fill(log_lambda, DUMMY_VAR__);
             current_statement_begin__ = 86;
-            validate_non_negative_index("logit_p", "(M * J)", (M * J));
-            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> logit_p((M * J));
+            validate_non_negative_index("logit_p", "sum(J)", sum(J));
+            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> logit_p(sum(J));
             stan::math::initialize(logit_p, DUMMY_VAR__);
             stan::math::fill(logit_p, DUMMY_VAR__);
             current_statement_begin__ = 87;
@@ -738,7 +742,7 @@ public:
                 }
             }
             current_statement_begin__ = 86;
-            size_t logit_p_j_1_max__ = (M * J);
+            size_t logit_p_j_1_max__ = sum(J);
             for (size_t j_1__ = 0; j_1__ < logit_p_j_1_max__; ++j_1__) {
                 if (stan::math::is_uninitialized(logit_p(j_1__))) {
                     std::stringstream msg__;
@@ -763,32 +767,32 @@ public:
             stan::math::fill(idx, std::numeric_limits<int>::min());
             stan::math::assign(idx,1);
             current_statement_begin__ = 114;
-            lp_accum__.add(cauchy_log<propto__>(beta_state, 0, 2.5));
+            lp_accum__.add(normal_log<propto__>(beta_state, 0, 2.5));
             current_statement_begin__ = 115;
-            lp_accum__.add(cauchy_log<propto__>(beta_det, 0, 2.5));
-            current_statement_begin__ = 117;
+            lp_accum__.add(normal_log<propto__>(beta_det, 0, 2.5));
+            current_statement_begin__ = 119;
             if (as_bool(has_random_state)) {
-                current_statement_begin__ = 118;
+                current_statement_begin__ = 120;
                 for (int i = 1; i <= n_group_vars_state; ++i) {
-                    current_statement_begin__ = 119;
+                    current_statement_begin__ = 121;
                     lp_accum__.add(normal_log<propto__>(stan::model::rvalue(b_state, stan::model::cons_list(stan::model::index_min_max(idx, ((get_base1(n_random_state, i, "n_random_state", 1) + idx) - 1)), stan::model::nil_index_list()), "b_state"), 0, get_base1(sigma_state, i, "sigma_state", 1)));
-                    current_statement_begin__ = 120;
+                    current_statement_begin__ = 122;
                     stan::math::assign(idx, (idx + get_base1(n_random_state, i, "n_random_state", 1)));
                 }
             }
-            current_statement_begin__ = 124;
+            current_statement_begin__ = 126;
             stan::math::assign(idx, 1);
-            current_statement_begin__ = 125;
+            current_statement_begin__ = 127;
             if (as_bool(has_random_det)) {
-                current_statement_begin__ = 126;
+                current_statement_begin__ = 128;
                 for (int i = 1; i <= n_group_vars_det; ++i) {
-                    current_statement_begin__ = 127;
+                    current_statement_begin__ = 129;
                     lp_accum__.add(normal_log<propto__>(stan::model::rvalue(b_det, stan::model::cons_list(stan::model::index_min_max(idx, ((get_base1(n_random_det, i, "n_random_det", 1) + idx) - 1)), stan::model::nil_index_list()), "b_det"), 0, get_base1(sigma_det, i, "sigma_det", 1)));
-                    current_statement_begin__ = 128;
+                    current_statement_begin__ = 130;
                     stan::math::assign(idx, (idx + get_base1(n_random_det, i, "n_random_det", 1)));
                 }
             }
-            current_statement_begin__ = 132;
+            current_statement_begin__ = 134;
             lp_accum__.add(sum(log_lik));
             }
         } catch (const std::exception& e) {
@@ -849,7 +853,7 @@ public:
         dims__.push_back(M);
         dimss__.push_back(dims__);
         dims__.resize(0);
-        dims__.push_back((M * J));
+        dims__.push_back(sum(J));
         dimss__.push_back(dims__);
         dims__.resize(0);
         dims__.push_back(M);
@@ -915,8 +919,8 @@ public:
             stan::math::initialize(log_lambda, DUMMY_VAR__);
             stan::math::fill(log_lambda, DUMMY_VAR__);
             current_statement_begin__ = 86;
-            validate_non_negative_index("logit_p", "(M * J)", (M * J));
-            Eigen::Matrix<double, Eigen::Dynamic, 1> logit_p((M * J));
+            validate_non_negative_index("logit_p", "sum(J)", sum(J));
+            Eigen::Matrix<double, Eigen::Dynamic, 1> logit_p(sum(J));
             stan::math::initialize(logit_p, DUMMY_VAR__);
             stan::math::fill(logit_p, DUMMY_VAR__);
             current_statement_begin__ = 87;
@@ -951,7 +955,7 @@ public:
                 for (size_t j_1__ = 0; j_1__ < log_lambda_j_1_max__; ++j_1__) {
                     vars__.push_back(log_lambda(j_1__));
                 }
-                size_t logit_p_j_1_max__ = (M * J);
+                size_t logit_p_j_1_max__ = sum(J);
                 for (size_t j_1__ = 0; j_1__ < logit_p_j_1_max__; ++j_1__) {
                     vars__.push_back(logit_p(j_1__));
                 }
@@ -1038,7 +1042,7 @@ public:
                 param_name_stream__ << "log_lambda" << '.' << j_1__ + 1;
                 param_names__.push_back(param_name_stream__.str());
             }
-            size_t logit_p_j_1_max__ = (M * J);
+            size_t logit_p_j_1_max__ = sum(J);
             for (size_t j_1__ = 0; j_1__ < logit_p_j_1_max__; ++j_1__) {
                 param_name_stream__.str(std::string());
                 param_name_stream__ << "logit_p" << '.' << j_1__ + 1;
@@ -1104,7 +1108,7 @@ public:
                 param_name_stream__ << "log_lambda" << '.' << j_1__ + 1;
                 param_names__.push_back(param_name_stream__.str());
             }
-            size_t logit_p_j_1_max__ = (M * J);
+            size_t logit_p_j_1_max__ = sum(J);
             for (size_t j_1__ = 0; j_1__ < logit_p_j_1_max__; ++j_1__) {
                 param_name_stream__.str(std::string());
                 param_name_stream__ << "logit_p" << '.' << j_1__ + 1;

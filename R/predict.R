@@ -21,8 +21,8 @@ setMethod("predict", "ubmsFit",
   stats <- apply(lp, 1, function(x){
       c(Predicted = fun(x),
         SD = stats::sd(x),
-        `2.5%` = as.numeric(stats::quantile(x, 0.025)),
-        `97.5%` = as.numeric(stats::quantile(x, 0.975))
+        `2.5%` = as.numeric(stats::quantile(x, 0.025, na.rm=TRUE)),
+        `97.5%` = as.numeric(stats::quantile(x, 0.975, na.rm=TRUE))
         )
       })
 
