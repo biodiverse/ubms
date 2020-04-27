@@ -26,20 +26,13 @@ setMethod("show", "ubmsFit", function(object){
 #' @importFrom rstan extract
 #' @export
 setMethod("extract", "ubmsFit", 
-  function(object, pars, permuted=TRUE, inc_warmup=FALSE,
-          include=TRUE){
+  function(object, pars, permuted=TRUE, inc_warmup=FALSE, include=TRUE){
   rstan::extract(object@stanfit, pars, permuted, inc_warmup, include)
 })
 
 setMethod("[", c("ubmsFit", "character", "missing", "missing"),
   function(x, i){
-
-  types <- names(x@submodels@submodels)
-  if(! i %in% types){
-    stop(paste("Possible types are:", paste(types, collapse=", ")),
-         call. = FALSE)
-  }
-  x@submodels@submodels[[i]]
+  x@submodels[i]
 })
 
 #' @importFrom rstan traceplot
@@ -67,7 +60,7 @@ stanfit_names <- function(submodels){
 
 stanfit_beta_names <- function(submodels){
   types <- names(submodels)
-  pars <- lapply(submodels, function(x) x@beta_names)
+  pars <- lapply(submodels, beta_names)
   names(pars) <- NULL
   for (i in 1:length(pars)){
     pars[[i]] <- paste0("beta_",types[i],"[",pars[[i]],"]")
@@ -77,7 +70,7 @@ stanfit_beta_names <- function(submodels){
 
 stanfit_b_names <- function(submodels){
   types <- names(submodels)
-  pars <- lapply(submodels, function(x) x@b_names)
+  pars <- lapply(submodels, b_names)
   names(pars) <- NULL
   for (i in 1:length(pars)){
     if(all(is.na(pars[[i]]))){
@@ -90,7 +83,7 @@ stanfit_b_names <- function(submodels){
 }
 
 stanfit_sigma_names <- function(submodels){
-  nm <- unlist(lapply(submodels, function(x) x@sigma_names))
+  nm <- unlist(lapply(submodels, sigma_names))
   if(all(is.na(nm))) return(character(0))
   nm <- nm[!is.na(nm)]
   for (i in 1:length(nm)){

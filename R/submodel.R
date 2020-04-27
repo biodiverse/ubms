@@ -1,3 +1,5 @@
+#Remove X and Z
+#store missing value indices in slot
 setClass("ubmsSubmodel",
   slots = c(
     name = "character",
@@ -5,11 +7,7 @@ setClass("ubmsSubmodel",
     data = "data.frame",
     formula = "formula",
     link = "character",
-    X = "matrix",
-    Z = "matrix",
-    beta_names = "character",
-    b_names = "character",
-    sigma_names = "character",
+    missing = "numeric",
     fixed_estimates = "data.frame",
     random_estimates = "data.frame"
   ),
@@ -19,53 +17,62 @@ setClass("ubmsSubmodel",
     data = data.frame(),
     formula = ~1,
     link = NA_character_,
-    X = matrix(1),
-    Z = matrix(0,0,0),
-    beta_names = NA_character_,
-    b_names = "NA_character_",
-    sigma_names = "NA_character_",
+    missing = numeric(0),
     fixed_estimates = data.frame(),
     random_estimates = data.frame()
   )
 )
 
 ubmsSubmodel <- function(name, type, data, formula, link){
-
-  X <- get_X(formula, data)
-  beta_names <- colnames(X)
-  
-  Z <- get_Z(formula, data)
-  b_names <- get_b_names(formula, data)
-
-  sigma_names <- get_sigma_names(formula, data)
-  
   new("ubmsSubmodel", name=name, type=type, data=data, formula=formula,
-      link=link, X=X, Z=Z, beta_names=beta_names, b_names=b_names,
-      sigma_names=sigma_names)
+      link=link)
 }
 
-get_X <- function(formula, data){
-  fixed <- lme4::nobars(formula)
-  mf <- model.frame(fixed, data, na.action=stats::na.pass)
-  model.matrix(fixed, mf)
+
+setMethod("model.matrix", "ubmsSubmodel", 
+          function(object, newdata=NULL, na.rm=FALSE, ...){
+
+  data <- object@data
+  formula <- lme4::nobars(object@formula)
+  mf <- model.frame(formula, data, na.action=stats::na.pass)
+  
+  if(is.null(newdata)){
+    out <- model.matrix(formula, mf)
+    if(na.rm) out <- out[-object@missing,,drop=FALSE]
+    return(out)
+  }
+
+  new_mf <- model.frame(stats::terms(mf), newdata, na.action=stats::na.pass,
+                        xlev=get_xlev(data, mf))
+  model.matrix(formula, new_mf)
+})
+
+get_xlev <- function(data, model_frame){
+  fac_col <- data[, sapply(data, is.factor), drop=FALSE]
+  xlevs <- lapply(fac_col, levels)
+  xlevs[names(xlevs) %in% names(model_frame)]
 }
 
-get_Z <- function(formula, data){
-  check_formula(formula, data)
-  rand <- lme4::findbars(formula)
-  if(is.null(rand)) return(matrix(0,0,0))
-  Zt <- get_reTrms(formula, data)$Zt
-  t(as.matrix(Zt))
-}
-
-get_reTrms <- function(formula, data){
-  #For compatibility with rhs-only formulas
-  #new_data <- cbind(dummy=0, data)
-  #new_formula <- as.formula(paste0("dummy", 
-  #                          paste(as.character(formula), collapse="")))  
+get_reTrms <- function(formula, data, newdata=NULL){
   fb <- lme4::findbars(formula)
   mf <- model.frame(lme4::subbars(formula), data, na.action=stats::na.pass)
-  lme4::mkReTrms(fb, mf)
+  if(is.null(newdata)) return(lme4::mkReTrms(fb, mf))
+  new_mf <- model.frame(stats::terms(mf), newdata, na.action=stats::na.pass,
+                        xlev=get_xlev(data, mf))
+  lme4::mkReTrms(fb, new_mf)
+}
+
+Z_matrix <- function(object, newdata=NULL, na.rm=FALSE, ...){  
+  data <- object@data
+  formula <- object@formula
+  check_formula(formula, data)
+
+  if(is.null(lme4::findbars(formula))) return(matrix(0,0,0))
+
+  Zt <- get_reTrms(formula, data, newdata)$Zt
+  Z <- t(as.matrix(Zt))
+  if(is.null(newdata) & na.rm) Z <- Z[-object@missing,,drop=FALSE]
+  Z
 }
 
 check_formula <- function(formula, data){
@@ -84,9 +91,14 @@ check_formula <- function(formula, data){
   }
 }
 
-get_b_names <- function(formula, data){
-  if(is.null(lme4::findbars(formula))) return(NA_character_)
-  group <- get_reTrms(formula, data)
+
+beta_names <- function(submodel){
+  colnames(model.matrix(submodel))
+}
+
+b_names <- function(submodel){
+  if(!has_random(submodel)) return(NA_character_)
+  group <- get_reTrms(submodel@formula, submodel@data)
   group_nms <- names(group$cnms)
   z_nms <- character()
   for (i in seq_along(group$cnms)) {
@@ -103,29 +115,13 @@ get_b_names <- function(formula, data){
   z_nms  
 }
 
-get_sigma_names <- function(formula, data){
-  rand <- lme4::findbars(formula)
-  if(length(rand)==0) return(NA_character_)  
-  nms <- get_reTrms(formula, data)$cnms
+sigma_names <- function(submodel){
+  if(!has_random(submodel)) return(NA_character_)
+  nms <- get_reTrms(submodel@formula, submodel@data)$cnms
   nms <- paste0(unlist(nms), "|", names(nms)) 
   nms <- gsub("(Intercept)", "1", nms, fixed=TRUE)
   paste0("sigma [", nms, "]")
 }
-
-setMethod("model.matrix", "ubmsSubmodel", function(object, newdata, ...){
-
-  if(missing(newdata)) return(object@X)
-
-  data <- object@data
-  formula <- lme4::nobars(object@formula)
-  fac_col <- data[, sapply(data, is.factor), drop=FALSE]
-  xlevs <- lapply(fac_col, levels)
-  mf <- model.frame(formula, data)
-  xlevs <- xlevs[names(xlevs) %in% names(mf)]
-  model.matrix(formula, model.frame(stats::terms(mf), newdata, 
-                                    na.action=stats::na.pass, xlev=xlevs))
-
-})
 
 setGeneric("add_estimates", function(object, stanfit, ...){
   standardGeneric("add_estimates")
@@ -134,13 +130,13 @@ setGeneric("add_estimates", function(object, stanfit, ...){
 setMethod("add_estimates", "ubmsSubmodel", function(object, stanfit, ...){
   fixed <- rstan::summary(stanfit, beta_par(object))
   fixed <- as.data.frame(fixed$summary)
-  rownames(fixed) <- object@beta_names
+  rownames(fixed) <- beta_names(object)
   object@fixed_estimates <- fixed
 
-  if(!is.na(object@sigma_names)){
+  if(has_random(object)){
     random <- rstan::summary(stanfit, sig_par(object))
     random <- as.data.frame(random$summary)
-    rownames(random) <- object@sigma_names
+    rownames(random) <- sigma_names(object)
     object@random_estimates <- random
   }
   return(object)
@@ -193,6 +189,45 @@ ubmsSubmodelList <- function(...){
   names(submodels) <- sapply(submodels, function(x) x@type)
   new("ubmsSubmodelList", submodels=submodels)
 }
+
+setMethod("[", c("ubmsSubmodelList", "character", "missing", "missing"),
+  function(x, i){
+
+  types <- names(x@submodels)
+  if(! i %in% types){
+    stop(paste("Possible types are:", paste(types, collapse=", ")),
+         call. = FALSE)
+  }
+  x@submodels[[i]]
+})
+
+setGeneric("find_missing", function(object, umf, ...){
+             standardGeneric("find_missing")})
+
+setMethod("find_missing", c("ubmsSubmodelList", "unmarkedFrame"),
+          function(object, umf, ...){
+
+  y <- getY(umf)
+  M <- nrow(y)
+  J <- ncol(y)
+
+  state <- object["state"]
+  det <- object["det"]
+
+  ylong <- as.vector(t(y))
+  site_idx <- rep(1:M, each=J)
+  state_long <- model.matrix(state)[site_idx,,drop=FALSE]
+
+  comb <- cbind(y=ylong, state_long, model.matrix(det))
+  keep_obs <- apply(comb, 1, function(x) !any(is.na(x)))
+
+  det@missing <- which(!keep_obs)
+  
+  keep_sites <- unique(site_idx[keep_obs]) 
+  state@missing <- which(!1:M %in% keep_sites)
+  
+  ubmsSubmodelList(state, det)
+})
 
 setMethod("add_estimates", "ubmsSubmodelList", function(object, stanfit, ...){
   for (i in 1:length(object@submodels)){

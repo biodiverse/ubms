@@ -1,10 +1,6 @@
-build_stan_inputs <- function(umf, submodels, ...){
-  
-  clean <- remove_NA(umf, submodels)
-  umf <- clean$umf
-  submodels <- clean$submodels
-
-  y_data <- get_y_data(umf, ...)
+build_stan_inputs <- function(submodels, umf, ...){
+ 
+  y_data <- get_y_data(umf, submodels, ...)
 
   submodels <- unname(submodels@submodels)
   types <- sapply(submodels, function(x) x@type)
@@ -30,17 +26,15 @@ get_pars <- function(submodels){
   c(pars, "log_lik")
 }
 
-setGeneric("get_y_data", function(object, ...){
-             standardGeneric("get_y_data")})
 
-setMethod("get_y_data", "unmarkedFrameOccu", function(object, K, ...){
-  y <- getY(object)
-  J <- apply(y, 1, function(x) sum(!is.na(x)))
-  no_detects <- apply(y, 1, function(x) ifelse(sum(x, na.rm=TRUE)>0, 0, 1))
-  ylong <- as.vector(t(y))
-  ylong <- ylong[!is.na(ylong)]
+setGeneric("get_y_data", function(object, ...) standardGeneric("get_y_data"))
 
-  out <- list(y=ylong, M=nrow(y), J=J)  
+setMethod("get_y_data", "unmarkedFrameOccu", function(object, submod, K, ...){
+  yt <- get_yt(object, submod)
+  J <- apply(yt, 2, function(x) sum(!is.na(x)))
+  no_detects <- 1 - apply(yt, 2, max, na.rm=TRUE)
+  ylong <- stats::na.omit(as.vector(yt))
+  out <- list(y=ylong, M=ncol(yt), J=J)  
   if(missing(K)){
     #Regular occupancy
     return(c(out, no_detects=list(no_detects)))
@@ -50,53 +44,27 @@ setMethod("get_y_data", "unmarkedFrameOccu", function(object, K, ...){
 })
 
 setMethod("get_y_data", "unmarkedFramePCount", 
-          function(object, K=NULL, mixture="P", ...){
-  y <- getY(object)
-  J <- apply(y, 1, function(x) sum(!is.na(x)))
-  ylong <- as.vector(t(y))
-  ylong <- ylong[!is.na(ylong)]
-  Kinfo <- get_K(y, K)
+          function(object, submod, K=NULL, mixture="P", ...){
+  yt <- get_yt(object, submod)
+  J <- apply(yt, 2, function(x) sum(!is.na(x)))
+  Kinfo <- get_K(yt, K)
+  ylong <- stats::na.omit(as.vector(yt))
   mixture <- switch(mixture, P={1})
-  c(list(y=ylong, M=nrow(y), J=J, mixture=mixture), Kinfo)
+  c(list(y=ylong, M=ncol(yt), J=J, mixture=mixture), Kinfo)
 })
 
 
-setGeneric("remove_NA", 
-           function(object, submodels, ...) standardGeneric("remove_NA"))
+setGeneric("get_yt", function(object, ...) standardGeneric("get_yt"))
 
-setMethod("remove_NA", c("unmarkedFrame", "ubmsSubmodelList"),
-          function(object, submodels, ...){
-
-  y <- getY(object)
-  M <- nrow(y)
-  J <- ncol(y)
-
-  state <- submodels@submodels$state
-  det <- submodels@submodels$det
-
-  ylong <- as.vector(t(y))
-  site_idx <- rep(1:M, each=J)
-  state_long <- state@X[site_idx,]
-
-  comb <- cbind(y=ylong, state_long, det@X)
-  keep_obs <- apply(comb, 1, function(x) !any(is.na(x)))
-  
-  ylong[!keep_obs] <- NA
-  det@X <- det@X[keep_obs,]
-  if(has_random(det)) det@Z <- det@Z[keep_obs,]
-  
-  keep_sites <- unique(site_idx[keep_obs]) 
-  state@X <- state@X[keep_sites,]
-  if(has_random(state)) state@Z <- state@Z[keep_sites,] 
-  ymat <- matrix(ylong, nrow=M, byrow=TRUE)[keep_sites,]
-  umf@y <- ymat
-
-  list(umf=umf, submodels=ubmsSubmodelList(state, det))
+setMethod("get_yt", "unmarkedFrame", function(object, submod, ...){
+  yt <- t(getY(object))
+  yt[submod["det"]@missing] <- NA
+  yt[, -submod["state"]@missing, drop=FALSE]
 })
 
 
-get_K <- function(y, K=NULL){
-  ymax <- max(y, na.rm=TRUE)
+get_K <- function(yt, K=NULL){
+  ymax <- max(yt, na.rm=TRUE)
   if(is.null(K)){
     K <- ymax + 20
   } else {
@@ -104,7 +72,7 @@ get_K <- function(y, K=NULL){
       stop("K must be larger than the maximum observed count", call.=FALSE)
     }
   }
-  Kmin <- apply(y, 1, max, na.rm=TRUE)
+  Kmin <- apply(yt, 2, max, na.rm=TRUE)
   list(K=K, Kmin=Kmin)
 }
 
@@ -116,10 +84,10 @@ setMethod("get_stan_data", "ubmsSubmodel", function(object, ...){
   n_group_vars <- get_group_vars(object@formula)
   has_rand <- has_random(object)
   n_random <- get_nrandom(object@formula, object@data)
-  Zinfo <- get_sparse_Z(object@Z)
-  out <- list(X=object@X, n_fixed=ncol(object@X), 
-              n_group_vars=n_group_vars, has_random=has_rand,
-              n_random=n_random)
+  Zinfo <- get_sparse_Z(Z_matrix(object, na.rm=TRUE))
+  X <- model.matrix(object, na.rm=TRUE)
+  out <- list(X=X, n_fixed=ncol(X), n_group_vars=n_group_vars, 
+              has_random=has_rand, n_random=n_random)
   out <- c(out, Zinfo)
   names(out) <- paste0(names(out), "_", object@type)
   out

@@ -11,8 +11,8 @@ stan_occuRN <- function(formula, data, K=20, ...){
   state <- ubmsSubmodel("Abundance", "state", siteCovs(data), lamformula, "exp")
   det <- ubmsSubmodel("Detection", "det", obsCovs(data), pformula, "plogis")
   submodels <- ubmsSubmodelList(state, det)
-
-  inp <- build_stan_inputs(data, submodels, K=K)
+  submodels <- find_missing(submodels, data)
+  inp <- build_stan_inputs(submodels, data, K=K)
 
   fit <- sampling(stanmodels$occuRN, data=inp$stan_data, pars=inp$pars, ...)
 
