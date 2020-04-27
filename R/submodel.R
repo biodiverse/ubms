@@ -32,7 +32,7 @@ setMethod("model.matrix", "ubmsSubmodel",
   
   if(is.null(newdata)){
     out <- model.matrix(formula, mf)
-    if(na.rm) out <- out[-object@missing,,drop=FALSE]
+    if(na.rm & has_missing(object)) out <- out[-object@missing,,drop=FALSE]
     return(out)
   }
 
@@ -40,6 +40,10 @@ setMethod("model.matrix", "ubmsSubmodel",
                         xlev=get_xlev(data, mf))
   model.matrix(formula, new_mf)
 })
+
+has_missing <- function(submodel){
+  length(submodel@missing) > 0
+}
 
 get_xlev <- function(data, model_frame){
   fac_col <- data[, sapply(data, is.factor), drop=FALSE]
@@ -65,7 +69,9 @@ Z_matrix <- function(object, newdata=NULL, na.rm=FALSE, ...){
 
   Zt <- get_reTrms(formula, data, newdata)$Zt
   Z <- t(as.matrix(Zt))
-  if(is.null(newdata) & na.rm) Z <- Z[-object@missing,,drop=FALSE]
+  if(is.null(newdata) & na.rm & has_missing(object)){ 
+    Z <- Z[-object@missing,,drop=FALSE]
+  }
   Z
 }
 

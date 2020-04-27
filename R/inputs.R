@@ -59,7 +59,10 @@ setGeneric("get_yt", function(object, ...) standardGeneric("get_yt"))
 setMethod("get_yt", "unmarkedFrame", function(object, submod, ...){
   yt <- t(getY(object))
   yt[submod["det"]@missing] <- NA
-  yt[, -submod["state"]@missing, drop=FALSE]
+  if(has_missing(submod["state"])){
+    yt <- yt[, -submod["state"]@missing, drop=FALSE]
+  }
+  yt
 })
 
 
