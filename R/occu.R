@@ -15,9 +15,7 @@ stan_occu <- function(formula, data, ...){
   inp <- build_stan_inputs(submodels, data)
 
   fit <- sampling(stanmodels$occu, data=inp$stan_data, pars=inp$pars, ...)
-
   fit <- process_stanfit(fit, submodels)
-  submodels <- add_estimates(submodels, fit)
 
   new("ubmsFitOccu", call=match.call(), data=data, stanfit=fit, 
       WAIC=get_waic(fit), submodels=submodels)

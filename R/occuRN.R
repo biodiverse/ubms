@@ -15,9 +15,7 @@ stan_occuRN <- function(formula, data, K=20, ...){
   inp <- build_stan_inputs(submodels, data, K=K)
 
   fit <- sampling(stanmodels$occuRN, data=inp$stan_data, pars=inp$pars, ...)
-
   fit <- process_stanfit(fit, submodels)
-  submodels <- add_estimates(submodels, fit)
 
   new("ubmsFitOccuRN", call=match.call(), data=data, stanfit=fit, 
       WAIC=get_waic(fit), submodels=submodels)

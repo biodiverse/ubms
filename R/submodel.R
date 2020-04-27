@@ -1,5 +1,3 @@
-#Remove X and Z
-#store missing value indices in slot
 setClass("ubmsSubmodel",
   slots = c(
     name = "character",
@@ -7,9 +5,7 @@ setClass("ubmsSubmodel",
     data = "data.frame",
     formula = "formula",
     link = "character",
-    missing = "numeric",
-    fixed_estimates = "data.frame",
-    random_estimates = "data.frame"
+    missing = "numeric"
   ),
   prototype = list(
     name = NA_character_,
@@ -17,9 +13,7 @@ setClass("ubmsSubmodel",
     data = data.frame(),
     formula = ~1,
     link = NA_character_,
-    missing = numeric(0),
-    fixed_estimates = data.frame(),
-    random_estimates = data.frame()
+    missing = numeric(0)
   )
 )
 
@@ -123,43 +117,6 @@ sigma_names <- function(submodel){
   paste0("sigma [", nms, "]")
 }
 
-setGeneric("add_estimates", function(object, stanfit, ...){
-  standardGeneric("add_estimates")
-})
-
-setMethod("add_estimates", "ubmsSubmodel", function(object, stanfit, ...){
-  fixed <- rstan::summary(stanfit, beta_par(object))
-  fixed <- as.data.frame(fixed$summary)
-  rownames(fixed) <- beta_names(object)
-  object@fixed_estimates <- fixed
-
-  if(has_random(object)){
-    random <- rstan::summary(stanfit, sig_par(object))
-    random <- as.data.frame(random$summary)
-    rownames(random) <- sigma_names(object)
-    object@random_estimates <- random
-  }
-  return(object)
-})
-
-setMethod("show", "ubmsSubmodel", function(object){
-  
-  if(nrow(object@fixed_estimates) == 0){
-    cat(paste0(object@name,":\n"))
-    cat("No estimates yet\n")
-    return(invisible)
-  }
-  out_df <- object@fixed_estimates[,c(1,3,4,8:10)]
-
-  if(nrow(object@random_estimates)>0){
-    out_df <- rbind(out_df, object@random_estimates[,c(1,3,4,8:10)])
-  }
-  names(out_df)[1:2] <- c("Estimate", "SD")
-
-  cat(paste0(object@name,":\n"))
-  print(out_df, digits=3)
-})
-
 setGeneric("has_random", function(object){
   standardGeneric("has_random")
 })
@@ -227,20 +184,4 @@ setMethod("find_missing", c("ubmsSubmodelList", "unmarkedFrame"),
   state@missing <- which(!1:M %in% keep_sites)
   
   ubmsSubmodelList(state, det)
-})
-
-setMethod("add_estimates", "ubmsSubmodelList", function(object, stanfit, ...){
-  for (i in 1:length(object@submodels)){
-    object@submodels[[i]] <- add_estimates(object@submodels[[i]], stanfit)
-  }
-  object
-})
-
-setMethod("show", "ubmsSubmodelList", function(object){
-
-  for (est in object@submodels){
-    show(est)
-    cat("\n")
-  }
-
 })

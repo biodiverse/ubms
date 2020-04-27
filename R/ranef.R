@@ -10,7 +10,7 @@ setMethod("ranef","ubmsFit", function(object, type, summary=FALSE, ...){
   }
   re <- get_reTrms(sm@formula, sm@data)
   fl <- re$cnms
-  bn <- sm@b_names
+  bn <- b_names(sm)
 
   ran <- lapply(1:length(fl), function(i){
   
@@ -20,7 +20,7 @@ setMethod("ranef","ubmsFit", function(object, type, summary=FALSE, ...){
       stop("There should only be one term here")
     }
 
-    beta_ind <- which(sm@beta_names == trm)
+    beta_ind <- which(beta_names(sm) == trm)
     mn_samples <- extract(object, paste0("beta_",type))[[1]]
     mn_samples <- mn_samples[,beta_ind]
 

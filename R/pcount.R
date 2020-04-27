@@ -15,9 +15,7 @@ stan_pcount <- function(formula, data, K=NULL, mixture="P", ...){
   inp <- build_stan_inputs(submodels, data, K=K, mixture=mixture)
 
   fit <- sampling(stanmodels$pcount, data=inp$stan_data, pars=inp$pars, ...)
-
   fit <- process_stanfit(fit, submodels)
-  submodels <- add_estimates(submodels, fit)
 
   new("ubmsFitPcount", call=match.call(), data=data, stanfit=fit, 
       WAIC=get_waic(fit), submodels=submodels)
