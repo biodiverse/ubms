@@ -10,7 +10,7 @@
 #' @importFrom rstan sampling
 #' @importFrom methods new
 #' @importFrom unmarked getY siteCovs obsCovs
-#' @importFrom stats as.formula model.frame predict rbinom
+#' @importFrom stats as.formula model.frame rbinom dbinom
 #' @useDynLib "ubms", .registration = TRUE
 #' @name ubms
 NULL

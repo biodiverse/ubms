@@ -24,7 +24,7 @@ setMethod("plot", "ubmsGOF", function(x, ...){
   bp_dat$lab <- paste("P =", round(bp_dat[,2], 2))
   names(bp_dat)[1] <- 'stat'
 
-  ggplot(x@samples, aes(x=obs, y=sim)) +
+  ggplot(x@samples, aes_string(x="obs", y="sim")) +
     geom_abline(aes(intercept=0, slope=1),size=1.2, col='red') +
     geom_point(alpha=0.4) +
     theme_bw() +
@@ -37,21 +37,19 @@ setMethod("plot", "ubmsGOF", function(x, ...){
           strip.text=element_text(size=14),
           axis.text=element_text(size=12),
           axis.title=element_text(size=14)) +
-    geom_label(data=bp_dat, aes(x=-Inf, y=Inf, label=lab),
+    geom_label(data=bp_dat, aes_string(x=-Inf, y=Inf, label="lab"),
               hjust=-0.2, vjust=1.4, size=5,
               fill='white', label.size=0, 
               label.padding=unit(0.1, "lines"))
 })
 
 
-#' @include simulate.R
-#' @include predict.R
 #' @export
 setGeneric("gof", function(object, nsim=NULL, ...){
              standardGeneric("gof")})
 
 #' @include occu.R
-setMethod("gof", "ubmsFitOccu", function(object, nsim=NULL, ...){
+setMethod("gof", "ubmsFitOccu", function(object, draws=NULL, ...){
 
   y <- getY(object@data)
   ylong <- as.vector(t(y))
@@ -59,13 +57,17 @@ setMethod("gof", "ubmsFitOccu", function(object, nsim=NULL, ...){
   M <- nrow(y)
   J <- ncol(y)
 
-  samples <- get_sample_inds(object@stanfit, nsim=nsim, samples=NULL)
-  nsamples <- length(samples)
+  nsamp <- nsamples(object)
+  samples <- 1:nsamp
+  if(!is.null(draws) && draws < nsamp){
+    samples <- sample(1:nsamp, draws)
+  }
 
-  z <- simulate(object, param="z", samples=samples) 
-  p <- predict(object, "det", summary=FALSE)[,samples,drop=FALSE] 
-  ysim <- sim_y(object, z, samples)
-  ysim_long <- apply(ysim, 3, function(x) as.vector(t(x)))
+  z <- sim_z(object, samples=samples, re.form=NULL)
+  ysim_long <- t(sim_y(object, samples=samples, re.form=NULL, z=z))
+  z <- t(z)
+  p <- t(sim_lp(object, "det", transform=TRUE, newdata=NULL, 
+                samples=samples, re.form=NULL))
   
   zp <- z[rep(1:nrow(z), each=J),] * p
 
@@ -87,7 +89,7 @@ setMethod("gof", "ubmsFitOccu", function(object, nsim=NULL, ...){
 
 
 #' @include pcount.R
-setMethod("gof", "ubmsFitPcount", function(object, nsim=NULL, ...){
+setMethod("gof", "ubmsFitPcount", function(object, draws=NULL, ...){
 
   y <- getY(object@data)
   ylong <- as.vector(t(y))
@@ -95,22 +97,26 @@ setMethod("gof", "ubmsFitPcount", function(object, nsim=NULL, ...){
   M <- nrow(y)
   J <- ncol(y)
 
-  samples <- get_sample_inds(object@stanfit, nsim=nsim, samples=NULL)
-  nsamples <- length(samples)
+  nsamp <- nsamples(object)
+  samples <- 1:nsamp
+  if(!is.null(draws) && draws < nsamp){
+    samples <- sample(1:nsamp, draws)
+  }  
+  draws <- length(samples)
 
-  z <- simulate(object, param="z", samples=samples) 
-  p <- predict(object, "det", summary=FALSE)[,samples,drop=FALSE] 
-  ysim <- sim_y(object, z, samples)
-  ysim_long <- apply(ysim, 3, function(x) as.vector(t(x)))
-  
+  z <- sim_z(object, samples=samples, re.form=NULL)
+  ysim_long <- t(sim_y(object, samples=samples, re.form=NULL, z=z))
+  z <- t(z)
+  p <- t(sim_lp(object, "det", transform=TRUE, newdata=NULL, 
+                samples=samples, re.form=NULL))
   N <- z[rep(1:nrow(z), each=J),]
 
   #Deviance
   dev_sim <- dbinom(as.vector(ysim_long), as.vector(N), as.vector(p), log=TRUE)   
   dev_sim <- matrix(dev_sim, nrow=M*J)
   dev_sim <- apply(dev_sim, 2, function(x) -2 * sum(x, na.rm=TRUE))  
-  dev_obs <- rep(NA, nsamples)
-  for (i in 1:nsamples){
+  dev_obs <- rep(NA, draws)
+  for (i in 1:draws){
     dev_obs[i] <- -2*sum(dbinom(ylong, N[,i], p[,i], log=TRUE), na.rm=TRUE) 
   }
   dev_df <- data.frame(stat="Deviance", sim=dev_sim, obs=dev_obs)

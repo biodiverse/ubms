@@ -12,6 +12,7 @@ setClass("ubmsFit",
           )
 )
 
+
 #' @importFrom rstan extract
 #' @export
 setMethod("extract", "ubmsFit", 
@@ -19,52 +20,10 @@ setMethod("extract", "ubmsFit",
   rstan::extract(object@stanfit, pars, permuted, inc_warmup, include)
 })
 
-setMethod("[", c("ubmsFit", "character", "missing", "missing"),
-  function(x, i){
-  x@submodels[i]
-})
 
 submodel_types <- function(object){
   names(object@submodels@submodels)
 }
-
-get_summary <- function(object, type){
-  sm <- object[type]
-  out <- rstan::summary(object@stanfit, beta_par(sm))
-  out <- as.data.frame(out$summary)
-  rownames(out) <- beta_names(sm)
-
-  if(has_random(sm)){
-    random <- rstan::summary(object@stanfit, sig_par(sm))
-    random <- as.data.frame(random$summary)
-    rownames(random) <- sigma_names(sm)
-    out <- rbind(out, random)
-  }
-  out
-}
-
-#' @export
-setMethod("summary", "ubmsFit", function(object, type, ...){
-  get_summary(object, type)
-})
-
-setMethod("show", "ubmsFit", function(object){
-  
-  cat("\nCall:\n")
-  print(object@call)
-  cat("\n")
-
-  for (i in submodel_types(object)){
-    to_print <- get_summary(object, i)[,c(1,3,4,8:10)]
-    names(to_print)[1:2] <- c("Estimate", "SD")
-    cat(paste0(object[i]@name,":\n"))
-    print(to_print, digits=3)
-    cat("\n")
-  }
-
-  cat(paste0("WAIC: ", round(object@WAIC$estimates[3,1], 3)))
-  cat("\n")
-})
 
 
 #' @importFrom rstan traceplot

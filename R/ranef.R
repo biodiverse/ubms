@@ -1,6 +1,5 @@
-#setGeneric("ranef", function(object, ...) standardGeneric("ranef"))
-
 #' @include fit.R
+#' @importFrom lme4 ranef
 #' @export
 setMethod("ranef","ubmsFit", function(object, type, summary=FALSE, ...){ 
 
