@@ -7,6 +7,20 @@
 
 using namespace Rcpp;
 
+// exp_counts_occu
+arma::vec exp_counts_occu(arma::mat obs, arma::ivec no_detects, arma::vec psi, arma::vec p);
+RcppExport SEXP _ubms_exp_counts_occu(SEXP obsSEXP, SEXP no_detectsSEXP, SEXP psiSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type obs(obsSEXP);
+    Rcpp::traits::input_parameter< arma::ivec >::type no_detects(no_detectsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type psi(psiSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(exp_counts_occu(obs, no_detects, psi, p));
+    return rcpp_result_gen;
+END_RCPP
+}
 // simz_pcount
 arma::imat simz_pcount(arma::umat y, arma::mat lam_post, arma::cube p_post, unsigned K, arma::uvec Kmin, arma::uvec kvals);
 RcppExport SEXP _ubms_simz_pcount(SEXP ySEXP, SEXP lam_postSEXP, SEXP p_postSEXP, SEXP KSEXP, SEXP KminSEXP, SEXP kvalsSEXP) {
@@ -45,6 +59,7 @@ RcppExport SEXP _rcpp_module_boot_stan_fit4occuRN_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4pcount_mod();
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_ubms_exp_counts_occu", (DL_FUNC) &_ubms_exp_counts_occu, 4},
     {"_ubms_simz_pcount", (DL_FUNC) &_ubms_simz_pcount, 6},
     {"_ubms_simz_occuRN", (DL_FUNC) &_ubms_simz_occuRN, 6},
     {"_rcpp_module_boot_stan_fit4occu_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4occu_mod, 0},

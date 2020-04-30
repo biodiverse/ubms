@@ -30,10 +30,7 @@ setMethod("posterior_predict", "ubmsFit",
  
   param <- match.arg(param, c("y", "z"))
   nsamp <- nsamples(object)
-  samp_inds <- 1:nsamp
-  if(!is.null(draws) && draws < nsamp){
-    samp_inds <- sample(1:nsamp, draws)
-  }
+  samp_inds <- get_samples(object, draws)
 
   switch(param, 
          "z" = sim_z(object, samples=samp_inds, re.form=re.form),

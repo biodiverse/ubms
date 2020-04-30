@@ -6,12 +6,7 @@ setMethod("posterior_linpred", "ubmsFit",
                    re.form=NULL, ...){
  
   check_type(type, submodel_types(object))
-
-  nsamp <- nsamples(object)
-  samp_inds <- 1:nsamp
-  if(!is.null(draws) && draws < nsamp){
-    samp_inds <- sample(1:nsamp, draws)
-  }
+  samp_inds <- get_samples(object, draws)
 
   sim_lp(object, type=type, transform=transform, newdata=newdata, 
          samples=samp_inds, re.form=re.form) 
