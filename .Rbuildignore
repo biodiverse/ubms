@@ -1,6 +1,7 @@
 Makefile
 README.md
 README.Rmd
+README_figs*
 .travis.yml
 .gitignore
 .git*

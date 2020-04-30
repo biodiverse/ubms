@@ -8,7 +8,7 @@
 \usage{
 gof(object, draws = NULL, ...)
 
-\S4method{gof}{ubmsFitOccu}(object, draws = NULL, ...)
+\S4method{gof}{ubmsFitOccu}(object, draws = NULL, quiet = FALSE, ...)
 }
 \arguments{
 \item{object}{A fitted model of class \code{ubmsFit}}
@@ -16,6 +16,8 @@ gof(object, draws = NULL, ...)
 \item{draws}{Number of draws from the posterior to use in the check}
 
 \item{...}{Currently ignored}
+
+\item{quiet}{If \code{TRUE}, suppress progress bar}
 }
 \value{
 An object of class \code{ubmsGOF} containing statistics calculated

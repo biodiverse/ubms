@@ -43,6 +43,7 @@ setMethod("plot", "ubmsGOF", function(x, ...){
 #' checks
 #' @param object A fitted model of class \code{ubmsFit}
 #' @param draws Number of draws from the posterior to use in the check
+#' @param quiet If \code{TRUE}, suppress progress bar
 #' @param ... Currently ignored
 #'
 #' @return An object of class \code{ubmsGOF} containing statistics calculated
@@ -58,7 +59,7 @@ setGeneric("gof", function(object, draws=NULL, ...){
 #'  fit of site-occupancy models. Journal of Agricultural, Biological, 
 #'  and Environmental Statistics, 9(3), 300-318.
 #' @include occu.R
-setMethod("gof", "ubmsFitOccu", function(object, draws=NULL, ...){
+setMethod("gof", "ubmsFitOccu", function(object, draws=NULL, quiet=FALSE, ...){
 
   samples <- get_samples(object, draws)
   draws <- length(samples)
@@ -76,15 +77,15 @@ setMethod("gof", "ubmsFitOccu", function(object, draws=NULL, ...){
   ysim <- aperm(ysim, c(3,2,1))
 
   mb_obs <- mb_sim <- rep(NA, draws)
-  pb <- utils::txtProgressBar(min = 0, max = draws, style = 3)
+  if(!quiet) pb <- utils::txtProgressBar(min = 0, max = draws, style = 3)
   object_star <- object
   for (i in 1:draws){
     mb_obs[i] <- mb_chisq(object, psi[i,], p[i,])
     object_star@data@y <- ysim[,,i]
     #mb_chisq handles replicating NAs
     mb_sim[i] <- mb_chisq(object_star, psi[i,], p[i,])
-    utils::setTxtProgressBar(pb, i)
+    if(!quiet) utils::setTxtProgressBar(pb, i)
   }
-  cat("\n")
+  if(!quiet) close(pb)
   ubmsGOF("MacKenzie-Bailey Chi-square", data.frame(obs=mb_obs, sim=mb_sim))
 })

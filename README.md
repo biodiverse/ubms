@@ -22,8 +22,11 @@ Disadvantages compared to `unmarked`:
 
 ### Example
 
+Simulate occupancy data including a random effect on occupancy:
+
 ``` r
-#Simulate occupancy data including random effect on occupancy
+library(ubms)
+
 set.seed(123)
 dat_occ <- data.frame(x1=rnorm(500))
 dat_p <- data.frame(x2=rnorm(500*5))
@@ -47,13 +50,18 @@ for (i in 1:500){
     idx <- idx + 1
   }
 }
+```
 
-library(ubms)
+Create `unmarked` frame:
 
-#Create unmarked frame
+``` r
 umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
+```
 
-#Fit model with random intercept
+Fit a model with a random intercept:
+
+``` r
+options(mc.cores=3) #number of parallel cores to use
 (fm <- stan_occu(~x2 ~x1 + (1|group), umf, refresh=0))
 ```
 
@@ -74,11 +82,19 @@ umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
     ## 
     ## WAIC: 2266.865
 
+Assess model goodness-of-fit with a posterior predictive check, using
+the MacKenzie-Bailey chi-square test:
+
 ``` r
-#Goodness-of-fit tests
-gof(fm)
+(fm_fit <- gof(fm, draws=500, quiet=TRUE))
 ```
 
-    ##       Statistic Bayesian P-val
-    ## 1      Deviance        0.47775
-    ## 2 Freeman-Tukey        0.48425
+    ## MacKenzie-Bailey Chi-square 
+    ## Point estimate = 30.225
+    ## Posterior predictive p = 0.474
+
+``` r
+plot(fm_fit)
+```
+
+![](README_figs/README-gof-1.png)<!-- -->
