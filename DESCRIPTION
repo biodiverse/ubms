@@ -47,6 +47,7 @@ Collate:
     'posterior_predict.R'
     'predict.R'
     'ranef.R'
+    'residuals.R'
     'stanmodels.R'
     'ubms-package.R'
     'ubmsFit-methods.R'
