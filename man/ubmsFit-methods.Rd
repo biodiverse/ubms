@@ -6,6 +6,8 @@
 \alias{[,ubmsFit,character,missing,missing-method}
 \alias{nsamples,ubmsFit-method}
 \alias{summary,ubmsFit-method}
+\alias{loo,ubmsFit-method}
+\alias{waic,ubmsFit-method}
 \title{Methods for ubmsFit objects
 These methods are similar to methods defined for objects of class \code{lm},
 \code{merMod}, \code{stanreg}. The most important methods are documented
@@ -16,14 +18,18 @@ section below.}
 
 \S4method{nsamples}{ubmsFit}(object, ...)
 
-\S4method{summary}{ubmsFit}(object, type, ...)
+\S4method{summary}{ubmsFit}(object, submodel, ...)
+
+\S4method{loo}{ubmsFit}(x, ..., cores = getOption("mc.cores", 1))
+
+\S4method{waic}{ubmsFit}(x, ...)
 }
 \arguments{
 \item{object, x}{A fitted model of class \code{ubmsFit}}
 
 \item{...}{Currently ignored}
 
-\item{type, i}{A submodel type, e.g. \code{"det"} for the detection model}
+\item{submodel, i}{A submodel, e.g. \code{"det"} for the detection model}
 }
 \description{
 Methods for ubmsFit objects

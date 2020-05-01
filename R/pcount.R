@@ -18,6 +18,6 @@ stan_pcount <- function(formula, data, K=NULL, mixture="P", ...){
   fit <- process_stanfit(fit, submodels)
 
   new("ubmsFitPcount", call=match.call(), data=data, stanfit=fit, 
-      WAIC=get_waic(fit), submodels=submodels)
+      WAIC=waic(fit), submodels=submodels)
 }
 

@@ -6,3 +6,11 @@ get_samples <- function(fit, draws){
   }
   out
 }
+
+
+check_type <- function(type, possible_types){
+  if(! type %in% possible_types){
+    stop(paste("Submodel must be one of:", paste(possible_types, collapse=", ")),
+         call.=FALSE)
+  }
+}

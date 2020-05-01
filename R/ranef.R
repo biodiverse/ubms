@@ -1,9 +1,9 @@
 #' @include fit.R
 #' @importFrom lme4 ranef
 #' @export
-setMethod("ranef","ubmsFit", function(object, type, summary=FALSE, ...){ 
+setMethod("ranef","ubmsFit", function(object, submodel, summary=FALSE, ...){ 
 
-  sm <- object[type]
+  sm <- object[submodel]
   if(!has_random(sm)){
     stop("No random effects terms in this submodel", call.=FALSE)
   }
@@ -20,11 +20,11 @@ setMethod("ranef","ubmsFit", function(object, type, summary=FALSE, ...){
     }
 
     beta_ind <- which(beta_names(sm) == trm)
-    mn_samples <- extract(object, paste0("beta_",type))[[1]]
+    mn_samples <- extract(object, paste0("beta_",submodel))[[1]]
     mn_samples <- mn_samples[,beta_ind]
 
     b_ind <- re$Gp[i:(i+1)] + c(1,0)
-    b_samples <- extract(object, paste0("b_",type))[[1]]
+    b_samples <- extract(object, paste0("b_",submodel))[[1]]
     b_samples <- b_samples[,b_ind[1]:b_ind[2]]
     re_samples <- b_samples + mn_samples
     

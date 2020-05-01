@@ -5,7 +5,7 @@
 #' a customizable uncertainty interval are also calculated.
 #'
 #' @param object A fitted model of class \code{ubmsFit}
-#' @param type Submodel type to predict from, for example \code{"det"}
+#' @param submodel Submodel to predict from, for example \code{"det"}
 #' @param newdata Optional data frame of covariates to generate
 #'   predictions from. If not provided (the default), predictions are 
 #'   generated from the original data
@@ -31,13 +31,13 @@
 #' @importFrom unmarked predict
 #' @export
 setMethod("predict", "ubmsFit",
-          function(object, type, newdata=NULL, transform=TRUE, 
+          function(object, submodel, newdata=NULL, transform=TRUE, 
                    re.form=NULL, level=0.95, ...){
   
   samples <- 1:nsamples(object)
   q <- c((1-level)/2, level+(1-level)/2)
   
-  lp <- sim_lp(object, type=type, transform=transform, newdata=newdata,
+  lp <- sim_lp(object, submodel=submodel, transform=transform, newdata=newdata,
                samples=samples, re.form=re.form)
   
   stats <- apply(lp, 2, function(x){

@@ -52,9 +52,9 @@ setGeneric("sim_y", function(object, ...) standardGeneric("sim_y"))
 #' @include occu.R
 setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){  
  
-  p_post <- t(sim_lp(object, type="det", transform=TRUE, newdata=NULL, 
+  p_post <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL, 
                      samples=samples, re.form=re.form))
-  psi_post <- t(sim_lp(object, type="state", transform=TRUE, newdata=NULL, 
+  psi_post <- t(sim_lp(object, submodel="state", transform=TRUE, newdata=NULL, 
                        samples=samples, re.form=re.form))
 
   M <- nrow(psi_post)
@@ -93,7 +93,7 @@ setMethod("sim_y", "ubmsFitOccu", function(object, samples, re.form, z=NULL, ...
   J <- ncol(y)
 
   z <- process_z(object, samples, re.form, z)
-  p <- t(sim_lp(object, type="det", transform=TRUE, newdata=NULL, 
+  p <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL, 
                 samples=samples, re.form=re.form))
   
   zp <- z[rep(1:nrow(z), each=J),] * p
@@ -108,9 +108,9 @@ setMethod("sim_y", "ubmsFitOccu", function(object, samples, re.form, z=NULL, ...
 #' @include occuRN.R
 setMethod("sim_z", "ubmsFitOccuRN", function(object, samples, re.form, ...){
 
-  r_post <- t(sim_lp(object, type="det", transform=TRUE, newdata=NULL,
+  r_post <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
                    samples=samples, re.form=re.form))
-  lam_post <- t(sim_lp(object, type="state", transform=TRUE, newdata=NULL,
+  lam_post <- t(sim_lp(object, submodel="state", transform=TRUE, newdata=NULL,
                      samples=samples, re.form=re.form))
 
   M <- nrow(lam_post)
@@ -134,7 +134,7 @@ setMethod("sim_y", "ubmsFitOccuRN", function(object, samples, re.form, z=NULL, .
   J <- ncol(y)
   
   z <- process_z(object, samples, re.form, z)
-  r <- t(sim_lp(object, type="det", transform=TRUE, newdata=NULL, 
+  r <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL, 
                 samples=samples, re.form=re.form))
   N <- z[rep(1:nrow(z), each=J),]
   p <- as.vector(1 - (1-r)^N)
@@ -151,9 +151,9 @@ setMethod("sim_y", "ubmsFitOccuRN", function(object, samples, re.form, z=NULL, .
 #' @include pcount.R
 setMethod("sim_z", "ubmsFitPcount", function(object, samples, re.form, ...){
 
-  p_post <- t(sim_lp(object, type="det", transform=TRUE, newdata=NULL,
+  p_post <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
                    samples=samples, re.form=re.form))
-  lam_post <- t(sim_lp(object, type="state", transform=TRUE, newdata=NULL,
+  lam_post <- t(sim_lp(object, submodel="state", transform=TRUE, newdata=NULL,
                      samples=samples, re.form=re.form))
   
   M <- nrow(lam_post)
@@ -175,7 +175,7 @@ setMethod("sim_y", "ubmsFitPcount", function(object, samples, re.form, z=NULL, .
   J <- ncol(y)
   
   z <- process_z(object, samples, re.form, z)
-  p <- sim_lp(object, type="det", transform=TRUE, newdata=NULL, 
+  p <- sim_lp(object, submodel="det", transform=TRUE, newdata=NULL, 
                 samples=samples, re.form=re.form)
   p <- as.vector(t(p))
   N <- as.vector(z[rep(1:nrow(z), each=J),])

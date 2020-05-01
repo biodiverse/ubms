@@ -84,7 +84,3 @@ stanfit_sigma_names <- function(submodels){
   names(nm) <- NULL
   nm
 }
-
-get_waic <- function(stanfit){
-  loo::waic(loo::extract_log_lik(stanfit))
-}

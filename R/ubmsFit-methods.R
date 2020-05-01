@@ -8,7 +8,7 @@
 #' @name ubmsFit-methods
 #'
 #' @param object,x A fitted model of class \code{ubmsFit}
-#' @param type,i A submodel type, e.g. \code{"det"} for the detection model
+#' @param submodel,i A submodel, e.g. \code{"det"} for the detection model
 #' @param ... Currently ignored
 #' 
 #' @seealso 
@@ -54,12 +54,12 @@ setMethod("show", "ubmsFit", function(object){
 
 #' @rdname ubmsFit-methods
 #' @export
-setMethod("summary", "ubmsFit", function(object, type, ...){
-  get_summary(object, type)
+setMethod("summary", "ubmsFit", function(object, submodel, ...){
+  get_summary(object, submodel)
 })
 
-get_summary <- function(object, type){
-  sm <- object[type]
+get_summary <- function(object, submodel){
+  sm <- object[submodel]
   out <- rstan::summary(object@stanfit, beta_par(sm))
   out <- as.data.frame(out$summary)
   rownames(out) <- beta_names(sm)
@@ -72,3 +72,21 @@ get_summary <- function(object, type){
   }
   out
 }
+
+#' @rdname ubmsFit-methods
+#' @importFrom loo loo
+#' @export
+setMethod("loo", "ubmsFit", function(x, ..., cores=getOption("mc.cores", 1)){
+  loglik <- loo::extract_log_lik(x@stanfit, merge_chains=FALSE)
+  r_eff <- loo::relative_eff(exp(loglik), cores=cores)
+  loo::loo(loglik, r_eff=r_eff, cores=cores)
+})
+
+
+#' @rdname ubmsFit-methods
+#' @importFrom loo waic
+#' @export
+setMethod("waic", "ubmsFit", function(x, ...){
+  loglik <- loo::extract_log_lik(x@stanfit)
+  loo::waic(loglik)
+})

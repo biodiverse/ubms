@@ -6,13 +6,13 @@
 \alias{predict}
 \title{Predict parameter values from a fitted model}
 \usage{
-\S4method{predict}{ubmsFit}(object, type, newdata = NULL,
+\S4method{predict}{ubmsFit}(object, submodel, newdata = NULL,
   transform = TRUE, re.form = NULL, level = 0.95, ...)
 }
 \arguments{
 \item{object}{A fitted model of class \code{ubmsFit}}
 
-\item{type}{Submodel type to predict from, for example \code{"det"}}
+\item{submodel}{Submodel to predict from, for example \code{"det"}}
 
 \item{newdata}{Optional data frame of covariates to generate
 predictions from. If not provided (the default), predictions are 

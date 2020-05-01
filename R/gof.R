@@ -64,9 +64,9 @@ setMethod("gof", "ubmsFitOccu", function(object, draws=NULL, quiet=FALSE, ...){
   samples <- get_samples(object, draws)
   draws <- length(samples)
   
-  psi <- sim_lp(object, transform=TRUE, type="state", newdata=NULL, 
+  psi <- sim_lp(object, transform=TRUE, submodel="state", newdata=NULL, 
                        samples, re.form=NULL)
-  p <- sim_lp(object, transform=TRUE, type="det", newdata=NULL, 
+  p <- sim_lp(object, transform=TRUE, submodel="det", newdata=NULL, 
                      samples, re.form=NULL)
 
   yobs <- getY(object@data)
