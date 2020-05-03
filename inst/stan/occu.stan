@@ -27,7 +27,15 @@ vector get_loglik_occu(int[] y, int M, int[] J, vector logit_psi,
 data{
 
 #include /include/data_single_season.stan
+
+}
+
+transformed data{
+
 int no_detects[M];
+for (m in 1:M){
+  no_detects[m] = 1 - Kmin[m];
+}
 
 }
 

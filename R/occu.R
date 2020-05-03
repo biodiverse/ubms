@@ -18,6 +18,6 @@ stan_occu <- function(formula, data, ...){
   fit <- process_stanfit(fit, submodels)
 
   new("ubmsFitOccu", call=match.call(), data=data, stanfit=fit, 
-      WAIC=waic(fit), submodels=submodels)
+      WAIC=get_waic(fit), submodels=submodels)
 }
 

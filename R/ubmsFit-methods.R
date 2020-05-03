@@ -21,6 +21,16 @@
 NULL
 
 #' @rdname ubmsFit-methods
+#' @importFrom gridExtra grid.arrange
+#' @export
+setMethod("plot", "ubmsFit", function(x, ...){  
+  submods <- submodel_types(x)
+  pl <- lapply(submods, function(s) plot_residuals(x, s, draws=6))
+  grid.arrange(grobs=pl) 
+})
+
+
+#' @rdname ubmsFit-methods
 #' @export
 setMethod("[", c("ubmsFit", "character", "missing", "missing"),
   function(x, i){

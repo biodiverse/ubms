@@ -12,8 +12,8 @@
 #' @param ... Currently ignored
 #'
 #' @return A matrix of residual values with dimension \code{draws} by 
-#'   observations. Note that for occupancy models, calculation of residuals
-#'   for the detection submodel is conditional on \eqn{z = 1}, so residuals
+#'   observations. Note that calculation of residuals
+#'   for the detection submodel is conditional on \eqn{z > 0}, so residuals
 #'   for an observation in a posterior draw where \eqn{z = 0} are assigned 
 #'   value \code{NA} (Wright et al. 2019).
 #' 
@@ -40,10 +40,10 @@ setMethod("sim_res", "ubmsFit", function(object, ...){
 #' @include occu.R
 setMethod("sim_res", "ubmsFitOccu", function(object, submodel, samples, ...){
 
-  z <- sim_z(object, samples=samples, re.form=NULL)
   lp <- sim_lp(object, submodel, samples=samples, transform=TRUE,
                newdata=NULL, re.form=NULL)
-  
+  z <- sim_z(object, samples=samples, re.form=NULL)
+
   if(identical(submodel, "state")){
     res <- z - lp
   } else if(identical(submodel, "det")){
@@ -57,3 +57,183 @@ setMethod("sim_res", "ubmsFitOccu", function(object, submodel, samples, ...){
   }
   res
 })
+
+
+setMethod("sim_res", "ubmsFitOccuRN", function(object, submodel, samples, ...){
+
+  lp <- sim_lp(object, submodel, samples=samples, transform=TRUE,
+               newdata=NULL, re.form=NULL)
+  z <- sim_z(object, samples=samples, re.form=NULL)
+
+  if(identical(submodel, "state")){
+    res <- z - lp
+  } else if(identical(submodel, "det")){
+    y <- object@data@y
+    J <- ncol(y)
+    ylong <- as.vector(t(y))
+    zrep <- z[, rep(1:ncol(z), each=J)]
+    p <- 1 - (1 - lp)^zrep
+    z1_mask <- zrep > 0
+    res <- matrix(rep(ylong, each=nrow(p)), nrow=nrow(p)) - p
+    res[!z1_mask] <- NA #residuals conditional on z > 0
+  }
+  res
+})
+
+
+# Plotting functions
+
+setGeneric("plot_residuals", function(object, ...) standardGeneric("plot_residuals"))
+
+#' Plot Model Residuals
+#'
+#' Plot residuals for a submodel from a \code{ubmsFit} object, for multiple 
+#' posterior draws. By default, residuals are plotted against fitted values.
+#' When the submodel has a binomial response (e.g., detection models), regular 
+#' residual plots are not typically informative. Instead, the residuals and 
+#' fitted values are divided into bins based on fitted value and the averages 
+#' are plotted. For a count response (e.g., Poisson), Pearson residuals are 
+#' calculated. To plot residuals against values of a particular covariate instead
+#' of the fitted values, supply the name of the covariate (as a string) to the 
+#' \code{covariate} argument. 
+#' 
+#' @param object A fitted model of class \code{ubmsFit}
+#' @param submodel Submodel to plot residuals for, for example \code{"det"}
+#' @param draws An integer indicating the number of posterior draws to use. 
+#'   Separate plots are generated for each draw, so this number should be
+#'   relatively small. The default and maximum number of draws is the size of 
+#'   the posterior sample.
+#' @param nbins For submodels with a binomial response, manually set the number 
+#'   of bins to use
+#' @param ... Currently ignored
+#'
+#' @return A \code{ggplot} of residuals vs. fitted values or covariate values, 
+#'   with one panel per posterior draw. For binned residual plots, the shaded area
+#'   represents plus/minus two standard deviations around the mean residual. 
+#'   If the model is true, we would expect about 95% of the binned residuals to
+#'   fall within this area.
+#' 
+#' @aliases plot_residuals
+#' @seealso \code{\link{residuals}} 
+#'
+#' @export
+setMethod("plot_residuals", "ubmsFit", function(object, submodel, covariate=NULL, 
+                                                draws=9, nbins=NULL, ...){
+  
+  if(identical(object[submodel]@link, "plogis")){
+    return(plot_binned_residuals(object, submodel, covariate, draws, nbins))
+  }
+  plot_pearson_residuals(object, submodel, covariate, draws)
+
+})
+
+#' @importFrom ggplot2 facet_wrap geom_hline
+plot_pearson_residuals <- function(object, submodel, covariate=NULL, draws=9){
+
+  samples <- get_samples(object, draws)
+  res <- sim_res(object, submodel, samples)
+  lp <- sim_lp(object, submodel, samples=samples, transform=TRUE,
+                      newdata=NULL, re.form=NULL)
+  res <- res / sqrt(lp) #Pearson residuals
+  if(is.null(covariate)){
+    x <- lp
+    xlab <- "Predicted value"
+  } else {
+    x <- object[submodel]@data[[covariate]]
+    x <- matrix(rep(x, each=nrow(res)), nrow=nrow(res))
+    xlab <- paste(covariate, "value")
+  }
+
+  pl_dat <- lapply(1:draws, function(i){
+              data.frame(x = x[i,], y= res[i,], ind=i)
+            })
+  pl_dat <- do.call("rbind", pl_dat)
+  
+  ggplot(data=pl_dat, aes(x=x, y=y)) +
+    geom_hline(aes(yintercept=0), linetype=2) +
+    geom_point() +
+    facet_wrap("ind") +
+    ggtitle(paste(object[submodel]@name, "submodel residuals plot")) +
+    labs(x=xlab, y="Pearson residual") +
+    theme_bw() +
+    theme(panel.grid.major=element_blank(),
+          panel.grid.minor=element_blank(),
+          axis.text=element_text(size=12),
+          axis.title=element_text(size=14),
+          strip.background=element_blank(),
+          strip.text=element_blank())
+}
+
+#' @importFrom ggplot2 geom_ribbon geom_line
+plot_binned_residuals <- function(object, submodel, covariate=NULL, draws=9, 
+                                  nbins=NULL){
+  samples <- get_samples(object, draws)
+  res <- sim_res(object, submodel, samples)
+  if(is.null(covariate)){
+    x <- sim_lp(object, submodel, samples=samples, transform=TRUE,
+                      newdata=NULL, re.form=NULL)
+    xlab <- "Mean predicted value"
+  } else {
+    x <- object[submodel]@data[[covariate]]
+    x <- matrix(rep(x, each=nrow(res)), nrow=nrow(res))
+    xlab <- paste("Mean", covariate, "value")
+  }
+
+  pl_dat <- lapply(1:length(samples), function(i){
+                  get_binned_residuals(x[i,], res[i,], i, nbins)})
+  pl_dat <- do.call("rbind", pl_dat)
+
+  ggplot(data=pl_dat, aes(x=xbar, y=ybar)) +
+    geom_ribbon(aes(ymin=-two_se, ymax=two_se), alpha=0.1) +
+    geom_hline(aes(yintercept=0), linetype=2) +
+    geom_line(aes(y=two_se), col='gray', size=1.1) +
+    geom_line(aes(y=-two_se), col='gray', size=1.1)+
+    geom_point() +
+    facet_wrap("ind") +
+    ggtitle(paste(object[submodel]@name, "submodel residuals plot")) +
+    labs(x=xlab, y="Mean binned residual") +
+    theme_bw() +
+    theme(panel.grid.major=element_blank(),
+          panel.grid.minor=element_blank(),
+          axis.text=element_text(size=12),
+          axis.title=element_text(size=14),
+          strip.background=element_blank(),
+          strip.text=element_blank()) 
+}
+
+get_binned_residuals <- function(x, y, ind, nbins=NULL, ...){
+  
+  na <- is.na(x) | is.na(y)
+  x <- x[!na]
+  y <- y[!na]
+  if(is.null(nbins)) nbins <- sqrt(length(x))
+
+  bad_break <- TRUE
+  while(bad_break){
+    tryCatch({
+      if(nbins < 4) stop("Couldn't find working breakpoints", call.=FALSE)      
+      breaks.index <- floor(length(x)*(1:(nbins-1))/nbins)
+      breaks <- c (-Inf, sort(x)[breaks.index], Inf)
+      x.binned <- as.numeric(cut(x, breaks))
+      bad_break <- FALSE
+    }, error=function(e){
+        nbins <<- nbins - 1
+      }
+    )
+  }
+ 
+  output <- NULL
+  for (i in 1:nbins){
+    items <- (1:length(x))[x.binned==i]
+    x.range <- range(x[items], na.rm=T)
+    xbar <- mean(x[items], na.rm=T)
+    ybar <- mean(y[items], na.rm=T)
+    n <- length(na.omit(items))
+    sdev <- sd(y[items], na.rm=T)
+    output <- rbind (output, c(xbar, ybar, n, x.range, 2*sdev/sqrt(n)))
+  }
+  colnames(output) <- c ("xbar", "ybar", "n", "x.lo", "x.hi", "two_se")
+  output <- as.data.frame(output)
+  output$ind <- ind
+  output
+}

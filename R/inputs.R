@@ -29,18 +29,12 @@ get_pars <- function(submodels){
 
 setGeneric("get_y_data", function(object, ...) standardGeneric("get_y_data"))
 
-setMethod("get_y_data", "unmarkedFrameOccu", function(object, submod, K, ...){
+setMethod("get_y_data", "unmarkedFrameOccu", function(object, submod, K=NULL, ...){
   yt <- get_yt(object, submod)
   J <- apply(yt, 2, function(x) sum(!is.na(x)))
-  no_detects <- 1 - apply(yt, 2, max, na.rm=TRUE)
   ylong <- stats::na.omit(as.vector(yt))
-  out <- list(y=ylong, M=ncol(yt), J=J)  
-  if(missing(K)){
-    #Regular occupancy
-    return(c(out, no_detects=list(no_detects)))
-  } 
-  #RN occupancy
-  c(out, list(K=ifelse(is.null(K), 20, K), Kmin=1-no_detects))
+  out <- list(y=ylong, M=ncol(yt), J=J)
+  c(out, get_K(yt, K))
 })
 
 setMethod("get_y_data", "unmarkedFramePCount", 

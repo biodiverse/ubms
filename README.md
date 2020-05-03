@@ -82,6 +82,16 @@ options(mc.cores=3) #number of parallel cores to use
     ## 
     ## WAIC: 2266.865
 
+Examine residuals for occupancy and detection submodels (following
+[Wright et al. 2019](https://doi.org/10.1002/ecy.2703)). Each panel
+represents a draw from the posterior distribution.
+
+``` r
+plot(fm)
+```
+
+![](README_figs/README-resids-1.png)<!-- -->
+
 Assess model goodness-of-fit with a posterior predictive check, using
 the MacKenzie-Bailey chi-square test:
 
@@ -90,8 +100,8 @@ the MacKenzie-Bailey chi-square test:
 ```
 
     ## MacKenzie-Bailey Chi-square 
-    ## Point estimate = 30.225
-    ## Posterior predictive p = 0.474
+    ## Point estimate = 30.112
+    ## Posterior predictive p = 0.456
 
 ``` r
 plot(fm_fit)

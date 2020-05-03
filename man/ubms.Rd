@@ -3,7 +3,6 @@
 \docType{package}
 \name{ubms}
 \alias{ubms}
-\alias{ubms-package}
 \title{ubms}
 \description{
 Unmarked Bayesian Models using Stan

@@ -38,8 +38,6 @@ vector get_loglik_pcount(int[] y, int M, int[] J, vector log_lambda, vector logi
 data{
 
 #include /include/data_single_season.stan
-int K;
-int Kmin[M];
 int mixture;
 
 }

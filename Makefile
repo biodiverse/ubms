@@ -19,6 +19,10 @@ document:
 
 README:
 	Rscript -e "rmarkdown::render('README.Rmd')"
+	pandoc README.md -o README.html
+	firefox README.html
+	sleep 3
+	rm README.html
 
 clean-install:
 	R CMD INSTALL --preclean .

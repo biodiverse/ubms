@@ -35,8 +35,6 @@ vector get_loglik_rn(int[] y, int M, int[] J, vector log_lambda, vector logit_p,
 data{
 
 #include /include/data_single_season.stan
-int K;
-int Kmin[M];
 
 }
 
