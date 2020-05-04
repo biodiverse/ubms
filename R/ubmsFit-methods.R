@@ -58,7 +58,7 @@ setMethod("show", "ubmsFit", function(object){
     cat("\n")
   }
 
-  cat(paste0("WAIC: ", round(object@WAIC$estimates[3,1], 3)))
+  cat(paste0("LOO ELPD: ", round(object@loo$estimates[1,1], 3)))
   cat("\n")
 })
 

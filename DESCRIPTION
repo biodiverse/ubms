@@ -37,6 +37,7 @@ Collate:
     'RcppExports.R'
     'submodel.R'
     'fit.R'
+    'fitlist.R'
     'occu.R'
     'gof.R'
     'inputs.R'

@@ -1,13 +1,12 @@
-setOldClass("waic")
+setOldClass("psis_loo")
 
 #' @importClassesFrom rstan stanfit
-#' @importFrom loo waic
 #' @include submodel.R
 setClass("ubmsFit",
   slots=c(call="call",
           data="unmarkedFrame",
           stanfit="stanfit",
-          WAIC="waic",
+          loo="psis_loo",
           submodels="ubmsSubmodelList"
           )
 )
@@ -85,6 +84,6 @@ stanfit_sigma_names <- function(submodels){
   nm
 }
 
-get_waic <- function(stanfit){
-  loo::waic(loo::extract_log_lik(stanfit))
+get_loo <- function(stanfit){
+  loo::loo(loo::extract_log_lik(stanfit))
 }
