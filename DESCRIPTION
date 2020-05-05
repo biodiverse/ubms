@@ -41,6 +41,7 @@ Collate:
     'occu.R'
     'gof.R'
     'inputs.R'
+    'marginal_plot.R'
     'mb_chisq.R'
     'occuRN.R'
     'pcount.R'
