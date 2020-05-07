@@ -47,9 +47,6 @@ setMethod("marginal_plot", "ubmsFit", function(object, submodel, covariate=NULL,
                           gp=grid::gpar(fontsize=14)))
 })
 
-#' An interesting name
-#' 
-#' @export
 marginal_covariate_plot <- function(object, submodel, covariate, level=0.95){
   sm <- object[submodel]
   quant <- c((1-level)/2, level+(1-level)/2)

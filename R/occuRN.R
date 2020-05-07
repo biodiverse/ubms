@@ -1,5 +1,5 @@
 #' @include fit.R 
-setClass("ubmsFitOccuRN", contains = "ubmsFit")
+setClass("ubmsFitOccuRN", contains = "ubmsFitOccu")
 
 #' @export
 stan_occuRN <- function(formula, data, K=20, ...){

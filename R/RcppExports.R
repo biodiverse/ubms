@@ -5,6 +5,10 @@ exp_counts_occu <- function(obs, no_detects, psi, p) {
     .Call(`_ubms_exp_counts_occu`, obs, no_detects, psi, p)
 }
 
+exp_counts_occuRN <- function(obs, Kmin, lam, r) {
+    .Call(`_ubms_exp_counts_occuRN`, obs, Kmin, lam, r)
+}
+
 simz_pcount <- function(y, lam_post, p_post, K, Kmin, kvals) {
     .Call(`_ubms_simz_pcount`, y, lam_post, p_post, K, Kmin, kvals)
 }
