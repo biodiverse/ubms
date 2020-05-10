@@ -1,4 +1,4 @@
- build_stan_inputs <- function(submodels, response, ...){
+ build_stan_inputs <- function(response, submodels, ...){
   
   submodels <- update_missing(submodels, response)
   response <- update_missing(response, submodels)

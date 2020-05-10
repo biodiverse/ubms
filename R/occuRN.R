@@ -4,20 +4,17 @@ setClass("ubmsFitOccuRN", contains = "ubmsFitOccu")
 #' @export
 stan_occuRN <- function(formula, data, K=20, ...){
   
-  pformula <- split_formula(formula)[[1]]
-  lamformula <- split_formula(formula)[[2]]
+  forms <- split_formula(formula)
 
   #Need to process data first
-  response <- ubmsResponse(getY(umf), y_dist="binomial", z_dist="P")
-  state <- ubmsSubmodel("Abundance", "state", siteCovs(data), lamformula, "exp")
-  det <- ubmsSubmodel("Detection", "det", obsCovs(data), pformula, "plogis")
+  response <- ubmsResponse(getY(umf), y_dist="binomial", z_dist="P", K=K)
+  state <- ubmsSubmodel("Abundance", "state", siteCovs(data), forms[[2]], "exp")
+  det <- ubmsSubmodel("Detection", "det", obsCovs(data), forms[[1]], "plogis")
   submodels <- ubmsSubmodelList(state, det)
-  inp <- build_stan_inputs(submodels, response)
-
-  fit <- sampling(stanmodels$occuRN, data=inp$stan_data, pars=inp$pars, ...)
-  fit <- process_stanfit(fit, submodels)
+ 
+  fit <- fit_model("occuRN", response, submodels, ...) 
 
   new("ubmsFitOccuRN", call=match.call(), data=data, stanfit=fit, 
-      loo=get_loo(fit), submodels=submodels)
+      response=response, submodels=submodels, loo=get_loo(fit))
 }
 

@@ -4,20 +4,17 @@ setClass("ubmsFitPcount", contains = "ubmsFit")
 #' @export
 stan_pcount <- function(formula, data, K=NULL, mixture="P", ...){
   
-  pformula <- split_formula(formula)[[1]]
-  lambdaformula <- split_formula(formula)[[2]]
+  forms <- split_formula(formula)
 
   #Need to process data first
-  response <- ubmsResponse(getY(umf), y_dist="binomial", z_dist=mixture)
-  state <- ubmsSubmodel("Abundance", "state", siteCovs(data), lambdaformula, "exp")
-  det <- ubmsSubmodel("Detection", "det", obsCovs(data), pformula, "plogis")
+  response <- ubmsResponse(getY(umf), y_dist="binomial", z_dist=mixture, K=K)
+  state <- ubmsSubmodel("Abundance", "state", siteCovs(data), forms[[2]], "exp")
+  det <- ubmsSubmodel("Detection", "det", obsCovs(data), forms[[1]], "plogis")
   submodels <- ubmsSubmodelList(state, det)
-  inp <- build_stan_inputs(submodels, response)
-
-  fit <- sampling(stanmodels$pcount, data=inp$stan_data, pars=inp$pars, ...)
-  fit <- process_stanfit(fit, submodels)
+  
+  fit <- fit_model("pcount", response, submodels, ...) 
 
   new("ubmsFitPcount", call=match.call(), data=data, stanfit=fit, 
-      loo=get_loo(fit), submodels=submodels)
+      response=response, submodels=submodels, loo=get_loo(fit))
 }
 

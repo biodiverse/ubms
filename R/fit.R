@@ -2,12 +2,14 @@ setOldClass("psis_loo")
 
 #' @importClassesFrom rstan stanfit
 #' @include submodel.R
+#' @include response.R
 setClass("ubmsFit",
   slots=c(call="call",
           data="unmarkedFrame",
           stanfit="stanfit",
-          loo="psis_loo",
-          submodels="ubmsSubmodelList"
+          response="ubmsResponse",
+          submodels="ubmsSubmodelList",
+          loo="psis_loo"
           )
 )
 
@@ -19,7 +21,7 @@ setMethod("extract", "ubmsFit",
   rstan::extract(object@stanfit, pars, permuted, inc_warmup, include)
 })
 
-
+#Needs to be moved?
 submodel_types <- function(object){
   names(object@submodels@submodels)
 }
@@ -30,6 +32,14 @@ submodel_types <- function(object){
 setMethod("traceplot", "ubmsFit", function(object, ...){
   rstan::traceplot(object@stanfit, ...)
 })
+
+#Fit stan model
+#' @include inputs.R
+fit_model <- function(name, response, submodels, ...){
+  inp <- build_stan_inputs(response, submodels)  
+  fit <- sampling(stanmodels[[name]], data=inp$stan_data, pars=inp$pars, ...)
+  process_stanfit(fit, submodels)
+}
 
 #Do some cleanup on stanfit object
 process_stanfit <- function(object, submodels){
