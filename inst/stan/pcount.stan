@@ -21,7 +21,7 @@ real lp_pcount_pois(int[] y, real log_lambda, vector logit_p, int K, int Kmin){
 }
 
 vector get_loglik_pcount(int[] y, int M, int[] J, vector log_lambda, vector logit_p, 
-                         int mixture, real mix_param, int K, int[] Kmin){
+                         int z_dist, real beta_zdist, int K, int[] Kmin){
   vector[M] out;
   int idx = 1;
   int end;
@@ -38,14 +38,13 @@ vector get_loglik_pcount(int[] y, int M, int[] J, vector log_lambda, vector logi
 data{
 
 #include /include/data_single_season.stan
-int mixture;
 
 }
 
 parameters{
   
 #include /include/params_single_season.stan
-real beta_mix; //2nd parameter for abundance
+real beta_zdist; //2nd parameter for abundance
 
 }
 
@@ -69,8 +68,8 @@ if(has_random_det){
                                     Zv_det, Zu_det, b_det);
 }
 
-log_lik = get_loglik_pcount(y, M, J, log_lambda, logit_p, mixture, 
-                            beta_mix, K, Kmin);
+log_lik = get_loglik_pcount(y, M, J, log_lambda, logit_p, z_dist, 
+                            beta_zdist, K, Kmin);
 
 }
 

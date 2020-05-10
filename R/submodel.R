@@ -41,10 +41,6 @@ setMethod("model.matrix", "ubmsSubmodel",
   model.matrix(formula, new_mf)
 })
 
-has_missing <- function(submodel){
-  length(submodel@missing) > 0
-}
-
 get_xlev <- function(data, model_frame){
   fac_col <- data[, sapply(data, is.factor), drop=FALSE]
   xlevs <- lapply(fac_col, levels)
@@ -191,3 +187,7 @@ setMethod("find_missing", c("ubmsSubmodelList", "unmarkedFrame"),
   
   ubmsSubmodelList(state, det)
 })
+
+has_missing <- function(submodel){
+  length(submodel@missing) > 0
+}

@@ -84,6 +84,8 @@ stanfit_sigma_names <- function(submodels){
   nm
 }
 
-get_loo <- function(stanfit){
-  loo::loo(loo::extract_log_lik(stanfit))
+get_loo <- function(stanfit, cores=getOption("mc.cores", 1)){
+  loglik <- loo::extract_log_lik(stanfit, merge_chains=FALSE)
+  r_eff <- loo::relative_eff(exp(loglik), cores=cores)
+  loo::loo(loglik, r_eff=r_eff, cores=cores)
 }

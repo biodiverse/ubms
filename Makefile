@@ -26,3 +26,8 @@ README:
 
 clean-install:
 	R CMD INSTALL --preclean .
+
+coverage:
+	Rscript -e \
+		'Sys.setenv(NOT_CRAN="true"); covr::report(file="/tmp/ubms-report.html")'
+	firefox /tmp/ubms-report.html

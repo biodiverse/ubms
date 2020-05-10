@@ -35,17 +35,17 @@ stan::io::program_reader prog_reader__() {
     reader.add_event(0, 0, "start", "model_occu");
     reader.add_event(28, 28, "include", "/include/data_single_season.stan");
     reader.add_event(28, 0, "start", "/include/data_single_season.stan");
-    reader.add_event(54, 26, "end", "/include/data_single_season.stan");
-    reader.add_event(54, 29, "restart", "model_occu");
-    reader.add_event(68, 43, "include", "/include/params_single_season.stan");
-    reader.add_event(68, 0, "start", "/include/params_single_season.stan");
-    reader.add_event(75, 7, "end", "/include/params_single_season.stan");
-    reader.add_event(75, 44, "restart", "model_occu");
-    reader.add_event(104, 73, "include", "/include/model_single_season.stan");
-    reader.add_event(104, 0, "start", "/include/model_single_season.stan");
-    reader.add_event(129, 25, "end", "/include/model_single_season.stan");
-    reader.add_event(129, 74, "restart", "model_occu");
-    reader.add_event(133, 76, "end", "model_occu");
+    reader.add_event(55, 27, "end", "/include/data_single_season.stan");
+    reader.add_event(55, 29, "restart", "model_occu");
+    reader.add_event(69, 43, "include", "/include/params_single_season.stan");
+    reader.add_event(69, 0, "start", "/include/params_single_season.stan");
+    reader.add_event(76, 7, "end", "/include/params_single_season.stan");
+    reader.add_event(76, 44, "restart", "model_occu");
+    reader.add_event(105, 73, "include", "/include/model_single_season.stan");
+    reader.add_event(105, 0, "start", "/include/model_single_season.stan");
+    reader.add_event(130, 25, "end", "/include/model_single_season.stan");
+    reader.add_event(130, 74, "restart", "model_occu");
+    reader.add_event(134, 76, "end", "model_occu");
     return reader;
 }
 template <typename T1__, typename T2__>
@@ -166,6 +166,7 @@ private:
         std::vector<int> y;
         int K;
         std::vector<int> Kmin;
+        int z_dist;
         int has_random_state;
         int has_random_det;
         int n_fixed_state;
@@ -258,42 +259,48 @@ public:
                 Kmin[k_0__] = vals_i__[pos__++];
             }
             current_statement_begin__ = 35;
+            context__.validate_dims("data initialization", "z_dist", "int", context__.to_vec());
+            z_dist = int(0);
+            vals_i__ = context__.vals_i("z_dist");
+            pos__ = 0;
+            z_dist = vals_i__[pos__++];
+            current_statement_begin__ = 36;
             context__.validate_dims("data initialization", "has_random_state", "int", context__.to_vec());
             has_random_state = int(0);
             vals_i__ = context__.vals_i("has_random_state");
             pos__ = 0;
             has_random_state = vals_i__[pos__++];
-            current_statement_begin__ = 36;
+            current_statement_begin__ = 37;
             context__.validate_dims("data initialization", "has_random_det", "int", context__.to_vec());
             has_random_det = int(0);
             vals_i__ = context__.vals_i("has_random_det");
             pos__ = 0;
             has_random_det = vals_i__[pos__++];
-            current_statement_begin__ = 37;
+            current_statement_begin__ = 38;
             context__.validate_dims("data initialization", "n_fixed_state", "int", context__.to_vec());
             n_fixed_state = int(0);
             vals_i__ = context__.vals_i("n_fixed_state");
             pos__ = 0;
             n_fixed_state = vals_i__[pos__++];
-            current_statement_begin__ = 38;
+            current_statement_begin__ = 39;
             context__.validate_dims("data initialization", "n_fixed_det", "int", context__.to_vec());
             n_fixed_det = int(0);
             vals_i__ = context__.vals_i("n_fixed_det");
             pos__ = 0;
             n_fixed_det = vals_i__[pos__++];
-            current_statement_begin__ = 39;
+            current_statement_begin__ = 40;
             context__.validate_dims("data initialization", "n_group_vars_state", "int", context__.to_vec());
             n_group_vars_state = int(0);
             vals_i__ = context__.vals_i("n_group_vars_state");
             pos__ = 0;
             n_group_vars_state = vals_i__[pos__++];
-            current_statement_begin__ = 40;
+            current_statement_begin__ = 41;
             context__.validate_dims("data initialization", "n_group_vars_det", "int", context__.to_vec());
             n_group_vars_det = int(0);
             vals_i__ = context__.vals_i("n_group_vars_det");
             pos__ = 0;
             n_group_vars_det = vals_i__[pos__++];
-            current_statement_begin__ = 41;
+            current_statement_begin__ = 42;
             validate_non_negative_index("n_random_state", "(has_random_state ? n_group_vars_state : 1 )", (has_random_state ? n_group_vars_state : 1 ));
             context__.validate_dims("data initialization", "n_random_state", "int", context__.to_vec((has_random_state ? n_group_vars_state : 1 )));
             n_random_state = std::vector<int>((has_random_state ? n_group_vars_state : 1 ), int(0));
@@ -303,7 +310,7 @@ public:
             for (size_t k_0__ = 0; k_0__ < n_random_state_k_0_max__; ++k_0__) {
                 n_random_state[k_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 42;
+            current_statement_begin__ = 43;
             validate_non_negative_index("n_random_det", "(has_random_det ? n_group_vars_det : 1 )", (has_random_det ? n_group_vars_det : 1 ));
             context__.validate_dims("data initialization", "n_random_det", "int", context__.to_vec((has_random_det ? n_group_vars_det : 1 )));
             n_random_det = std::vector<int>((has_random_det ? n_group_vars_det : 1 ), int(0));
@@ -313,7 +320,7 @@ public:
             for (size_t k_0__ = 0; k_0__ < n_random_det_k_0_max__; ++k_0__) {
                 n_random_det[k_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 43;
+            current_statement_begin__ = 44;
             validate_non_negative_index("X_state", "M", M);
             validate_non_negative_index("X_state", "n_fixed_state", n_fixed_state);
             context__.validate_dims("data initialization", "X_state", "matrix_d", context__.to_vec(M,n_fixed_state));
@@ -327,7 +334,7 @@ public:
                     X_state(j_1__, j_2__) = vals_r__[pos__++];
                 }
             }
-            current_statement_begin__ = 44;
+            current_statement_begin__ = 45;
             validate_non_negative_index("X_det", "sum(J)", sum(J));
             validate_non_negative_index("X_det", "n_fixed_det", n_fixed_det);
             context__.validate_dims("data initialization", "X_det", "matrix_d", context__.to_vec(sum(J),n_fixed_det));
@@ -341,7 +348,7 @@ public:
                     X_det(j_1__, j_2__) = vals_r__[pos__++];
                 }
             }
-            current_statement_begin__ = 46;
+            current_statement_begin__ = 47;
             validate_non_negative_index("Zdim_state", "5", 5);
             context__.validate_dims("data initialization", "Zdim_state", "int", context__.to_vec(5));
             Zdim_state = std::vector<int>(5, int(0));
@@ -351,7 +358,7 @@ public:
             for (size_t k_0__ = 0; k_0__ < Zdim_state_k_0_max__; ++k_0__) {
                 Zdim_state[k_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 47;
+            current_statement_begin__ = 48;
             validate_non_negative_index("Zw_state", "get_base1(Zdim_state, 3, \"Zdim_state\", 1)", get_base1(Zdim_state, 3, "Zdim_state", 1));
             context__.validate_dims("data initialization", "Zw_state", "vector_d", context__.to_vec(get_base1(Zdim_state, 3, "Zdim_state", 1)));
             Zw_state = Eigen::Matrix<double, Eigen::Dynamic, 1>(get_base1(Zdim_state, 3, "Zdim_state", 1));
@@ -361,7 +368,7 @@ public:
             for (size_t j_1__ = 0; j_1__ < Zw_state_j_1_max__; ++j_1__) {
                 Zw_state(j_1__) = vals_r__[pos__++];
             }
-            current_statement_begin__ = 48;
+            current_statement_begin__ = 49;
             validate_non_negative_index("Zv_state", "get_base1(Zdim_state, 4, \"Zdim_state\", 1)", get_base1(Zdim_state, 4, "Zdim_state", 1));
             context__.validate_dims("data initialization", "Zv_state", "int", context__.to_vec(get_base1(Zdim_state, 4, "Zdim_state", 1)));
             Zv_state = std::vector<int>(get_base1(Zdim_state, 4, "Zdim_state", 1), int(0));
@@ -371,7 +378,7 @@ public:
             for (size_t k_0__ = 0; k_0__ < Zv_state_k_0_max__; ++k_0__) {
                 Zv_state[k_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 49;
+            current_statement_begin__ = 50;
             validate_non_negative_index("Zu_state", "get_base1(Zdim_state, 5, \"Zdim_state\", 1)", get_base1(Zdim_state, 5, "Zdim_state", 1));
             context__.validate_dims("data initialization", "Zu_state", "int", context__.to_vec(get_base1(Zdim_state, 5, "Zdim_state", 1)));
             Zu_state = std::vector<int>(get_base1(Zdim_state, 5, "Zdim_state", 1), int(0));
@@ -381,7 +388,7 @@ public:
             for (size_t k_0__ = 0; k_0__ < Zu_state_k_0_max__; ++k_0__) {
                 Zu_state[k_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 51;
+            current_statement_begin__ = 52;
             validate_non_negative_index("Zdim_det", "5", 5);
             context__.validate_dims("data initialization", "Zdim_det", "int", context__.to_vec(5));
             Zdim_det = std::vector<int>(5, int(0));
@@ -391,7 +398,7 @@ public:
             for (size_t k_0__ = 0; k_0__ < Zdim_det_k_0_max__; ++k_0__) {
                 Zdim_det[k_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 52;
+            current_statement_begin__ = 53;
             validate_non_negative_index("Zw_det", "get_base1(Zdim_det, 3, \"Zdim_det\", 1)", get_base1(Zdim_det, 3, "Zdim_det", 1));
             context__.validate_dims("data initialization", "Zw_det", "vector_d", context__.to_vec(get_base1(Zdim_det, 3, "Zdim_det", 1)));
             Zw_det = Eigen::Matrix<double, Eigen::Dynamic, 1>(get_base1(Zdim_det, 3, "Zdim_det", 1));
@@ -401,7 +408,7 @@ public:
             for (size_t j_1__ = 0; j_1__ < Zw_det_j_1_max__; ++j_1__) {
                 Zw_det(j_1__) = vals_r__[pos__++];
             }
-            current_statement_begin__ = 53;
+            current_statement_begin__ = 54;
             validate_non_negative_index("Zv_det", "get_base1(Zdim_det, 4, \"Zdim_det\", 1)", get_base1(Zdim_det, 4, "Zdim_det", 1));
             context__.validate_dims("data initialization", "Zv_det", "int", context__.to_vec(get_base1(Zdim_det, 4, "Zdim_det", 1)));
             Zv_det = std::vector<int>(get_base1(Zdim_det, 4, "Zdim_det", 1), int(0));
@@ -411,7 +418,7 @@ public:
             for (size_t k_0__ = 0; k_0__ < Zv_det_k_0_max__; ++k_0__) {
                 Zv_det[k_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 54;
+            current_statement_begin__ = 55;
             validate_non_negative_index("Zu_det", "get_base1(Zdim_det, 5, \"Zdim_det\", 1)", get_base1(Zdim_det, 5, "Zdim_det", 1));
             context__.validate_dims("data initialization", "Zu_det", "int", context__.to_vec(get_base1(Zdim_det, 5, "Zdim_det", 1)));
             Zu_det = std::vector<int>(get_base1(Zdim_det, 5, "Zdim_det", 1), int(0));
@@ -422,14 +429,14 @@ public:
                 Zu_det[k_0__] = vals_i__[pos__++];
             }
             // initialize transformed data variables
-            current_statement_begin__ = 60;
+            current_statement_begin__ = 61;
             validate_non_negative_index("no_detects", "M", M);
             no_detects = std::vector<int>(M, int(0));
             stan::math::fill(no_detects, std::numeric_limits<int>::min());
             // execute transformed data statements
-            current_statement_begin__ = 61;
+            current_statement_begin__ = 62;
             for (int m = 1; m <= M; ++m) {
-                current_statement_begin__ = 62;
+                current_statement_begin__ = 63;
                 stan::model::assign(no_detects, 
                             stan::model::cons_list(stan::model::index_uni(m), stan::model::nil_index_list()), 
                             (1 - get_base1(Kmin, m, "Kmin", 1)), 
@@ -439,22 +446,22 @@ public:
             // validate, set parameter ranges
             num_params_r__ = 0U;
             param_ranges_i__.clear();
-            current_statement_begin__ = 70;
+            current_statement_begin__ = 71;
             validate_non_negative_index("beta_state", "n_fixed_state", n_fixed_state);
             num_params_r__ += n_fixed_state;
-            current_statement_begin__ = 71;
+            current_statement_begin__ = 72;
             validate_non_negative_index("beta_det", "n_fixed_det", n_fixed_det);
             num_params_r__ += n_fixed_det;
-            current_statement_begin__ = 72;
+            current_statement_begin__ = 73;
             validate_non_negative_index("sigma_state", "n_group_vars_state", n_group_vars_state);
             num_params_r__ += n_group_vars_state;
-            current_statement_begin__ = 73;
+            current_statement_begin__ = 74;
             validate_non_negative_index("sigma_det", "n_group_vars_det", n_group_vars_det);
             num_params_r__ += n_group_vars_det;
-            current_statement_begin__ = 74;
+            current_statement_begin__ = 75;
             validate_non_negative_index("b_state", "sum(n_random_state)", sum(n_random_state));
             num_params_r__ += sum(n_random_state);
-            current_statement_begin__ = 75;
+            current_statement_begin__ = 76;
             validate_non_negative_index("b_det", "sum(n_random_det)", sum(n_random_det));
             num_params_r__ += sum(n_random_det);
         } catch (const std::exception& e) {
@@ -474,7 +481,7 @@ public:
         (void) pos__; // dummy call to supress warning
         std::vector<double> vals_r__;
         std::vector<int> vals_i__;
-        current_statement_begin__ = 70;
+        current_statement_begin__ = 71;
         if (!(context__.contains_r("beta_state")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable beta_state missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("beta_state");
@@ -491,7 +498,7 @@ public:
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable beta_state: ") + e.what()), current_statement_begin__, prog_reader__());
         }
-        current_statement_begin__ = 71;
+        current_statement_begin__ = 72;
         if (!(context__.contains_r("beta_det")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable beta_det missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("beta_det");
@@ -508,7 +515,7 @@ public:
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable beta_det: ") + e.what()), current_statement_begin__, prog_reader__());
         }
-        current_statement_begin__ = 72;
+        current_statement_begin__ = 73;
         if (!(context__.contains_r("sigma_state")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable sigma_state missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("sigma_state");
@@ -525,7 +532,7 @@ public:
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable sigma_state: ") + e.what()), current_statement_begin__, prog_reader__());
         }
-        current_statement_begin__ = 73;
+        current_statement_begin__ = 74;
         if (!(context__.contains_r("sigma_det")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable sigma_det missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("sigma_det");
@@ -542,7 +549,7 @@ public:
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable sigma_det: ") + e.what()), current_statement_begin__, prog_reader__());
         }
-        current_statement_begin__ = 74;
+        current_statement_begin__ = 75;
         if (!(context__.contains_r("b_state")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable b_state missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("b_state");
@@ -559,7 +566,7 @@ public:
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable b_state: ") + e.what()), current_statement_begin__, prog_reader__());
         }
-        current_statement_begin__ = 75;
+        current_statement_begin__ = 76;
         if (!(context__.contains_r("b_det")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable b_det missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("b_det");
@@ -601,42 +608,42 @@ public:
         try {
             stan::io::reader<local_scalar_t__> in__(params_r__, params_i__);
             // model parameters
-            current_statement_begin__ = 70;
+            current_statement_begin__ = 71;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> beta_state;
             (void) beta_state;  // dummy to suppress unused var warning
             if (jacobian__)
                 beta_state = in__.vector_constrain(n_fixed_state, lp__);
             else
                 beta_state = in__.vector_constrain(n_fixed_state);
-            current_statement_begin__ = 71;
+            current_statement_begin__ = 72;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> beta_det;
             (void) beta_det;  // dummy to suppress unused var warning
             if (jacobian__)
                 beta_det = in__.vector_constrain(n_fixed_det, lp__);
             else
                 beta_det = in__.vector_constrain(n_fixed_det);
-            current_statement_begin__ = 72;
+            current_statement_begin__ = 73;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> sigma_state;
             (void) sigma_state;  // dummy to suppress unused var warning
             if (jacobian__)
                 sigma_state = in__.vector_lb_constrain(0, n_group_vars_state, lp__);
             else
                 sigma_state = in__.vector_lb_constrain(0, n_group_vars_state);
-            current_statement_begin__ = 73;
+            current_statement_begin__ = 74;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> sigma_det;
             (void) sigma_det;  // dummy to suppress unused var warning
             if (jacobian__)
                 sigma_det = in__.vector_lb_constrain(0, n_group_vars_det, lp__);
             else
                 sigma_det = in__.vector_lb_constrain(0, n_group_vars_det);
-            current_statement_begin__ = 74;
+            current_statement_begin__ = 75;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> b_state;
             (void) b_state;  // dummy to suppress unused var warning
             if (jacobian__)
                 b_state = in__.vector_constrain(sum(n_random_state), lp__);
             else
                 b_state = in__.vector_constrain(sum(n_random_state));
-            current_statement_begin__ = 75;
+            current_statement_begin__ = 76;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> b_det;
             (void) b_det;  // dummy to suppress unused var warning
             if (jacobian__)
@@ -644,42 +651,42 @@ public:
             else
                 b_det = in__.vector_constrain(sum(n_random_det));
             // transformed parameters
-            current_statement_begin__ = 81;
+            current_statement_begin__ = 82;
             validate_non_negative_index("logit_psi", "M", M);
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> logit_psi(M);
             stan::math::initialize(logit_psi, DUMMY_VAR__);
             stan::math::fill(logit_psi, DUMMY_VAR__);
-            current_statement_begin__ = 82;
+            current_statement_begin__ = 83;
             validate_non_negative_index("logit_p", "sum(J)", sum(J));
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> logit_p(sum(J));
             stan::math::initialize(logit_p, DUMMY_VAR__);
             stan::math::fill(logit_p, DUMMY_VAR__);
-            current_statement_begin__ = 83;
+            current_statement_begin__ = 84;
             validate_non_negative_index("log_lik", "M", M);
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> log_lik(M);
             stan::math::initialize(log_lik, DUMMY_VAR__);
             stan::math::fill(log_lik, DUMMY_VAR__);
             // transformed parameters block statements
-            current_statement_begin__ = 85;
-            stan::math::assign(logit_psi, multiply(X_state, beta_state));
             current_statement_begin__ = 86;
+            stan::math::assign(logit_psi, multiply(X_state, beta_state));
+            current_statement_begin__ = 87;
             stan::math::assign(logit_p, multiply(X_det, beta_det));
-            current_statement_begin__ = 88;
+            current_statement_begin__ = 89;
             if (as_bool(has_random_state)) {
-                current_statement_begin__ = 89;
+                current_statement_begin__ = 90;
                 stan::math::assign(logit_psi, add(logit_psi, csr_matrix_times_vector(get_base1(Zdim_state, 1, "Zdim_state", 1), get_base1(Zdim_state, 2, "Zdim_state", 1), Zw_state, Zv_state, Zu_state, b_state)));
             }
-            current_statement_begin__ = 93;
+            current_statement_begin__ = 94;
             if (as_bool(has_random_det)) {
-                current_statement_begin__ = 94;
+                current_statement_begin__ = 95;
                 stan::math::assign(logit_p, add(logit_p, csr_matrix_times_vector(get_base1(Zdim_det, 1, "Zdim_det", 1), get_base1(Zdim_det, 2, "Zdim_det", 1), Zw_det, Zv_det, Zu_det, b_det)));
             }
-            current_statement_begin__ = 99;
+            current_statement_begin__ = 100;
             stan::math::assign(log_lik, get_loglik_occu(y, M, J, logit_psi, logit_p, no_detects, pstream__));
             // validate transformed parameters
             const char* function__ = "validate transformed params";
             (void) function__;  // dummy to suppress unused var warning
-            current_statement_begin__ = 81;
+            current_statement_begin__ = 82;
             size_t logit_psi_j_1_max__ = M;
             for (size_t j_1__ = 0; j_1__ < logit_psi_j_1_max__; ++j_1__) {
                 if (stan::math::is_uninitialized(logit_psi(j_1__))) {
@@ -688,7 +695,7 @@ public:
                     stan::lang::rethrow_located(std::runtime_error(std::string("Error initializing variable logit_psi: ") + msg__.str()), current_statement_begin__, prog_reader__());
                 }
             }
-            current_statement_begin__ = 82;
+            current_statement_begin__ = 83;
             size_t logit_p_j_1_max__ = sum(J);
             for (size_t j_1__ = 0; j_1__ < logit_p_j_1_max__; ++j_1__) {
                 if (stan::math::is_uninitialized(logit_p(j_1__))) {
@@ -697,7 +704,7 @@ public:
                     stan::lang::rethrow_located(std::runtime_error(std::string("Error initializing variable logit_p: ") + msg__.str()), current_statement_begin__, prog_reader__());
                 }
             }
-            current_statement_begin__ = 83;
+            current_statement_begin__ = 84;
             size_t log_lik_j_1_max__ = M;
             for (size_t j_1__ = 0; j_1__ < log_lik_j_1_max__; ++j_1__) {
                 if (stan::math::is_uninitialized(log_lik(j_1__))) {
@@ -708,38 +715,38 @@ public:
             }
             // model body
             {
-            current_statement_begin__ = 107;
+            current_statement_begin__ = 108;
             int idx(0);
             (void) idx;  // dummy to suppress unused var warning
             stan::math::fill(idx, std::numeric_limits<int>::min());
             stan::math::assign(idx,1);
-            current_statement_begin__ = 109;
-            lp_accum__.add(normal_log<propto__>(beta_state, 0, 2.5));
             current_statement_begin__ = 110;
+            lp_accum__.add(normal_log<propto__>(beta_state, 0, 2.5));
+            current_statement_begin__ = 111;
             lp_accum__.add(normal_log<propto__>(beta_det, 0, 2.5));
-            current_statement_begin__ = 114;
+            current_statement_begin__ = 115;
             if (as_bool(has_random_state)) {
-                current_statement_begin__ = 115;
+                current_statement_begin__ = 116;
                 for (int i = 1; i <= n_group_vars_state; ++i) {
-                    current_statement_begin__ = 116;
-                    lp_accum__.add(normal_log<propto__>(stan::model::rvalue(b_state, stan::model::cons_list(stan::model::index_min_max(idx, ((get_base1(n_random_state, i, "n_random_state", 1) + idx) - 1)), stan::model::nil_index_list()), "b_state"), 0, get_base1(sigma_state, i, "sigma_state", 1)));
                     current_statement_begin__ = 117;
+                    lp_accum__.add(normal_log<propto__>(stan::model::rvalue(b_state, stan::model::cons_list(stan::model::index_min_max(idx, ((get_base1(n_random_state, i, "n_random_state", 1) + idx) - 1)), stan::model::nil_index_list()), "b_state"), 0, get_base1(sigma_state, i, "sigma_state", 1)));
+                    current_statement_begin__ = 118;
                     stan::math::assign(idx, (idx + get_base1(n_random_state, i, "n_random_state", 1)));
                 }
             }
-            current_statement_begin__ = 121;
-            stan::math::assign(idx, 1);
             current_statement_begin__ = 122;
+            stan::math::assign(idx, 1);
+            current_statement_begin__ = 123;
             if (as_bool(has_random_det)) {
-                current_statement_begin__ = 123;
+                current_statement_begin__ = 124;
                 for (int i = 1; i <= n_group_vars_det; ++i) {
-                    current_statement_begin__ = 124;
-                    lp_accum__.add(normal_log<propto__>(stan::model::rvalue(b_det, stan::model::cons_list(stan::model::index_min_max(idx, ((get_base1(n_random_det, i, "n_random_det", 1) + idx) - 1)), stan::model::nil_index_list()), "b_det"), 0, get_base1(sigma_det, i, "sigma_det", 1)));
                     current_statement_begin__ = 125;
+                    lp_accum__.add(normal_log<propto__>(stan::model::rvalue(b_det, stan::model::cons_list(stan::model::index_min_max(idx, ((get_base1(n_random_det, i, "n_random_det", 1) + idx) - 1)), stan::model::nil_index_list()), "b_det"), 0, get_base1(sigma_det, i, "sigma_det", 1)));
+                    current_statement_begin__ = 126;
                     stan::math::assign(idx, (idx + get_base1(n_random_det, i, "n_random_det", 1)));
                 }
             }
-            current_statement_begin__ = 129;
+            current_statement_begin__ = 130;
             lp_accum__.add(sum(log_lik));
             }
         } catch (const std::exception& e) {
@@ -855,37 +862,37 @@ public:
         if (!include_tparams__ && !include_gqs__) return;
         try {
             // declare and define transformed parameters
-            current_statement_begin__ = 81;
+            current_statement_begin__ = 82;
             validate_non_negative_index("logit_psi", "M", M);
             Eigen::Matrix<double, Eigen::Dynamic, 1> logit_psi(M);
             stan::math::initialize(logit_psi, DUMMY_VAR__);
             stan::math::fill(logit_psi, DUMMY_VAR__);
-            current_statement_begin__ = 82;
+            current_statement_begin__ = 83;
             validate_non_negative_index("logit_p", "sum(J)", sum(J));
             Eigen::Matrix<double, Eigen::Dynamic, 1> logit_p(sum(J));
             stan::math::initialize(logit_p, DUMMY_VAR__);
             stan::math::fill(logit_p, DUMMY_VAR__);
-            current_statement_begin__ = 83;
+            current_statement_begin__ = 84;
             validate_non_negative_index("log_lik", "M", M);
             Eigen::Matrix<double, Eigen::Dynamic, 1> log_lik(M);
             stan::math::initialize(log_lik, DUMMY_VAR__);
             stan::math::fill(log_lik, DUMMY_VAR__);
             // do transformed parameters statements
-            current_statement_begin__ = 85;
-            stan::math::assign(logit_psi, multiply(X_state, beta_state));
             current_statement_begin__ = 86;
+            stan::math::assign(logit_psi, multiply(X_state, beta_state));
+            current_statement_begin__ = 87;
             stan::math::assign(logit_p, multiply(X_det, beta_det));
-            current_statement_begin__ = 88;
+            current_statement_begin__ = 89;
             if (as_bool(has_random_state)) {
-                current_statement_begin__ = 89;
+                current_statement_begin__ = 90;
                 stan::math::assign(logit_psi, add(logit_psi, csr_matrix_times_vector(get_base1(Zdim_state, 1, "Zdim_state", 1), get_base1(Zdim_state, 2, "Zdim_state", 1), Zw_state, Zv_state, Zu_state, b_state)));
             }
-            current_statement_begin__ = 93;
+            current_statement_begin__ = 94;
             if (as_bool(has_random_det)) {
-                current_statement_begin__ = 94;
+                current_statement_begin__ = 95;
                 stan::math::assign(logit_p, add(logit_p, csr_matrix_times_vector(get_base1(Zdim_det, 1, "Zdim_det", 1), get_base1(Zdim_det, 2, "Zdim_det", 1), Zw_det, Zv_det, Zu_det, b_det)));
             }
-            current_statement_begin__ = 99;
+            current_statement_begin__ = 100;
             stan::math::assign(log_lik, get_loglik_occu(y, M, J, logit_psi, logit_p, no_detects, pstream__));
             if (!include_gqs__ && !include_tparams__) return;
             // validate transformed parameters

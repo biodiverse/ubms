@@ -29,24 +29,14 @@ get_pars <- function(submodels){
 
 setGeneric("get_y_data", function(object, ...) standardGeneric("get_y_data"))
 
-setMethod("get_y_data", "unmarkedFrameOccu", function(object, submod, K=NULL, ...){
+setMethod("get_y_data", "unmarkedFrame", 
+          function(object, submod, K=NULL, z_dist="binomial", ...){
   yt <- get_yt(object, submod)
   J <- apply(yt, 2, function(x) sum(!is.na(x)))
   ylong <- stats::na.omit(as.vector(yt))
   out <- list(y=ylong, M=ncol(yt), J=J)
-  c(out, get_K(yt, K))
+  c(out, get_K(yt, K), z_dist=zdist_code(z_dist))
 })
-
-setMethod("get_y_data", "unmarkedFramePCount", 
-          function(object, submod, K=NULL, mixture="P", ...){
-  yt <- get_yt(object, submod)
-  J <- apply(yt, 2, function(x) sum(!is.na(x)))
-  Kinfo <- get_K(yt, K)
-  ylong <- stats::na.omit(as.vector(yt))
-  mixture <- switch(mixture, P={1})
-  c(list(y=ylong, M=ncol(yt), J=J, mixture=mixture), Kinfo)
-})
-
 
 setGeneric("get_yt", function(object, ...) standardGeneric("get_yt"))
 
@@ -59,6 +49,9 @@ setMethod("get_yt", "unmarkedFrame", function(object, submod, ...){
   yt
 })
 
+zdist_code <- function(zdist){
+  switch(zdist, binomial = 0, Poisson = 1, P = 1)
+}
 
 get_K <- function(yt, K=NULL){
   ymax <- max(yt, na.rm=TRUE)
@@ -117,7 +110,8 @@ get_nrandom <- function(formula, data){
   as.array(out)
 }
 
-split_formula <- function(formula){ 
+split_formula <- function(formula){
+  if(length(formula) != 3) stop("Double right-hand side formula required")
   p1 <- as.formula(formula[[2]])
   p2 <- as.formula(paste0(formula[[1]], deparse(formula[[3]])))
   list(p1, p2)

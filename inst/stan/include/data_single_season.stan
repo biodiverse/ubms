@@ -4,6 +4,7 @@ int J[M];
 int y[sum(J)];
 int K;
 int Kmin[M];
+int z_dist;
 int has_random_state;
 int has_random_det;
 int n_fixed_state;

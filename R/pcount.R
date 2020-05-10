@@ -12,7 +12,7 @@ stan_pcount <- function(formula, data, K=NULL, mixture="P", ...){
   det <- ubmsSubmodel("Detection", "det", obsCovs(data), pformula, "plogis")
   submodels <- ubmsSubmodelList(state, det)
   submodels <- find_missing(submodels, data)
-  inp <- build_stan_inputs(submodels, data, K=K, mixture=mixture)
+  inp <- build_stan_inputs(submodels, data, K=K, z_dist=mixture)
 
   fit <- sampling(stanmodels$pcount, data=inp$stan_data, pars=inp$pars, ...)
   fit <- process_stanfit(fit, submodels)
