@@ -1,6 +1,9 @@
-build_stan_inputs <- function(submodels, umf, ...){
- 
-  y_data <- get_y_data(umf, submodels, ...)
+ build_stan_inputs <- function(submodels, response, ...){
+  
+  submodels <- update_missing(submodels, response)
+  response <- update_missing(response, submodels)
+  
+  y_data <- get_stan_data(response)
 
   submodels <- unname(submodels@submodels)
   types <- sapply(submodels, function(x) x@type)
@@ -26,48 +29,27 @@ get_pars <- function(submodels){
   c(pars, "log_lik")
 }
 
-
-setGeneric("get_y_data", function(object, ...) standardGeneric("get_y_data"))
-
-setMethod("get_y_data", "unmarkedFrame", 
-          function(object, submod, K=NULL, z_dist="binomial", ...){
-  yt <- get_yt(object, submod)
-  J <- apply(yt, 2, function(x) sum(!is.na(x)))
-  ylong <- stats::na.omit(as.vector(yt))
-  out <- list(y=ylong, M=ncol(yt), J=J)
-  c(out, get_K(yt, K), z_dist=zdist_code(z_dist))
-})
-
-setGeneric("get_yt", function(object, ...) standardGeneric("get_yt"))
-
-setMethod("get_yt", "unmarkedFrame", function(object, submod, ...){
-  yt <- t(getY(object))
-  yt[submod["det"]@missing] <- NA
-  if(has_missing(submod["state"])){
-    yt <- yt[, -submod["state"]@missing, drop=FALSE]
-  }
-  yt
-})
-
-zdist_code <- function(zdist){
-  switch(zdist, binomial = 0, Poisson = 1, P = 1)
-}
-
-get_K <- function(yt, K=NULL){
-  ymax <- max(yt, na.rm=TRUE)
-  if(is.null(K)){
-    K <- ymax + 20
-  } else {
-    if(K < ymax){
-      stop("K must be larger than the maximum observed count", call.=FALSE)
-    }
-  }
-  Kmin <- apply(yt, 2, max, na.rm=TRUE)
-  list(K=K, Kmin=Kmin)
-}
-
 setGeneric("get_stan_data", function(object, ...){
              standardGeneric("get_stan_data")})
+
+
+#' @include response.R
+setMethod("get_stan_data", "ubmsResponse", function(object, ...){  
+  list(y = as_vector(object, na.rm=TRUE),
+       y_dist = dist_code(object@y_dist),
+       z_dist = dist_code(object@z_dist),
+       M = get_n_sites(object),
+       T = object@max_primary,
+       J = get_n_obs(object),
+       R = sum(get_n_obs(object)),
+       K = object@K,
+       Kmin = get_Kmin(object))
+})
+
+dist_code <- function(dist){
+  switch(dist, binomial = 0, Poisson = 1, P = 1)
+}
+
 
 #' @include submodel.R
 setMethod("get_stan_data", "ubmsSubmodel", function(object, ...){

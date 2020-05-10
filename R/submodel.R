@@ -5,7 +5,7 @@ setClass("ubmsSubmodel",
     data = "data.frame",
     formula = "formula",
     link = "character",
-    missing = "numeric"
+    missing = "logical"
   ),
   prototype = list(
     name = NA_character_,
@@ -13,13 +13,15 @@ setClass("ubmsSubmodel",
     data = data.frame(),
     formula = ~1,
     link = NA_character_,
-    missing = numeric(0)
+    missing = logical(0)
   )
 )
 
 ubmsSubmodel <- function(name, type, data, formula, link){
-  new("ubmsSubmodel", name=name, type=type, data=data, formula=formula,
-      link=link)
+  out <- new("ubmsSubmodel", name=name, type=type, data=data, 
+             formula=formula, link=link)
+  out@missing <- apply(model.matrix(out), 1, function(x) any(is.na(x)))
+  out
 }
 
 
@@ -32,7 +34,7 @@ setMethod("model.matrix", "ubmsSubmodel",
   
   if(is.null(newdata)){
     out <- model.matrix(formula, mf)
-    if(na.rm & has_missing(object)) out <- out[-object@missing,,drop=FALSE]
+    if(na.rm) out <- out[!object@missing,,drop=FALSE]
     return(out)
   }
 
@@ -65,8 +67,8 @@ Z_matrix <- function(object, newdata=NULL, na.rm=FALSE, ...){
 
   Zt <- get_reTrms(formula, data, newdata)$Zt
   Z <- t(as.matrix(Zt))
-  if(is.null(newdata) & na.rm & has_missing(object)){ 
-    Z <- Z[-object@missing,,drop=FALSE]
+  if(is.null(newdata) & na.rm){ 
+    Z <- Z[!object@missing,,drop=FALSE]
   }
   Z
 }

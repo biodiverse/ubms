@@ -41,7 +41,7 @@ test_that("model.matrix handles NAs",{
         .Dimnames = list(c("1", "2", "3"), c("(Intercept)", "x1", "x2")), 
         assign = 0:2)
   expect_equal(mm, ref)
-  sm@missing <- 1
+  sm@missing[1] <- TRUE
   mm <- model.matrix(sm, na.rm=TRUE)
   ref <- structure(c(1, 1, 2, 3, 2, 4), .Dim = 2:3, .Dimnames = 
                    list(c("2","3"), c("(Intercept)", "x1", "x2")))
@@ -99,7 +99,7 @@ test_that("get_reTrms works with NAs",{
 
 test_that("correct Z matrix is built",{
   covs <- data.frame(x1=c(1,2,3),x2=c(NA,2,4),x3=c('a','a','b'))
-  sm <- ubms:::ubmsSubmodel("Det", "det", covs, ~x1, "plogis")
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1, "plogis")
   
   #No random effect
   expect_equal(Z_matrix(sm), matrix(0, nrow=0,ncol=0))
@@ -132,7 +132,7 @@ test_that("Missing values are handled when Z matrix is built", {
   expect_equal(Z_matrix(sm), ref)
 
   #With missing removed
-  sm@missing <- 1
+  sm@missing[1] <- TRUE
   expect_equal(Z_matrix(sm), ref)
   ref <- structure(c(0, 0, 0, 1, 0, 0, 0, 3), .Dim = c(2L, 4L),
         .Dimnames = list(c("2", "3"), c("a", "b", "a", "b")))

@@ -8,11 +8,11 @@ stan_pcount <- function(formula, data, K=NULL, mixture="P", ...){
   lambdaformula <- split_formula(formula)[[2]]
 
   #Need to process data first
+  response <- ubmsResponse(getY(umf), y_dist="binomial", z_dist=mixture)
   state <- ubmsSubmodel("Abundance", "state", siteCovs(data), lambdaformula, "exp")
   det <- ubmsSubmodel("Detection", "det", obsCovs(data), pformula, "plogis")
   submodels <- ubmsSubmodelList(state, det)
-  submodels <- find_missing(submodels, data)
-  inp <- build_stan_inputs(submodels, data, K=K, z_dist=mixture)
+  inp <- build_stan_inputs(submodels, response)
 
   fit <- sampling(stanmodels$pcount, data=inp$stan_data, pars=inp$pars, ...)
   fit <- process_stanfit(fit, submodels)

@@ -9,15 +9,15 @@ real lp_occu(int[] y, real logit_psi, vector logit_p, int nd){
   return log_sum_exp(out, log1m_inv_logit(logit_psi));
 }
 
-vector get_loglik_occu(int[] y, int M, int[] J, vector logit_psi,
+vector get_loglik_occu(int[] y, int M, int[,] J, vector logit_psi,
                   vector logit_p, int[] nd){
   vector[M] out;
   int idx = 1;
   int end;
   for (i in 1:M){
-    end = idx + J[i] - 1;
+    end = idx + J[1,i] - 1;
     out[i] = lp_occu(y[idx:end], logit_psi[i], logit_p[idx:end], nd[i]);
-    idx += J[i];
+    idx += J[1,i];
    }
   return out;
 }
@@ -48,7 +48,7 @@ parameters{
 transformed parameters{
 
 vector[M] logit_psi;
-vector[sum(J)] logit_p;
+vector[R] logit_p;
 vector[M] log_lik;
 
 logit_psi = X_state * beta_state;

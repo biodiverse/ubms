@@ -8,11 +8,11 @@ stan_occuRN <- function(formula, data, K=20, ...){
   lamformula <- split_formula(formula)[[2]]
 
   #Need to process data first
+  response <- ubmsResponse(getY(umf), y_dist="binomial", z_dist="P")
   state <- ubmsSubmodel("Abundance", "state", siteCovs(data), lamformula, "exp")
   det <- ubmsSubmodel("Detection", "det", obsCovs(data), pformula, "plogis")
   submodels <- ubmsSubmodelList(state, det)
-  submodels <- find_missing(submodels, data)
-  inp <- build_stan_inputs(submodels, data, K=K)
+  inp <- build_stan_inputs(submodels, response)
 
   fit <- sampling(stanmodels$occuRN, data=inp$stan_data, pars=inp$pars, ...)
   fit <- process_stanfit(fit, submodels)
