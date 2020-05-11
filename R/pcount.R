@@ -11,6 +11,8 @@ stan_pcount <- function(formula, data, K=NULL, mixture="P", ...){
   state <- ubmsSubmodel("Abundance", "state", siteCovs(data), forms[[2]], "exp")
   det <- ubmsSubmodel("Detection", "det", obsCovs(data), forms[[1]], "plogis")
   submodels <- ubmsSubmodelList(state, det)
+  response <- update_missing(response, submodels)
+  submodels <- update_missing(submodels, response)
   
   fit <- fit_model("pcount", response, submodels, ...) 
 

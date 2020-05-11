@@ -1,8 +1,5 @@
  build_stan_inputs <- function(response, submodels, ...){
-  
-  submodels <- update_missing(submodels, response)
-  response <- update_missing(response, submodels)
-  
+
   y_data <- get_stan_data(response)
 
   submodels <- unname(submodels@submodels)

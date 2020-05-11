@@ -11,6 +11,8 @@ stan_occuRN <- function(formula, data, K=20, ...){
   state <- ubmsSubmodel("Abundance", "state", siteCovs(data), forms[[2]], "exp")
   det <- ubmsSubmodel("Detection", "det", obsCovs(data), forms[[1]], "plogis")
   submodels <- ubmsSubmodelList(state, det)
+  response <- update_missing(response, submodels)
+  submodels <- update_missing(submodels, response)
  
   fit <- fit_model("occuRN", response, submodels, ...) 
 
