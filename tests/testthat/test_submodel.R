@@ -7,6 +7,12 @@ test_that("ubmsSubmodel can be built",{
   expect_equal(sm@type, "det")
   expect_equal(sm@link, "plogis")
   expect_equal(do.call(sm@link, list(0)), 0.5)
+  expect_equivalent(sm@missing, rep(FALSE, 3))
+})
+
+test_that("Missing values are detected when submodel is built",{
+  sm <- ubmsSubmodel("Det", "det", data.frame(x1=c(NA,2,3)), ~x1, "plogis")
+  expect_equivalent(sm@missing, c(TRUE,FALSE,FALSE))
 })
 
 test_that("model.matrix method works",{
@@ -154,7 +160,8 @@ test_that("beta names are correct",{
 })
 
 test_that("b names are correct",{
-  covs <- data.frame(x1=rnorm(3), x2=factor(c("a","b","c")))
+  covs <- data.frame(x1=rnorm(3), x2=factor(c("a","b","c")),
+                     x3=factor(c("d","e","d")))
   sm <- ubmsSubmodel("Det", "det", covs, ~x1, "plogis")
   expect_equal(b_names(sm), NA_character_)
   
@@ -166,6 +173,10 @@ test_that("b names are correct",{
   expect_equal(b_names(sm),
                    c(paste("(Intercept)", c("x2:a", "x2:b", "x2:c")),
                    c(paste("x1", c("x2:a", "x2:b", "x2:c")))))
+
+  sm <- ubmsSubmodel("Det", "det", covs, ~(1|x2) + (1|x3), "plogis")
+  expect_equal(b_names(sm),
+               c(paste("(Intercept)", c("x2:a","x2:b","x2:c","x3:d","x3:e"))))
 })
 
 test_that("sigma names are correct", {

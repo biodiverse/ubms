@@ -4,6 +4,7 @@ README.Rmd
 README_figs*
 .travis.yml
 .gitignore
+.covrignore
 .git/.*
 ^.*\.Rproj$
 ^\.Rproj\.user$

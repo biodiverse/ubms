@@ -161,35 +161,3 @@ setMethod("[", c("ubmsSubmodelList", "character", "missing", "missing"),
   }
   x@submodels[[i]]
 })
-
-setGeneric("find_missing", function(object, umf, ...){
-             standardGeneric("find_missing")})
-
-setMethod("find_missing", c("ubmsSubmodelList", "unmarkedFrame"),
-          function(object, umf, ...){
-
-  y <- getY(umf)
-  M <- nrow(y)
-  J <- ncol(y)
-
-  state <- object["state"]
-  det <- object["det"]
-
-  ylong <- as.vector(t(y))
-  site_idx <- rep(1:M, each=J)
-  state_long <- model.matrix(state)[site_idx,,drop=FALSE]
-
-  comb <- cbind(y=ylong, state_long, model.matrix(det))
-  keep_obs <- apply(comb, 1, function(x) !any(is.na(x)))
-
-  det@missing <- which(!keep_obs)
-  
-  keep_sites <- unique(site_idx[keep_obs]) 
-  state@missing <- which(!1:M %in% keep_sites)
-  
-  ubmsSubmodelList(state, det)
-})
-
-has_missing <- function(submodel){
-  length(submodel@missing) > 0
-}
