@@ -55,4 +55,5 @@ Collate:
     'stanmodels.R'
     'ubms-package.R'
     'ubmsFit-methods.R'
+    'umf.R'
     'utils.R'

@@ -5,11 +5,11 @@ setClass("ubmsFitPcount", contains = "ubmsFit")
 stan_pcount <- function(formula, data, K=NULL, mixture="P", ...){
   
   forms <- split_formula(formula)
+  umf <- process_umf(data)
 
-  #Need to process data first
   response <- ubmsResponse(getY(umf), y_dist="binomial", z_dist=mixture, K=K)
-  state <- ubmsSubmodel("Abundance", "state", siteCovs(data), forms[[2]], "exp")
-  det <- ubmsSubmodel("Detection", "det", obsCovs(data), forms[[1]], "plogis")
+  state <- ubmsSubmodel("Abundance", "state", siteCovs(umf), forms[[2]], "exp")
+  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]], "plogis")
   submodels <- ubmsSubmodelList(state, det)
   response <- update_missing(response, submodels)
   submodels <- update_missing(submodels, response)
