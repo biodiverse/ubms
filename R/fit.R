@@ -13,6 +13,24 @@ setClass("ubmsFit",
           )
 )
 
+ubmsFit <- function(model, call, data, response, submodels, ...){
+  #Find missing
+  response <- update_missing(response, submodels)
+  submodels <- update_missing(submodels, response)
+  
+  #Fit model
+  fit <- fit_model(model, response, submodels, ...)
+  
+  #Construct output
+  new(fit_class(model), call=call, data=data, stanfit=fit,
+      response=response, submodels=submodels, loo=get_loo(fit))
+}
+
+fit_class <- function(mod){
+  cap <- paste0(toupper(substr(mod,1,1)), substr(mod,2,nchar(mod)))
+  paste0("ubmsFit",cap)
+}
+
 
 #' @importFrom rstan extract
 #' @export
