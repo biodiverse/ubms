@@ -100,3 +100,19 @@ setMethod("waic", "ubmsFit", function(x, ...){
   loglik <- loo::extract_log_lik(x@stanfit)
   loo::waic(loglik)
 })
+
+
+#' @importFrom rstan extract
+#' @export
+setMethod("extract", "ubmsFit", 
+  function(object, pars, permuted=TRUE, inc_warmup=FALSE, include=TRUE){
+  rstan::extract(object@stanfit, pars, permuted, inc_warmup, include)
+})
+
+
+#' @importFrom rstan traceplot
+#' @export
+setMethod("traceplot", "ubmsFit", function(object, ...){
+  rstan::traceplot(object@stanfit, ...)
+})
+

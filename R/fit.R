@@ -31,26 +31,6 @@ fit_class <- function(mod){
   paste0("ubmsFit",cap)
 }
 
-
-#' @importFrom rstan extract
-#' @export
-setMethod("extract", "ubmsFit", 
-  function(object, pars, permuted=TRUE, inc_warmup=FALSE, include=TRUE){
-  rstan::extract(object@stanfit, pars, permuted, inc_warmup, include)
-})
-
-#Needs to be moved?
-submodel_types <- function(object){
-  names(object@submodels@submodels)
-}
-
-
-#' @importFrom rstan traceplot
-#' @export
-setMethod("traceplot", "ubmsFit", function(object, ...){
-  rstan::traceplot(object@stanfit, ...)
-})
-
 #Fit stan model
 #' @include inputs.R
 fit_model <- function(name, response, submodels, ...){
@@ -101,11 +81,13 @@ stanfit_b_names <- function(submodels){
 }
 
 stanfit_sigma_names <- function(submodels){
-  nm <- unlist(lapply(submodels, sigma_names))
+  nm <- lapply(submodels, sigma_names)
+  types <- rep(names(nm), lapply(nm, length))
+  nm <- unlist(nm) 
   if(all(is.na(nm))) return(character(0))
   nm <- nm[!is.na(nm)]
   for (i in 1:length(nm)){
-    nm[i] <- gsub(" ", paste0("_",names(nm)[i]), nm, fixed=TRUE)
+    nm[i] <- gsub(" ", paste0("_",types[i]), nm[i], fixed=TRUE)
   }
   nm <- gsub("1|", "(Intercept) ", nm, fixed=TRUE)
   names(nm) <- NULL

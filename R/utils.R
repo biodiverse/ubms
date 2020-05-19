@@ -7,6 +7,9 @@ get_samples <- function(fit, draws){
   out
 }
 
+submodel_types <- function(object){
+  names(object@submodels@submodels)
+}
 
 check_type <- function(type, possible_types){
   if(! type %in% possible_types){
