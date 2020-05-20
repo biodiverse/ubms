@@ -99,6 +99,9 @@ setGeneric("plot_residuals", function(object, ...) standardGeneric("plot_residua
 #' 
 #' @param object A fitted model of class \code{ubmsFit}
 #' @param submodel Submodel to plot residuals for, for example \code{"det"}
+#' @param covariate If specified, plot residuals against values of a covariate.
+#'   Covariate name should be provided as a string. If \code{NULL}, 
+#'   residuals are plotted against predicted values.
 #' @param draws An integer indicating the number of posterior draws to use. 
 #'   Separate plots are generated for each draw, so this number should be
 #'   relatively small. The default and maximum number of draws is the size of 
@@ -149,7 +152,7 @@ plot_pearson_residuals <- function(object, submodel, covariate=NULL, draws=9){
             })
   pl_dat <- do.call("rbind", pl_dat)
   
-  ggplot(data=pl_dat, aes(x=x, y=y)) +
+  ggplot(data=pl_dat, aes_string(x="x", y="y")) +
     geom_hline(aes(yintercept=0), linetype=2) +
     geom_point() +
     facet_wrap("ind") +
@@ -183,11 +186,11 @@ plot_binned_residuals <- function(object, submodel, covariate=NULL, draws=9,
                   get_binned_residuals(x[i,], res[i,], i, nbins)})
   pl_dat <- do.call("rbind", pl_dat)
 
-  ggplot(data=pl_dat, aes(x=xbar, y=ybar)) +
-    geom_ribbon(aes(ymin=-two_se, ymax=two_se), alpha=0.1) +
+  ggplot(data=pl_dat, aes_string(x="xbar", y="ybar")) +
+    geom_ribbon(aes_string(ymin="y_lo", ymax="y_hi"), alpha=0.1) +
     geom_hline(aes(yintercept=0), linetype=2) +
-    geom_line(aes(y=two_se), col='gray', size=1.1) +
-    geom_line(aes(y=-two_se), col='gray', size=1.1)+
+    geom_line(aes_string(y="y_hi"), col='gray', size=1.1) +
+    geom_line(aes(y="y_lo"), col='gray', size=1.1)+
     geom_point() +
     facet_wrap("ind") +
     ggtitle(paste(object[submodel]@name, "submodel residuals plot")) +
@@ -228,11 +231,12 @@ get_binned_residuals <- function(x, y, ind, nbins=NULL, ...){
     x.range <- range(x[items], na.rm=T)
     xbar <- mean(x[items], na.rm=T)
     ybar <- mean(y[items], na.rm=T)
-    n <- length(na.omit(items))
-    sdev <- sd(y[items], na.rm=T)
-    output <- rbind (output, c(xbar, ybar, n, x.range, 2*sdev/sqrt(n)))
+    n <- length(stats::na.omit(items))
+    sdev <- stats::sd(y[items], na.rm=T)
+    se <- sdev/sqrt(n)
+    output <- rbind(output, c(xbar, ybar, n, x.range, -1.96*se, 1.96*se))
   }
-  colnames(output) <- c ("xbar", "ybar", "n", "x.lo", "x.hi", "two_se")
+  colnames(output) <- c("xbar", "ybar", "n", "x.lo", "x.hi", "y_lo","y_hi")
   output <- as.data.frame(output)
   output$ind <- ind
   output

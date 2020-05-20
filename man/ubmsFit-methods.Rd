@@ -27,11 +27,15 @@ section below.}
 \S4method{waic}{ubmsFit}(x, ...)
 }
 \arguments{
+\item{y}{Currently ignored}
+
 \item{...}{Currently ignored}
 
 \item{object, x}{A fitted model of class \code{ubmsFit}}
 
 \item{submodel, i}{A submodel, e.g. \code{"det"} for the detection model}
+
+\item{cores}{Number of parallel cores to use in calculation}
 }
 \description{
 Methods for ubmsFit objects

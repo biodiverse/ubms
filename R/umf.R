@@ -1,9 +1,11 @@
 setGeneric("process_umf", function(umf, ...) standardGeneric("process_umf"))
 
+#' @importFrom unmarked yearlySiteCovs
+#' @importFrom unmarked "siteCovs<-" "obsCovs<-" "yearlySiteCovs<-" 
 setMethod("process_umf", "unmarkedFrame", function(umf){
 
   nsites <- unmarked::numSites(umf)
-  nprimary <- ifelse(.hasSlot(umf, "numPrimary"), umf@numPrimary, 1)
+  nprimary <- ifelse(methods::.hasSlot(umf, "numPrimary"), umf@numPrimary, 1)
   nobs <- ncol(umf@y) / nprimary  
   
   siteCovs(umf) <- process_covs(siteCovs(umf), nsites)

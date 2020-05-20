@@ -46,6 +46,8 @@ setMethod("plot", "ubmsGOF", function(x, ...){
 #' @param quiet If \code{TRUE}, suppress progress bar
 #' @param ... Currently ignored
 #'
+#' @aliases plot,ubmsGOF,ANY-method
+#'
 #' @return An object of class \code{ubmsGOF} containing statistics calculated
 #' from the posterior predictive distribution.
 #' @export

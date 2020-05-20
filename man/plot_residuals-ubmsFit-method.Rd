@@ -19,6 +19,10 @@
 
 \item{submodel}{Submodel to plot residuals for, for example \code{"det"}}
 
+\item{covariate}{If specified, plot residuals against values of a covariate.
+Covariate name should be provided as a string. If \code{NULL}, 
+residuals are plotted against predicted values.}
+
 \item{draws}{An integer indicating the number of posterior draws to use. 
 Separate plots are generated for each draw, so this number should be
 relatively small. The default and maximum number of draws is the size of 

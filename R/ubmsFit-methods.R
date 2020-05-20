@@ -9,6 +9,8 @@
 #'
 #' @param object,x A fitted model of class \code{ubmsFit}
 #' @param submodel,i A submodel, e.g. \code{"det"} for the detection model
+#' @param cores Number of parallel cores to use in calculation
+#' @param y Currently ignored
 #' @param ... Currently ignored
 #' 
 #' @seealso 
@@ -102,6 +104,24 @@ setMethod("waic", "ubmsFit", function(x, ...){
 })
 
 
+#' Extract Samples From a ubmsFit Model
+#' 
+#' Extract samples from a \code{ubmsFit} model
+#'
+#' @param object A \code{ubmsFit} object
+#' @param pars An optional character vector providing parameter
+#'  names of interest. If not specified, all parameters are used
+#' @param permuted Logical. If \code{TRUE}, draws are permuted
+#'  and merged; if \code{FALSE}, the original order is kept
+#' @param inc_warmup Logical. If \code{TRUE}, warmup iterations
+#'  are included; if \code{FALSE} they are discarded.
+#' @param include Logical. If \code{TRUE} provided parameter names
+#'  in \code{pars} are kept; if \code{FALSE} they are excluded.
+#'
+#' @return If \code{permuted=TRUE}, a list; if \code{permuted=FALSE}, 
+#'  an array.
+#'
+#' @seealso \code{\link[rstan]{extract}}
 #' @importFrom rstan extract
 #' @export
 setMethod("extract", "ubmsFit", 
@@ -109,6 +129,14 @@ setMethod("extract", "ubmsFit",
   rstan::extract(object@stanfit, pars, permuted, inc_warmup, include)
 })
 
+#' Markov Chain Traceplots
+#' 
+#' Draws traceplots for chains from a \code{ubmsFit} object
+#' 
+#' @param object A \code{ubmsFit} object
+#' @param ... Arguments passed to \code{rstan::traceplot}
+#' 
+#' @seealso \code{\link[rstan]{traceplot}}
 
 #' @importFrom rstan traceplot
 #' @export

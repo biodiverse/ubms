@@ -2,6 +2,7 @@
 % Please edit documentation in R/gof.R
 \name{gof}
 \alias{gof}
+\alias{plot,ubmsGOF,ANY-method}
 \alias{gof,ubmsFitOccu-method}
 \title{Check model goodness-of-fit}
 \usage{

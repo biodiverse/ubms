@@ -1,6 +1,6 @@
 Package: ubms
-Version: 0.1.2-9002
-Date: 2020-05-11
+Version: 0.1.2-9003
+Date: 2020-05-19
 Title: Fit Unmarked Bayesian Models using Stan
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))
@@ -9,6 +9,7 @@ Depends:
     unmarked
 Imports:
     ggplot2 (>= 2.0.0),
+    gridExtra,
     lme4,
     loo,
     Matrix,
@@ -55,5 +56,6 @@ Collate:
     'stanmodels.R'
     'ubms-package.R'
     'ubmsFit-methods.R'
+    'ubmsFitList-methods.R'
     'umf.R'
     'utils.R'

@@ -1,3 +1,23 @@
+#' Extract Random Effects
+#'
+#' Extract random effects from a \code{ubmsFit} model. Note that this function
+#' works like \code{ranef} for \code{merMod} objects from \code{lme4}, not like
+#' \code{ranef} for \code{unmarkedFit} objects. To get functionality similar
+#' to that of \code{unmarkedFit}, use \code{posterior_predict}.
+#'
+#' @param object A fitted model of class \code{ubmsFit}
+#' @param submodel The name of the submodel, as a character string, for 
+#'  which to generate the random effects
+#' @param summary If \code{TRUE}, calculate mean, SD, and 95% uncertainty interval
+#'  for each random effect term
+#' @param ... Currently ignored
+#'
+#' @return If \code{summary=FALSE}, a list of random effect values; if 
+#'  \code{TRUE}, a data frame with columns for random effect mean, SD, and
+#'  95% uncertainty interval lower and upper bounds.
+#'
+#' @aliases ranef
+#' @seealso \code{\link[lme4]{ranef}}, \code{\link{posterior_predict}}
 #' @include fit.R
 #' @importFrom lme4 ranef
 #' @export

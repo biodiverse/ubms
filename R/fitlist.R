@@ -4,6 +4,15 @@ setGeneric("fitList", function(...){
   unmarked::fitList(...)
 })
 
+#' Create a List of ubmsFit Models
+#' 
+#' Create a list of ubmsFit models
+#' 
+#' @param ... \code{ubmsFit} model objects, preferably named
+#'
+#' @return An object of class \code{ubmsFitList} containing the list of models
+#' 
+#' @aliases fitList
 #' @export
 setMethod("fitList", "ubmsFit", function(...){
   mods <- list(...)
@@ -16,21 +25,20 @@ setMethod("fitList", "ubmsFit", function(...){
   out
 })
 
-setMethod("$", "ubmsFitList", function(x, name){
-  x@models[[name]]
-})
-
-setMethod("names", "ubmsFitList", function(x){
-  names(x@models)
-})
-
-setMethod("[[", c("ubmsFitList", "numeric","missing"), 
-          function(x, i) x@models[[i]])
-
-setMethod("[", c("ubmsFitList", "numeric","missing","missing"), 
-          function(x, i) x@models[i])
-
+#' Model Selection For a List of ubmsFit Models
+#' 
+#' Construct a model selection table from a \code{ubmsFitList}
+#' 
+#' @param object An object of class \code{ubmsFitList}
+#' @param ... Currently ignored
+#' 
+#' @return A \code{data.frame} of model fit information with one row per
+#'  model in the input \code{ubmsFitList}. Models are ranked in descending
+#'  order by expected log pointwise predictive density (\code{elpd}).
+#' @seealso \code{\link[loo]{loo}}, \code{\link[loo]{loo_compare}}
+#' 
 #' @importFrom loo loo_compare loo_model_weights
+#' @importFrom unmarked modSel
 #' @export
 setMethod("modSel", "ubmsFitList", function(object, ...){
   loos <- lapply(object@models, loo, ...)
