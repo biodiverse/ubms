@@ -1,5 +1,9 @@
 # ubms: Unmarked Bayesian Models with Stan
 
+[![Build
+Status](https://travis-ci.org/kenkellner/ubms.svg?branch=master)](https://travis-ci.org/kenkellner/ubms)
+[![codecov](https://codecov.io/gh/kenkellner/ubms/branch/master/graph/badge.svg)](https://codecov.io/gh/kenkellner/ubms)
+
 In-development `R` package for fitting Bayesian hierarchical models of
 animal occurrence and abundance. The package has a formula-based
 interface compatible with
@@ -80,7 +84,7 @@ options(mc.cores=3) #number of parallel cores to use
     ## (Intercept)    0.383 0.0592 0.267 0.500  5807 1.000
     ## x2             0.586 0.0629 0.463 0.714  6628 0.999
     ## 
-    ## WAIC: 2266.865
+    ## LOOIC: 2267.163
 
 Examine residuals for occupancy and detection submodels (following
 [Wright et al. 2019](https://doi.org/10.1002/ecy.2703)). Each panel
@@ -100,8 +104,8 @@ the MacKenzie-Bailey chi-square test:
 ```
 
     ## MacKenzie-Bailey Chi-square 
-    ## Point estimate = 30.112
-    ## Posterior predictive p = 0.456
+    ## Point estimate = 30.185
+    ## Posterior predictive p = 0.494
 
 ``` r
 plot(fm_fit)

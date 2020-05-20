@@ -190,7 +190,7 @@ plot_binned_residuals <- function(object, submodel, covariate=NULL, draws=9,
     geom_ribbon(aes_string(ymin="y_lo", ymax="y_hi"), alpha=0.1) +
     geom_hline(aes(yintercept=0), linetype=2) +
     geom_line(aes_string(y="y_hi"), col='gray', size=1.1) +
-    geom_line(aes(y="y_lo"), col='gray', size=1.1)+
+    geom_line(aes_string(y="y_lo"), col='gray', size=1.1)+
     geom_point() +
     facet_wrap("ind") +
     ggtitle(paste(object[submodel]@name, "submodel residuals plot")) +
