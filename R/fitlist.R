@@ -16,12 +16,14 @@ setGeneric("fitList", function(...){
 #' @export
 setMethod("fitList", "ubmsFit", function(...){
   mods <- list(...)
-	if (is.null(names(mods))) names(mods) <- ""
-	names(mods)[names(mods) == ""] <- NA
-	mc <- sys.calls()[[1]][-1]
-  modnames <- ifelse(is.na(names(mods)), as.character(mc), names(mods))
+  mod_names <- names(mods)
+  if(is.null(mod_names)) mod_names <- rep("", length(mods))
+  mod_names[mod_names==""] <- NA
+  obj_names=sapply(substitute(list(...))[-1], deparse)
+  mod_names[is.na(mod_names)] <- obj_names[is.na(mod_names)]
+
   out <- new("ubmsFitList", models=mods)
-  names(out@models) <- modnames
+  names(out@models) <- mod_names
   out
 })
 

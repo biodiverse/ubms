@@ -55,7 +55,7 @@ get_reTrms <- function(formula, data, newdata=NULL){
   if(is.null(newdata)) return(lme4::mkReTrms(fb, mf))
   new_mf <- model.frame(stats::terms(mf), newdata, na.action=stats::na.pass,
                         xlev=get_xlev(data, mf))
-  lme4::mkReTrms(fb, new_mf)
+  lme4::mkReTrms(fb, new_mf, drop.unused.levels=FALSE)
 }
 
 Z_matrix <- function(object, newdata=NULL, na.rm=FALSE, ...){  
