@@ -53,7 +53,7 @@ setMethod("show", "ubmsFit", function(object){
   cat("\n")
 
   for (i in submodel_types(object)){
-    to_print <- get_summary(object, i)[,c(1,3,4,8:10)]
+    to_print <- summary(object, i)[,c(1,3,4,8:10)]
     names(to_print)[1:2] <- c("Estimate", "SD")
     cat(paste0(object[i]@name,":\n"))
     print(to_print, digits=3)
@@ -65,12 +65,9 @@ setMethod("show", "ubmsFit", function(object){
 })
 
 #' @rdname ubmsFit-methods
+#' @importFrom unmarked summary
 #' @export
 setMethod("summary", "ubmsFit", function(object, submodel, ...){
-  get_summary(object, submodel)
-})
-
-get_summary <- function(object, submodel){
   sm <- object[submodel]
   out <- rstan::summary(object@stanfit, beta_par(sm))
   out <- as.data.frame(out$summary)
@@ -83,7 +80,7 @@ get_summary <- function(object, submodel){
     out <- rbind(out, random)
   }
   out
-}
+})
 
 #' @rdname ubmsFit-methods
 #' @importFrom loo loo

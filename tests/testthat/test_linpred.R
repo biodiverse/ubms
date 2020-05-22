@@ -10,6 +10,26 @@ umf <- unmarkedFrameOccu(y=matrix(c(1,0,0,1,1,0,0,1,0), nrow=3),
 fit <- suppressWarnings(stan_occu(~x3~x1+(1|x2), umf, 
                                   chains=2, iter=40, refresh=0))
 
+test_that("predict correctly wraps sim_lp",{
+  expect_error(predict(fit, "fake"))
+  pr <- predict(fit, "state")
+  expect_is(pr, "data.frame")
+  expect_equal(names(pr), c("Predicted","SD","2.5%","97.5%"))
+  expect_equal(pr$Predicted[1:3], c(0.95006,0.94900,0.103234), tol=1e-5)
+  
+  #Newdata
+  nd <- data.frame(x1=0)
+  #Missing random effect
+  expect_error(predict(fit, "state", newdata=nd))
+  #Should work now
+  pr2 <- predict(fit, "state", newdata=nd, re.form=NA)
+  expect_is(pr2, "data.frame")
+  expect_equivalent(pr2[1,], c(0.525198,0.350214,0.0033025,0.99666), tol=1e-4)
+  #Change level
+  pr3 <- predict(fit, "state", newdata=nd, re.form=NA, level=0.8)
+  expect_equal(names(pr3)[3:4], c("10%","90%"))
+})
+
 test_that("posterior_linpred correctly wraps sim_lp",{
   expect_error(posterior_linpred(fit, "fake"))
   expect_equal(posterior_linpred(fit, FALSE,"state",NULL,

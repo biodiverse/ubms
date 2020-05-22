@@ -33,14 +33,7 @@ test_that("show method works for ubmsFit",{
 })
 
 test_that("summary method works for ubmsFit",{
-  #For some reason testthat can't figure this out, but it works fine in console
-  #expect_is(summary(fit), "data.frame")
-  expect_equal(selectMethod("summary","ubmsFit")@.Data(fit, submodel="state"), 
-               get_summary(fit, "state"))
-})
-
-test_that("get_summary generates summary table",{
-  expect_equal(get_summary(fit, "state"),
+  expect_equal(summary(fit, "state"),
     structure(list(mean = c(0.190718324171947, -1.02725030475444,
     314.838236809268), se_mean = c(0.364024063773018, 0.811952045654714,
     312.21313804252), sd = c(2.91406662318696, 2.72374523311318,
@@ -53,7 +46,7 @@ test_that("get_summary generates summary table",{
     2.02395968062711), Rhat = c(0.970272787156061, 1.09195150515215,
     1.43312409652205)), row.names = c("(Intercept)", "x1", "sigma [1|x2]"
     ), class = "data.frame"))
-  expect_equal(get_summary(fit, "det"),
+  expect_equal(summary(fit, "det"),
     structure(list(mean = c(0.978648704264532, -2.43493485114631),
     se_mean = c(0.341197662951039, 0.154285303291694), sd = c(0.949404137581837,
     1.23507673671525), `2.5%` = c(-0.446671916854944, -5.02782121198986

@@ -19,7 +19,7 @@
 #' @aliases ranef
 #' @seealso \code{\link[lme4]{ranef}}, \code{\link{posterior_predict}}
 #' @include fit.R
-#' @importFrom lme4 ranef
+#' @importFrom unmarked ranef
 #' @export
 setMethod("ranef","ubmsFit", function(object, submodel, summary=FALSE, ...){ 
 
@@ -35,9 +35,7 @@ setMethod("ranef","ubmsFit", function(object, submodel, summary=FALSE, ...){
   
     fac <- names(fl)[i]
     trm <- fl[[i]]
-    if(length(trm)>1){
-      stop("There should only be one term here")
-    }
+    if(length(trm)>1) stop("There should only be one term here")
 
     beta_ind <- which(beta_names(sm) == trm)
     mn_samples <- extract(object, paste0("beta_",submodel))[[1]]
@@ -69,5 +67,15 @@ setMethod("ranef","ubmsFit", function(object, submodel, summary=FALSE, ...){
 
   })
   names(ran) <- names(fl)
-  ran
+  combine_same_name(ran)
 })
+
+combine_same_name <- function(inp_list){
+  lnames <- unique(names(inp_list))
+  sapply(lnames, function(x){
+           list_sub <- inp_list[names(inp_list)==x]
+           comb <- unlist(list_sub, recursive=FALSE, use.names=FALSE)
+           names(comb) <- sapply(list_sub, names)
+           comb 
+  }, simplify=FALSE)
+}
