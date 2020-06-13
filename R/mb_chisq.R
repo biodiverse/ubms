@@ -1,7 +1,7 @@
 setGeneric("mb_chisq", function(object, ...) standardGeneric("mb_chisq"))
 
 #' @include fit.R
-setMethod("mb_chisq", "ubmsFit", function(object, state, p){
+setMethod("mb_chisq", "ubmsFitOccu", function(object, state, p){
   
   cohorts <- get_cohorts(object)
   dat <- cohorts$data

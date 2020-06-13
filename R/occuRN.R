@@ -30,5 +30,78 @@ stan_occuRN <- function(formula, data, K=20, ...){
   ubmsFit("occuRN", match.call(), data, response, submodels, ...)
 }
 
-#' @include fit.R 
+
+#Fit object--------------------------------------------------------------------
+
+#' @include occu.R
 setClass("ubmsFitOccuRN", contains = "ubmsFitOccu")
+
+
+#Method to simulate residuals--------------------------------------------------
+
+#' @include residuals.R
+setMethod("sim_res", "ubmsFitOccuRN", function(object, submodel, samples, ...){
+
+  lp <- sim_lp(object, submodel, samples=samples, transform=TRUE,
+               newdata=NULL, re.form=NULL)
+  z <- sim_z(object, samples=samples, re.form=NULL)
+
+  if(identical(submodel, "state")){
+    res <- z - lp
+  } else if(identical(submodel, "det")){
+    y <- object@data@y
+    J <- ncol(y)
+    ylong <- as.vector(t(y))
+    zrep <- z[, rep(1:ncol(z), each=J)]
+    p <- 1 - (1 - lp)^zrep
+    z1_mask <- zrep > 0
+    res <- matrix(rep(ylong, each=nrow(p)), nrow=nrow(p)) - p
+    res[!z1_mask] <- NA #residuals conditional on z > 0
+  }
+  res
+})
+
+#Goodness of fit---------------------------------------------------------------
+
+
+#Methods to simulate posterior predictive distributions------------------------
+
+#' @include posterior_predict.R
+setMethod("sim_z", "ubmsFitOccuRN", function(object, samples, re.form, ...){
+
+  r_post <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
+                   samples=samples, re.form=re.form))
+  lam_post <- t(sim_lp(object, submodel="state", transform=TRUE, newdata=NULL,
+                     samples=samples, re.form=re.form))
+
+  M <- nrow(lam_post)
+  J <- nrow(r_post) / M
+
+  r_post <- array(r_post, c(J,M,length(samples)))
+  r_post <- aperm(r_post, c(2,1,3)) 
+  
+  y <- getY(object@data)
+  Kmin <- apply(y, 1, function(x) max(x, na.rm=TRUE))
+  K <- object@call[["K"]]
+  K <- ifelse(is.null(K), 20, K)
+
+  t(simz_occuRN(y, lam_post, r_post, K, Kmin, 0:K))
+})
+
+
+setMethod("sim_y", "ubmsFitOccuRN", function(object, samples, re.form, z=NULL, ...){
+  y <- getY(object@data)
+  M <- nrow(y)
+  J <- ncol(y)
+  
+  z <- process_z(object, samples, re.form, z)
+  r <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL, 
+                samples=samples, re.form=re.form))
+  N <- z[rep(1:nrow(z), each=J),]
+  p <- as.vector(1 - (1-r)^N)
+  
+  y_sim <- rep(NA, length(p))
+  not_na <- !is.na(p)
+  y_sim[not_na] <- rbinom(sum(not_na), 1, p[not_na]) 
+  matrix(y_sim, nrow=length(samples), ncol=M*J, byrow=TRUE)
+})
