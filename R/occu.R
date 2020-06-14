@@ -126,8 +126,8 @@ setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
   q_post <- 1 - p_post
 
   for (i in 1:nsamp){
-    psi <- psi_post[unkZ, i]
-    qT <- apply(q_post[unkZ,,i],1, prod)
+    psi <- psi_post[unkZ, i, drop=FALSE]
+    qT <- apply(q_post[unkZ,,i,drop=FALSE],1, prod)
     psi_con <- psi * qT / (psi * qT + (1-psi))
     to_sim <- unkZ[!is.na(psi_con)]
     z_post[to_sim, i] <- rbinom(length(to_sim),1,psi_con[!is.na(psi_con)])
@@ -147,7 +147,7 @@ setMethod("sim_y", "ubmsFitOccu", function(object, samples, re.form, z=NULL, ...
   p <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL, 
                 samples=samples, re.form=re.form))
   
-  zp <- z[rep(1:nrow(z), each=J),] * p
+  zp <- z[rep(1:nrow(z), each=J),,drop=FALSE] * p
 
   y_sim <- suppressWarnings(rbinom(M*J*nsamp, 1, as.vector(zp)))  
   matrix(y_sim, nrow=nsamp, ncol=M*J, byrow=TRUE)
