@@ -77,7 +77,7 @@ setGeneric("plot_residuals", function(object, ...) standardGeneric("plot_residua
 #' @seealso \code{\link{residuals}} 
 #'
 #' @export
-setMethod("plot_residuals", "ubmsFit", function(object, submodel, covariate=NULL, 
+setMethod("plot_residuals", "ubmsFit", function(object, submodel, covariate=NULL,
                                                 draws=9, nbins=NULL, ...){
   
   if(identical(object[submodel]@link, "plogis")){
@@ -87,78 +87,61 @@ setMethod("plot_residuals", "ubmsFit", function(object, submodel, covariate=NULL
 
 })
 
-#' @importFrom ggplot2 facet_wrap geom_hline
-plot_pearson_residuals <- function(object, submodel, covariate=NULL, draws=9){
-
+setMethod("plot_residuals", "ubmsFit", function(object, submodel, covariate=NULL, 
+                                                draws=9, nbins=NULL, ...){
   samples <- get_samples(object, draws)
   res <- sim_res(object, submodel, samples)
   lp <- sim_lp(object, submodel, samples=samples, transform=TRUE,
                       newdata=NULL, re.form=NULL)
-  res <- res / sqrt(lp) #Pearson residuals
-  if(is.null(covariate)){
-    x <- lp
-    xlab <- "Predicted value"
-  } else {
+ 
+  name <- object[submodel]@name
+  x <- lp
+  xlab <- "Predicted value"
+  if(!is.null(covariate)){
     x <- object[submodel]@data[[covariate]]
     x <- matrix(rep(x, each=nrow(res)), nrow=nrow(res))
     xlab <- paste(covariate, "value")
   }
 
-  pl_dat <- lapply(1:draws, function(i){
+  if(identical(object[submodel]@link, "plogis")){
+    return(plot_binned_residuals(x, res, xlab, name, nbins))
+  }
+  res <- res / sqrt(lp) #Pearson residuals
+  plot_pearson_residuals(x, res, xlab, name)
+})
+
+#' @importFrom ggplot2 facet_wrap geom_hline
+plot_pearson_residuals <- function(x, res, xlab, name){
+  pl_dat <- lapply(1:nrow(res), function(i){
               data.frame(x = x[i,], y= res[i,], ind=i)
             })
   pl_dat <- do.call("rbind", pl_dat)
-  
+
   ggplot(data=pl_dat, aes_string(x="x", y="y")) +
     geom_hline(aes(yintercept=0), linetype=2) +
     geom_point() +
     facet_wrap("ind") +
-    ggtitle(paste(object[submodel]@name, "submodel residuals plot")) +
+    ggtitle(paste(name, "submodel residuals plot")) +
     labs(x=xlab, y="Pearson residual") +
-    theme_bw() +
-    theme(panel.grid.major=element_blank(),
-          panel.grid.minor=element_blank(),
-          axis.text=element_text(size=12),
-          axis.title=element_text(size=14),
-          strip.background=element_blank(),
-          strip.text=element_blank())
+    plot_theme()
 }
 
 #' @importFrom ggplot2 geom_ribbon geom_line
-plot_binned_residuals <- function(object, submodel, covariate=NULL, draws=9, 
-                                  nbins=NULL){
-  samples <- get_samples(object, draws)
-  res <- sim_res(object, submodel, samples)
-  if(is.null(covariate)){
-    x <- sim_lp(object, submodel, samples=samples, transform=TRUE,
-                      newdata=NULL, re.form=NULL)
-    xlab <- "Mean predicted value"
-  } else {
-    x <- object[submodel]@data[[covariate]]
-    x <- matrix(rep(x, each=nrow(res)), nrow=nrow(res))
-    xlab <- paste("Mean", covariate, "value")
-  }
-
-  pl_dat <- lapply(1:length(samples), function(i){
+plot_binned_residuals <- function(x, res, xlab, name, nbins){
+  pl_dat <- lapply(1:nrow(res), function(i){
                   get_binned_residuals(x[i,], res[i,], i, nbins)})
   pl_dat <- do.call("rbind", pl_dat)
 
-  ggplot(data=pl_dat, aes_string(x="xbar", y="ybar")) +
+  ggplot(data=pl_dat, aes_string(x="x_bar", y="y_bar")) +
     geom_ribbon(aes_string(ymin="y_lo", ymax="y_hi"), alpha=0.1) +
     geom_hline(aes(yintercept=0), linetype=2) +
     geom_line(aes_string(y="y_hi"), col='gray', size=1.1) +
     geom_line(aes_string(y="y_lo"), col='gray', size=1.1)+
     geom_point() +
     facet_wrap("ind") +
-    ggtitle(paste(object[submodel]@name, "submodel residuals plot")) +
+    ggtitle(paste(name, "submodel residuals plot")) +
     labs(x=xlab, y="Mean binned residual") +
-    theme_bw() +
-    theme(panel.grid.major=element_blank(),
-          panel.grid.minor=element_blank(),
-          axis.text=element_text(size=12),
-          axis.title=element_text(size=14),
-          strip.background=element_blank(),
-          strip.text=element_blank()) 
+    plot_theme() 
 }
 
 get_binned_residuals <- function(x, y, ind, nbins=NULL, ...){
@@ -166,35 +149,37 @@ get_binned_residuals <- function(x, y, ind, nbins=NULL, ...){
   na <- is.na(x) | is.na(y)
   x <- x[!na]
   y <- y[!na]
-  if(is.null(nbins)) nbins <- sqrt(length(x))
+
+  breaks <- get_breaks(x, nbins)
+
+  output <- lapply(1:breaks$nbins, function(i){
+    in_bin <- breaks$x_binned == i
+    se <- stats::sd(y[in_bin]) / sqrt(sum(in_bin))
+    data.frame(x_bar = mean(x[in_bin]), y_bar = mean(y[in_bin]),
+               y_lo = -1.96*se, y_hi= 1.96*se) 
+  })
+  output <- do.call("rbind", output)
+  output$ind <- ind
+  output
+}
+
+get_breaks <- function(x, nbins){
+
+  if(is.null(nbins)) nbins <- ceiling(sqrt(length(x)))
+  #stopifnot(nbins > 3)
 
   bad_break <- TRUE
   while(bad_break){
+    if(nbins < 4) stop("Couldn't find working breakpoints", call.=FALSE)      
     tryCatch({
-      if(nbins < 4) stop("Couldn't find working breakpoints", call.=FALSE)      
-      breaks.index <- floor(length(x)*(1:(nbins-1))/nbins)
-      breaks <- c (-Inf, sort(x)[breaks.index], Inf)
-      x.binned <- as.numeric(cut(x, breaks))
+      breaks_index <- floor(length(x)*(1:(nbins-1))/nbins)
+      breaks <- c (-Inf, sort(x)[breaks_index], Inf)
+      x_binned <- as.numeric(cut(x, breaks))
       bad_break <- FALSE
     }, error=function(e){
         nbins <<- nbins - 1
       }
     )
   }
- 
-  output <- NULL
-  for (i in 1:nbins){
-    items <- (1:length(x))[x.binned==i]
-    x.range <- range(x[items], na.rm=T)
-    xbar <- mean(x[items], na.rm=T)
-    ybar <- mean(y[items], na.rm=T)
-    n <- length(stats::na.omit(items))
-    sdev <- stats::sd(y[items], na.rm=T)
-    se <- sdev/sqrt(n)
-    output <- rbind(output, c(xbar, ybar, n, x.range, -1.96*se, 1.96*se))
-  }
-  colnames(output) <- c("xbar", "ybar", "n", "x.lo", "x.hi", "y_lo","y_hi")
-  output <- as.data.frame(output)
-  output$ind <- ind
-  output
+  list(nbins=nbins, x_binned=x_binned)  
 }
