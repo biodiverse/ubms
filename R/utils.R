@@ -17,3 +17,12 @@ check_type <- function(type, possible_types){
          call.=FALSE)
   }
 }
+
+plot_theme <- function(){
+    theme_bw() +
+    theme(panel.grid.major=element_blank(),
+          panel.grid.minor=element_blank(),
+          axis.text=element_text(size=12),
+          axis.title=element_text(size=14)
+    )
+}

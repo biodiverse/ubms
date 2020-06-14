@@ -1,4 +1,4 @@
-setGeneric("marginal_plot", function(object, ...) standardGeneric("marginal_plot"))
+setGeneric("plot_marginal", function(object, ...) standardGeneric("plot_marginal"))
 
 #' Plot Marginal Effects of Covariates
 #'
@@ -16,12 +16,12 @@ setGeneric("marginal_plot", function(object, ...) standardGeneric("marginal_plot
 #' 
 #' @return A \code{ggplot}, potentially with multiple panels, one per covariate
 #'
-#' @aliases marginal_plot
+#' @aliases plot_marginal
 #' @include fit.R
 #' @importFrom grid textGrob gpar
 #' @importFrom ggplot2 geom_errorbar
 #' @export
-setMethod("marginal_plot", "ubmsFit", function(object, submodel, covariate=NULL, 
+setMethod("plot_marginal", "ubmsFit", function(object, submodel, covariate=NULL, 
                                                level=0.95, ...){
   
   sm <- object[submodel]
@@ -73,7 +73,8 @@ marg_numeric_plot <- function(object, submodel, covariate, quant){
     geom_ribbon(aes_string(ymin="lower", ymax="upper"), alpha=0.3) +
     geom_line() +
     labs(x = covariate, y = sm@name) +
-    marg_theme()
+    plot_theme() +
+    theme(axis.title.y=element_blank())
 }
 
 marg_factor_plot <- function(object, submodel, covariate, quant){
@@ -90,7 +91,8 @@ marg_factor_plot <- function(object, submodel, covariate, quant){
     geom_errorbar(aes_string(ymin="lower", ymax="upper"), width=0.4) +
     geom_point(size=2) +
     labs(x = covariate, y = sm@name) +
-    marg_theme()
+    plot_theme() + 
+    theme(axis.title.y=element_blank())
 }
 
 get_mean_df <- function(submodel){
@@ -116,11 +118,3 @@ get_margplot_data <- function(object, submodel, covariate, quant,
   data.frame(covariate = newdata[[covariate]], mn = mn, bounds)
 }
 
-marg_theme <- function(){
-    theme_bw() +
-    theme(panel.grid.major=element_blank(),
-          panel.grid.minor=element_blank(),
-          axis.text=element_text(size=12),
-          axis.title=element_text(size=14),
-          axis.title.y=element_blank())
-}

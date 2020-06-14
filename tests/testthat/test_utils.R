@@ -31,3 +31,9 @@ test_that("check_type throws error when bad submodel type is given",{
   expect_error(check_type("state", submodel_types(fit)), NA)
   expect_error(check_type("fake", submodel_types(fit)))
 })
+
+test_that("Theme function produces ggplot theme",{
+  theme_object <- plot_theme()
+  expect_is(theme_object, "theme")
+  expect_is(theme_object, "gg")
+})

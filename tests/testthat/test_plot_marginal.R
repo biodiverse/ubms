@@ -12,19 +12,19 @@ fit <- suppressWarnings(stan_occu(~x3~x1+x2, umf,
 fit2 <- suppressWarnings(stan_occu(~1~1, umf, 
                                   chains=2, iter=40, refresh=0))
 
-test_that("marginal_plot creates grid object",{
+test_that("plot_marginal creates grid object",{
   #Multiple covariates
   pdf(NULL)
-  mp <- marginal_plot(fit, "state")
+  mp <- plot_marginal(fit, "state")
   expect_is(mp, "gtable")
   #Submodel with single covariate
-  mp2 <- marginal_plot(fit, "det")
+  mp2 <- plot_marginal(fit, "det")
   expect_is(mp2, "gtable")
   #Specific covariate
-  mp3 <- marginal_plot(fit, "state", "x1")
+  mp3 <- plot_marginal(fit, "state", "x1")
   expect_is(mp3, "gtable")
   #No covariates
-  expect_error(marginal_plot(fit2, "state"))
+  expect_error(plot_marginal(fit2, "state"))
   dev.off()
 })
 
@@ -84,10 +84,4 @@ test_that("Marginal plot data is generated correctly",{
     0.39301938256072), lower = c(0.969065755954778, 0.194268798455224), 
                    upper = c(0.987901780495942, 0.705277052076411)), 
               class = "data.frame", row.names = c(NA,-2L)))
-})
-
-test_that("Theme function produces ggplot theme",{
-  theme_object <- marg_theme()
-  expect_is(theme_object, "theme")
-  expect_is(theme_object, "gg")
 })
