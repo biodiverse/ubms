@@ -118,7 +118,6 @@ setMethod("waic", "ubmsFit", function(x, ...){
 #' @return If \code{permuted=TRUE}, a list; if \code{permuted=FALSE}, 
 #'  an array.
 #'
-#' @seealso \code{\link[rstan]{extract}}
 #' @importFrom rstan extract
 #' @export
 setMethod("extract", "ubmsFit", 
@@ -132,8 +131,6 @@ setMethod("extract", "ubmsFit",
 #' 
 #' @param object A \code{ubmsFit} object
 #' @param ... Arguments passed to \code{rstan::traceplot}
-#' 
-#' @seealso \code{\link[rstan]{traceplot}}
 
 #' @importFrom rstan traceplot
 #' @export

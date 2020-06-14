@@ -28,6 +28,3 @@ If \code{permuted=TRUE}, a list; if \code{permuted=FALSE},
 \description{
 Extract samples from a \code{ubmsFit} model
 }
-\seealso{
-\code{\link[rstan]{extract}}
-}

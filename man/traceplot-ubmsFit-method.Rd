@@ -14,6 +14,3 @@
 \description{
 Draws traceplots for chains from a \code{ubmsFit} object
 }
-\seealso{
-\code{\link[rstan]{traceplot}}
-}
