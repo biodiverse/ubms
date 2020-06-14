@@ -15,7 +15,7 @@ test_that("predict correctly wraps sim_lp",{
   pr <- predict(fit, "state")
   expect_is(pr, "data.frame")
   expect_equal(names(pr), c("Predicted","SD","2.5%","97.5%"))
-  expect_equal(pr$Predicted[1:3], c(0.95006,0.94900,0.103234), tol=1e-5)
+  expect_equal(pr$Predicted[1:3], c(0.9445,0.9427,0.0625), tol=1e-4)
   
   #Newdata
   nd <- data.frame(x1=0)
@@ -24,7 +24,7 @@ test_that("predict correctly wraps sim_lp",{
   #Should work now
   pr2 <- predict(fit, "state", newdata=nd, re.form=NA)
   expect_is(pr2, "data.frame")
-  expect_equivalent(pr2[1,], c(0.525198,0.350214,0.0033025,0.99666), tol=1e-4)
+  expect_equivalent(pr2[1,], c(0.5285,0.3391,0.002045,0.9833), tol=1e-3)
   #Change level
   pr3 <- predict(fit, "state", newdata=nd, re.form=NA, level=0.8)
   expect_equal(names(pr3)[3:4], c("10%","90%"))

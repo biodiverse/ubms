@@ -41,9 +41,8 @@ test_that("fit_class generates class from model name",{
 test_that("get_loo generates loo object from stanfit",{
   loo_obj <- get_loo(sf)
   expect_true(inherits(loo_obj, "psis_loo"))
-  expect_equal(loo_obj$estimates[2:6],
-               c(0.9431757, 14.02914, 1.679802, 0.001127343, 3.359605),
-               tol=1e-6)
+  expect_equal(loo_obj$estimates[c(2,3)],
+               c(0.69676,13.03933), tol=1e-6)
 })
 
 test_that("fit_model builds model correctly",{

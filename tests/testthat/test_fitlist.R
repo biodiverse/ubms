@@ -31,12 +31,10 @@ test_that("fitList of ubmsFit objects is created correctly",{
 test_that("modSel creates selection table for ubmsFitList",{
   fl1 <- fitList(fit, fit_null)
   ms <- suppressWarnings(modSel(fl1))
-  expect_equal(ms,
-    structure(list(elpd = c(-2.83219181573505, -6.99295560810481),
-    nparam = c(0.856174775795061, 1.05728725245336), 
-    elpd_diff = c(0,-4.16076379236976), se_diff = c(0, 0.19600789058965), 
-    weight = c(0.999999973484196,2.6515803885907e-08)), 
-              row.names = c("fit", "fit_null"), class ="data.frame"))
+  expect_is(ms, "data.frame")
+  expect_equal(names(ms), c("elpd","nparam","elpd_diff","se_diff","weight"))
+  expect_equal(ms$elpd_diff[1], 0)
+  expect_equal(ms$weight[1], 1, tol=1e-7)
 })
 
 test_that("[ method works for ubmsFitList",{
