@@ -20,6 +20,7 @@ setClass("ubmsResponse",
 )
 
 ubmsResponse <- function(y, y_dist, z_dist, max_primary = 1, K=NULL){
+  stopifnot(inherits(y, "matrix"))
   out <- new("ubmsResponse", y = y, y_dist= y_dist, z_dist = z_dist,
           max_primary = max_primary,
           max_obs = get_max_obs(y, max_primary),
@@ -50,7 +51,6 @@ setMethod("t", "ubmsResponse", function(x){
   yt
 })
 
-
 setGeneric("get_n_sites", function(object, ...) standardGeneric("get_n_sites"))
 
 setMethod("get_n_sites", "ubmsResponse", function(object){
@@ -67,6 +67,37 @@ setMethod("get_n_obs", "ubmsResponse", function(object){
   keep_sites <- colSums(out) > 0
   out[, keep_sites, drop=FALSE]
 })
+
+setGeneric("get_n_pers", function(object, ...) standardGeneric("get_n_pers"))
+
+setMethod("get_n_pers", "ubmsResponse", function(object){
+  yt <- matrix(t(object), nrow=object@max_obs)
+  pers <- apply(yt, 2, function(x) any(!is.na(x)))
+  pers <- matrix(pers, ncol=object@max_primary, byrow=TRUE)
+  out <- rowSums(pers)
+  out[out > 0]
+})
+
+setGeneric("get_subset_inds", function(object, ...) standardGeneric("get_subset_inds"))
+
+setMethod("get_subset_inds", "ubmsResponse", function(object){
+  #Indices for y/detection
+  nJ <- colSums(get_n_obs(object))
+  #Indices for periods sampled
+  nT <- get_n_pers(object)
+  #Indices for primary-period level parameters
+  #minimum of one phi to handle single-season models
+  nP <- rep(max(object@max_primary - 1, 1),
+                get_n_sites(object))
+
+  do.call("cbind", lapply(list(nJ, nT, nP), generate_inds))
+})
+
+generate_inds <- function(count_vec){
+  stopifnot(! 0 %in% count_vec)
+  end <- Reduce(`+`, count_vec, accumulate=TRUE)
+  cbind(end - count_vec + 1, end)
+}
 
 setGeneric("as_vector", function(x, ...) as.vector(x))
 setMethod("as_vector", "ubmsResponse", function(x, na.rm=FALSE){  
