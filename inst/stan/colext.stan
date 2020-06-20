@@ -8,43 +8,70 @@ vector get_pY(int[] y, vector logit_p, int nd){
   return out;
 }
 
-matrix get_phi(vector phi_raw){
+matrix phi_matrix(vector phi_raw){
   return to_matrix(phi_raw, 2, 2, 0);
 }
 
-real lp_colext(int[] y, int T, int[] J, vector psi, matrix phi_raw, 
+//delta-step transition prob matrix via Chapman-Kolmogorov equation
+matrix get_phi(vector phi_raw, int Tstart, int Tnext){
+  int delta = Tnext - Tstart;
+  if(delta == 1){
+    return phi_matrix(phi_raw[Tstart,]);
+  }
+
+  matrix phi = diag_matrix(rep_vector(1, 2));
+  for (d in 1:delta){
+    phi = phi * phi_matrix(phi_raw[(Tstart + d - 1),]);
+  }
+  return phi;
+}
+
+//Ts = indices of primary periods when site was sampled (eg not all NA)
+real lp_colext(int[] y, int[] Ts, int[] J, vector psi, matrix phi_raw, 
                vector p, int[] nd){
-
+  
+  int T = size(Ts);
+  matrix phi_prod = diag_matrix(rep_vector(1, 2));
+  matrix phi;
+  vector Dpt;
   int idx = 1;
-  int end = idx + J[1] - 1;
-  vector Dpt = get_pY(y[idx:end], p[idx:end], nd[1]);
-  matrix phi_prod = diag_pre_multiply(Dpt, get_phi(phi_raw[1,]));
-  idx += J[1];
+  int end;
 
-  for (t in 2:(T-1)){
+  for (t in 1:(T-1)){
+    phi = get_phi(phi_raw, Ts[t], Ts[t+1]);
     end = idx + J[t] - 1;
     Dpt = get_pY(y[idx:end], p[idx:end], nd[t]);
-    phi_prod *= diag_pre_multiply(Dpt, get_phi(phi_raw[t,]));
+    phi_prod *= diag_pre_multiply(Dpt, phi);
     idx += J[t];
   }
 
   end = idx + J[T] - 1;
   Dpt = get_pY(y[idx:end], p[idx:end], nd[T]);
 
-  return log(dot_product(psi * phi _prod, Dpt));
+  return log(dot_product(psi * phi_prod, Dpt));
 }
 
 //needs fixed
-vector get_loglik_colext(int[] y, int M, int T, int[,] J, matrix psi_raw,
-                  matrix phi_raw, vector logit_p){
+vector get_loglik_colext(int[] y, int M, int Tmax, int T, int[,] J, 
+                         matrix psi_raw, matrix phi_raw, vector logit_p){
   vector[M] out;
   int idx = 1;
+  int phi_idx = 1;
+  int t_idx = 1;
   int end;
+  int phi_end;
+  int t_end;
   for (i in 1:M){
-    end = idx + J[1,i] - 1;
-    out[i] = lp_occu(y[idx:end], logit_psi[i], logit_p[idx:end], nd[i]);
-    idx += J[1,i];
-   }
+    end = idx + sum(J[,i]) - 1;
+    phi_end = phi_idx + Tmax - 1;
+    t_end = t_idx + T[i] - 1;
+
+    out[i] = lp_colext(y[idx:end], Ts[t_idx:t_end], J[,i], psi[i,], 
+                       phi_raw[phi_idx:phi_end,], logit_p[idx:end], nd[,i]);
+    idx += sum(J[,i];
+    phi_idx += Tmax;
+    ts_idx += T[i];
+  }
   return out;
 }
 
