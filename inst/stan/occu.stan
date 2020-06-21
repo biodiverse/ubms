@@ -15,9 +15,9 @@ vector get_loglik_occu(int[] y, int M, int[,] J, vector logit_psi,
   int idx = 1;
   int end;
   for (i in 1:M){
-    end = idx + J[1,i] - 1;
+    end = idx + J[i,1] - 1;
     out[i] = lp_occu(y[idx:end], logit_psi[i], logit_p[idx:end], nd[i]);
-    idx += J[1,i];
+    idx += J[i,1];
    }
   return out;
 }
@@ -26,7 +26,7 @@ vector get_loglik_occu(int[] y, int M, int[,] J, vector logit_psi,
 
 data{
 
-#include /include/data_single_season.stan
+#include /include/data.stan
 
 }
 
@@ -34,7 +34,7 @@ transformed data{
 
 int no_detects[M];
 for (m in 1:M){
-  no_detects[m] = 1 - Kmin[m];
+  no_detects[m] = 1 - Kmin[m,1];
 }
 
 }

@@ -1,11 +1,14 @@
 //Basic data setup for single-season model
 int M;
 int T;
+int Tsamp_size;
+int Tsamp[Tsamp_size];
 int R;
-int J[T,M];
+int J[M,T];
 int y[R];
+int si[M, 6];
 int K;
-int Kmin[M];
+int Kmin[M,T];
 int y_dist;
 int z_dist;
 int has_random_state;

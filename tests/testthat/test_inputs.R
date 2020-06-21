@@ -35,17 +35,20 @@ test_that("get_stan_data pulls necessary info from response object",{
   resp <- ubmsResponse(y, "binomial", "P")
   dat <- get_stan_data(resp)
   expect_is(dat, "list")
-  expect_equal(names(dat), c("y", "y_dist", "z_dist", "M", "T", "J",
-                             "R", "K", "Kmin"))
+  expect_equal(names(dat), c("y", "y_dist", "z_dist", "M", "T", "Tsamp", 
+                             "Tsamp_size", "J", "R", "si", "K", "Kmin"))
   expect_equal(dat[[1]], as.vector(t(y)))
   expect_equal(dat[[2]], 0)
   expect_equal(dat[[3]], 1)
   expect_equal(dat[[4]], 3)
   expect_equal(dat[[5]], 1)
-  expect_equal(dat[[6]], matrix(c(3,3,3), nrow=1))
-  expect_equal(dat[[7]], 9)
-  expect_equal(dat[[8]], max(y) + 20)
-  expect_equal(dat[[9]], c(1,1,1))
+  expect_equal(dat[[6]], c(1,1,1))
+  expect_equal(dat[[7]], 3)
+  expect_equal(dat[[8]], matrix(c(3,3,3), ncol=1))
+  expect_equal(dat[[9]], 9)
+  expect_equal(dim(dat[[10]]), c(3, 6))
+  expect_equal(dat[[11]], max(y) + 20)
+  expect_equal(dat[[12]], matrix(c(1,1,1), ncol=1))
 })
 
 test_that("dist_code returns integer code for distribution", {
