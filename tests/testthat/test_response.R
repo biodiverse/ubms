@@ -62,6 +62,53 @@ test_that("get_n_obs gets correct # of obs for each site",{
   expect_equal(get_n_obs(resp), matrix(c(3,3),nrow=1))
 })
 
+test_that("per_sampled generates logical matrix of sampled periods",{
+  M <- 3; J <- 3; T <- 4
+  y1 = matrix(rbinom(M*T*J,1,0.5),M,T*J)
+  resp1 <- ubmsResponse(y1, "binomial", "binomial", T)  
+  expect_equal(per_sampled(resp1), matrix(TRUE, nrow=3, ncol=4))
+
+  y2 <- y1
+  y2[2,1:3] <- NA
+  y2[3,10:12] <- NA
+  resp2 <- ubmsResponse(y2, "binomial", "binomial", T) 
+  ps <- per_sampled(resp2)
+  expect_equal(ps, matrix(c(TRUE,FALSE,TRUE,rep(TRUE,8),FALSE),nrow=3))
+  
+  y3 <- y1[1,,drop=FALSE]
+  resp3 <- ubmsResponse(y3, "binomial", "binomial", T)
+  expect_equal(per_sampled(resp3), matrix(TRUE, nrow=1, ncol=4))
+  
+  y4 <- y1
+  y4[3,] <- NA
+  resp4 <- ubmsResponse(y4, "binomial", "binomial", T)
+  expect_equal(per_sampled(resp4), matrix(TRUE, nrow=2, ncol=4))
+  
+  resp5 <- ubmsResponse(y1, "binomial", "binomial", 1)
+  expect_equal(per_sampled(resp5), matrix(TRUE, nrow=3, ncol=1))
+})
+
+test_that("which_per_sampled identifies indices of sampled periods",{
+  M <- 3; J <- 3; T <- 4
+  y = matrix(rbinom(M*T*J,1,0.5),M,T*J)
+  
+  y2 <- y
+  y2[2,1:3] <- NA
+  y2[3,10:12] <- NA
+  resp2 <- ubmsResponse(y2, "binomial", "binomial", T)  
+  expect_equal(which_per_sampled(resp2), 
+              c(1,2,3,4, 2,3,4, 1,2,3))
+
+  y3 <- y
+  y3[1,] <- NA
+  resp3 <- ubmsResponse(y3, "binomial", "binomial", T)
+  expect_equal(which_per_sampled(resp3), c(1,2,3,4,1,2,3,4))
+
+  resp5 <- ubmsResponse(y, "binomial", "binomial", 1)
+  expect_equal(which_per_sampled(resp5), rep(1,M))
+
+})
+
 test_that("get_n_pers gets correct # of primary pers by site",{
   M <- 3; J <- 3; T <- 4
   y1 = matrix(rbinom(M*T*J,1,0.5),M,T*J)

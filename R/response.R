@@ -68,15 +68,26 @@ setMethod("get_n_obs", "ubmsResponse", function(object){
   out[, keep_sites, drop=FALSE]
 })
 
-setGeneric("get_n_pers", function(object, ...) standardGeneric("get_n_pers"))
+setGeneric("per_sampled", function(object, ...){
+             standardGeneric("per_sampled")})
 
-setMethod("get_n_pers", "ubmsResponse", function(object){
+setMethod("per_sampled", "ubmsResponse", function(object){
   yt <- matrix(t(object), nrow=object@max_obs)
   pers <- apply(yt, 2, function(x) any(!is.na(x)))
   pers <- matrix(pers, ncol=object@max_primary, byrow=TRUE)
-  out <- rowSums(pers)
-  out[out > 0]
+  keep <- rowSums(pers) > 0
+  pers[keep,,drop=FALSE]
 })
+
+which_per_sampled <- function(object){
+  ps <- per_sampled(object)
+  as.vector(unlist(apply(ps, 1, which)))
+}
+
+get_n_pers <- function(object){
+  ps <- per_sampled(object)
+  rowSums(ps)
+}
 
 setGeneric("get_subset_inds", function(object, ...) standardGeneric("get_subset_inds"))
 

@@ -37,8 +37,11 @@ setMethod("get_stan_data", "ubmsResponse", function(object, ...){
        z_dist = dist_code(object@z_dist),
        M = get_n_sites(object),
        T = object@max_primary,
+       Tsamp = which_per_sampled(object),
+       Tsamp_size = length(which_per_sampled(object)),
        J = get_n_obs(object),
        R = sum(get_n_obs(object)),
+       si = get_subset_inds(object),
        K = object@K,
        Kmin = get_Kmin(object))
 })
