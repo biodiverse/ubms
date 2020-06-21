@@ -28,7 +28,7 @@ matrix get_phi(vector phi_raw, int Tstart, int Tnext){
 
 //Ts = indices of primary periods when site was sampled (eg not all NA)
 real lp_colext(int[] y, int[] Tsamp, int[] J, vector psi, matrix phi_raw, 
-               vector p, int[] nd){
+               vector logit_p, int[] nd){
   
   int T = size(Tsamp);
   matrix phi_prod = diag_matrix(rep_vector(1, 2));
@@ -40,37 +40,26 @@ real lp_colext(int[] y, int[] Tsamp, int[] J, vector psi, matrix phi_raw,
   for (t in 1:(T-1)){
     phi = get_phi(phi_raw, Tsamp[t], Tsamp[t+1]);
     end = idx + J[t] - 1;
-    Dpt = get_pY(y[idx:end], p[idx:end], nd[t]);
+    Dpt = get_pY(y[idx:end], logit_p[idx:end], nd[t]);
     phi_prod *= diag_pre_multiply(Dpt, phi);
     idx += J[t];
   }
 
   end = idx + J[T] - 1;
-  Dpt = get_pY(y[idx:end], p[idx:end], nd[T]);
+  Dpt = get_pY(y[idx:end], logit_p[idx:end], nd[T]);
 
   return log(dot_product(psi * phi_prod, Dpt));
 }
 
 //needs fixed
-vector get_loglik_colext(int[] y, int M, int[] Tsamp, int[,] J, 
-                         matrix psi_raw, matrix phi_raw, vector logit_p){
+vector get_loglik_colext(int[] y, int M, int[] Tsamp, int[,] J, int[,] si, 
+                         matrix psi_raw, matrix phi_raw, vector logit_p,
+                         int[,] nd){
   vector[M] out;
-  int idx = 1;
-  int phi_idx = 1;
-  int t_idx = 1;
-  int end;
-  int phi_end;
-  int t_end;
   for (i in 1:M){
-    end = idx + sum(J[i,]) - 1;
-    phi_end = phi_idx + Tmax - 1;
-    t_end = t_idx + T[i] - 1;
-
-    out[i] = lp_colext(y[idx:end], Tsamp[t_idx:t_end], J[i,], psi[i,], 
-                       phi_raw[phi_idx:phi_end,], logit_p[idx:end], nd[i,]);
-    idx += sum(J[i,];
-    phi_idx += Tmax;
-    ts_idx += T[i];
+    out[i] = lp_colext(y[si[i,1]:si[i,2]], Tsamp[si[i,3]:si[i,4]], J[i,], 
+                       psi_raw[i,], phi_raw[si[i,5]:si[i,6],], 
+                       logit_p[si[i,1]:si[i,2]], nd[i,]);
   }
   return out;
 }
@@ -98,29 +87,70 @@ parameters{
 
 #include /include/params_single_season.stan
 
+vector[n_fixed_col] beta_col;
+vector[n_fixed_ext] beta_ext;
+vector<lower=0>[n_group_vars_col] sigma_col;
+vector<lower=0>[n_group_vars_ext] sigma_ext;
+vector[sum(n_random_col)] b_col;
+vector[sum(n_random_ext)] b_ext;
+
 }
 
 transformed parameters{
 
 vector[M] logit_psi;
+matrix[M,2] psi_raw;
+vector[M*(T-1)] logit_col;
+vector[M*(T-1)] logit_ext;
+matrix[M*(T-1), 4] phi_raw;
 vector[R] logit_p;
 vector[M] log_lik;
 
+//psi
 logit_psi = X_state * beta_state;
-logit_p = X_det * beta_det;
-
 if(has_random_state){
   logit_psi = logit_psi + 
               csr_matrix_times_vector(Zdim_state[1], Zdim_state[2], Zw_state,
                                       Zv_state, Zu_state, b_state);
 }
+
+for (i in 1:M){
+  psi_raw[i,1] <- inv_logit(logit_psi[i]);
+  psi_raw[i,2] <- 1 - psi_raw[i,1]
+}
+
+//phi
+logit_col = X_col * beta_col;
+if(has_random_col){
+  logit_col = logit_col + 
+              csr_matrix_times_vector(Zdim_col[1], Zdim_col[2], Zw_col,
+                                      Zv_col, Zu_col, b_col);
+}
+
+logit_ext = X_ext * beta_ext;
+if(has_random_ext){
+  logit_ext = logit_ext + 
+              csr_matrix_times_vector(Zdim_ext[1], Zdim_ext[2], Zw_ext,
+                                      Zv_ext, Zu_ext, b_ext);
+}
+
+for (i in 1:(M*(T-1))){
+  phi_raw[i,1] <- inv_logit(logit_col[i]);
+  phi_raw[i,2] <- 1 - phi_raw[i,1];
+  phi_raw[i,3] <- inv_logit(logit_ext[i]);
+  phi_raw[i,4] <- 1 - phi_raw[i,3]; 
+}
+
+//det
+logit_p = X_det * beta_det;
 if(has_random_det){
   logit_p = logit_p + 
             csr_matrix_times_vector(Zdim_det[1], Zdim_det[2], Zw_det,
                                     Zv_det, Zu_det, b_det);
 }
 
-log_lik = get_loglik_occu(y, M, J, logit_psi, logit_p, no_detects);
+log_lik = get_loglik_colext(y, M, Tsamp, J, si, psi_raw, phi_raw, 
+                            logit_p, no_detects);
 
 }
 
