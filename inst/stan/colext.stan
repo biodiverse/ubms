@@ -27,10 +27,10 @@ matrix get_phi(vector phi_raw, int Tstart, int Tnext){
 }
 
 //Ts = indices of primary periods when site was sampled (eg not all NA)
-real lp_colext(int[] y, int[] Ts, int[] J, vector psi, matrix phi_raw, 
+real lp_colext(int[] y, int[] Tsamp, int[] J, vector psi, matrix phi_raw, 
                vector p, int[] nd){
   
-  int T = size(Ts);
+  int T = size(Tsamp);
   matrix phi_prod = diag_matrix(rep_vector(1, 2));
   matrix phi;
   vector Dpt;
@@ -38,7 +38,7 @@ real lp_colext(int[] y, int[] Ts, int[] J, vector psi, matrix phi_raw,
   int end;
 
   for (t in 1:(T-1)){
-    phi = get_phi(phi_raw, Ts[t], Ts[t+1]);
+    phi = get_phi(phi_raw, Tsamp[t], Tsamp[t+1]);
     end = idx + J[t] - 1;
     Dpt = get_pY(y[idx:end], p[idx:end], nd[t]);
     phi_prod *= diag_pre_multiply(Dpt, phi);
@@ -52,7 +52,7 @@ real lp_colext(int[] y, int[] Ts, int[] J, vector psi, matrix phi_raw,
 }
 
 //needs fixed
-vector get_loglik_colext(int[] y, int M, int Tmax, int T, int[,] J, 
+vector get_loglik_colext(int[] y, int M, int[] Tsamp, int[,] J, 
                          matrix psi_raw, matrix phi_raw, vector logit_p){
   vector[M] out;
   int idx = 1;
@@ -62,13 +62,13 @@ vector get_loglik_colext(int[] y, int M, int Tmax, int T, int[,] J,
   int phi_end;
   int t_end;
   for (i in 1:M){
-    end = idx + sum(J[,i]) - 1;
+    end = idx + sum(J[i,]) - 1;
     phi_end = phi_idx + Tmax - 1;
     t_end = t_idx + T[i] - 1;
 
-    out[i] = lp_colext(y[idx:end], Ts[t_idx:t_end], J[,i], psi[i,], 
-                       phi_raw[phi_idx:phi_end,], logit_p[idx:end], nd[,i]);
-    idx += sum(J[,i];
+    out[i] = lp_colext(y[idx:end], Tsamp[t_idx:t_end], J[i,], psi[i,], 
+                       phi_raw[phi_idx:phi_end,], logit_p[idx:end], nd[i,]);
+    idx += sum(J[i,];
     phi_idx += Tmax;
     ts_idx += T[i];
   }
@@ -79,15 +79,17 @@ vector get_loglik_colext(int[] y, int M, int Tmax, int T, int[,] J,
 
 data{
 
-#include /include/data_single_season.stan
+#include /include/data.stan
 
 }
 
 transformed data{
 
-int no_detects[M];
+int no_detects[M, T];
 for (m in 1:M){
-  no_detects[m] = 1 - Kmin[m];
+  for (t in 1:T){
+    no_detects[m, t] = 1 - Kmin[m, t];
+  }
 }
 
 }
