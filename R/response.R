@@ -63,9 +63,9 @@ setGeneric("get_n_obs", function(object, ...) standardGeneric("get_n_obs"))
 setMethod("get_n_obs", "ubmsResponse", function(object){
   yt <- matrix(t(object), nrow=object@max_obs)
   obs <- apply(yt, 2, function(x) sum(!is.na(x)))
-  out <- matrix(obs, nrow=object@max_primary)
-  keep_sites <- colSums(out) > 0
-  out[, keep_sites, drop=FALSE]
+  out <- matrix(obs, ncol=object@max_primary, byrow=TRUE)
+  keep_sites <- rowSums(out) > 0
+  out[keep_sites,, drop=FALSE]
 })
 
 setGeneric("per_sampled", function(object, ...){
@@ -93,7 +93,7 @@ setGeneric("get_subset_inds", function(object, ...) standardGeneric("get_subset_
 
 setMethod("get_subset_inds", "ubmsResponse", function(object){
   #Indices for y/detection
-  nJ <- colSums(get_n_obs(object))
+  nJ <- rowSums(get_n_obs(object))
   #Indices for periods sampled
   nT <- get_n_pers(object)
   #Indices for primary-period level parameters
@@ -121,9 +121,13 @@ setGeneric("get_Kmin", function(object) standardGeneric("get_Kmin"))
 
 setMethod("get_Kmin", "ubmsResponse", function(object){
   yt <- t(object)
+  keep <- apply(yt, 2, function(x) !all(is.na(x)))
+
+  yt <- matrix(yt, nrow=object@max_obs)
   out <- apply(yt, 2, function(x){
-           if(all(is.na(x))) return(NA)
-           max(x, na.rm=TRUE)
+            if(all(is.na(x))) return(0)
+            max(x, na.rm=TRUE)
           })
-  out[!is.na(out)]
+  out <- matrix(out, ncol=object@max_primary, byrow=TRUE)
+  out[keep,,drop=FALSE]
 })

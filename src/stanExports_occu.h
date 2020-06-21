@@ -33,9 +33,9 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_occu");
-    reader.add_event(28, 28, "include", "/include/data_single_season.stan");
-    reader.add_event(28, 0, "start", "/include/data_single_season.stan");
-    reader.add_event(61, 33, "end", "/include/data_single_season.stan");
+    reader.add_event(28, 28, "include", "/include/data.stan");
+    reader.add_event(28, 0, "start", "/include/data.stan");
+    reader.add_event(61, 33, "end", "/include/data.stan");
     reader.add_event(61, 29, "restart", "model_occu");
     reader.add_event(75, 43, "include", "/include/params_single_season.stan");
     reader.add_event(75, 0, "start", "/include/params_single_season.stan");
@@ -128,14 +128,14 @@ get_loglik_occu(const std::vector<int>& y,
         current_statement_begin__ = 17;
         for (int i = 1; i <= M; ++i) {
             current_statement_begin__ = 18;
-            stan::math::assign(end, ((idx + get_base1(get_base1(J, 1, "J", 1), i, "J", 2)) - 1));
+            stan::math::assign(end, ((idx + get_base1(get_base1(J, i, "J", 1), 1, "J", 2)) - 1));
             current_statement_begin__ = 19;
             stan::model::assign(out, 
                         stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                         lp_occu(stan::model::rvalue(y, stan::model::cons_list(stan::model::index_min_max(idx, end), stan::model::nil_index_list()), "y"), get_base1(logit_psi, i, "logit_psi", 1), stan::model::rvalue(logit_p, stan::model::cons_list(stan::model::index_min_max(idx, end), stan::model::nil_index_list()), "logit_p"), get_base1(nd, i, "nd", 1), pstream__), 
                         "assigning variable out");
             current_statement_begin__ = 20;
-            stan::math::assign(idx, (idx + get_base1(get_base1(J, 1, "J", 1), i, "J", 2)));
+            stan::math::assign(idx, (idx + get_base1(get_base1(J, i, "J", 1), 1, "J", 2)));
         }
         current_statement_begin__ = 22;
         return stan::math::promote_scalar<fun_return_scalar_t__>(out);
@@ -170,7 +170,7 @@ private:
         std::vector<int> y;
         std::vector<std::vector<int> > si;
         int K;
-        std::vector<int> Kmin;
+        std::vector<std::vector<int> > Kmin;
         int y_dist;
         int z_dist;
         int has_random_state;
@@ -257,14 +257,14 @@ public:
             pos__ = 0;
             R = vals_i__[pos__++];
             current_statement_begin__ = 35;
-            validate_non_negative_index("J", "T", T);
             validate_non_negative_index("J", "M", M);
-            context__.validate_dims("data initialization", "J", "int", context__.to_vec(T,M));
-            J = std::vector<std::vector<int> >(T, std::vector<int>(M, int(0)));
+            validate_non_negative_index("J", "T", T);
+            context__.validate_dims("data initialization", "J", "int", context__.to_vec(M,T));
+            J = std::vector<std::vector<int> >(M, std::vector<int>(T, int(0)));
             vals_i__ = context__.vals_i("J");
             pos__ = 0;
-            size_t J_k_0_max__ = T;
-            size_t J_k_1_max__ = M;
+            size_t J_k_0_max__ = M;
+            size_t J_k_1_max__ = T;
             for (size_t k_1__ = 0; k_1__ < J_k_1_max__; ++k_1__) {
                 for (size_t k_0__ = 0; k_0__ < J_k_0_max__; ++k_0__) {
                     J[k_0__][k_1__] = vals_i__[pos__++];
@@ -302,13 +302,17 @@ public:
             K = vals_i__[pos__++];
             current_statement_begin__ = 39;
             validate_non_negative_index("Kmin", "M", M);
-            context__.validate_dims("data initialization", "Kmin", "int", context__.to_vec(M));
-            Kmin = std::vector<int>(M, int(0));
+            validate_non_negative_index("Kmin", "T", T);
+            context__.validate_dims("data initialization", "Kmin", "int", context__.to_vec(M,T));
+            Kmin = std::vector<std::vector<int> >(M, std::vector<int>(T, int(0)));
             vals_i__ = context__.vals_i("Kmin");
             pos__ = 0;
             size_t Kmin_k_0_max__ = M;
-            for (size_t k_0__ = 0; k_0__ < Kmin_k_0_max__; ++k_0__) {
-                Kmin[k_0__] = vals_i__[pos__++];
+            size_t Kmin_k_1_max__ = T;
+            for (size_t k_1__ = 0; k_1__ < Kmin_k_1_max__; ++k_1__) {
+                for (size_t k_0__ = 0; k_0__ < Kmin_k_0_max__; ++k_0__) {
+                    Kmin[k_0__][k_1__] = vals_i__[pos__++];
+                }
             }
             current_statement_begin__ = 40;
             context__.validate_dims("data initialization", "y_dist", "int", context__.to_vec());
@@ -497,7 +501,7 @@ public:
                 current_statement_begin__ = 69;
                 stan::model::assign(no_detects, 
                             stan::model::cons_list(stan::model::index_uni(m), stan::model::nil_index_list()), 
-                            (1 - get_base1(Kmin, m, "Kmin", 1)), 
+                            (1 - get_base1(get_base1(Kmin, m, "Kmin", 1), 1, "Kmin", 2)), 
                             "assigning variable no_detects");
             }
             // validate transformed data

@@ -55,11 +55,11 @@ test_that("get_n_sites gets count of sites with data",{
 test_that("get_n_obs gets correct # of obs for each site",{
   y <- matrix(c(1,NA,0,1,1,1,0,0,1), nrow=3, byrow=T)
   resp <- ubmsResponse(y, "binomial", "P")
-  expect_equal(get_n_obs(resp), matrix(c(2,3,3), nrow=1))
+  expect_equal(get_n_obs(resp), matrix(c(2,3,3), ncol=1))
 
   y <- matrix(c(NA,NA,NA,1,1,1,0,0,1), nrow=3, byrow=T)
   resp <- ubmsResponse(y, "binomial", "P")
-  expect_equal(get_n_obs(resp), matrix(c(3,3),nrow=1))
+  expect_equal(get_n_obs(resp), matrix(c(3,3),ncol=1))
 })
 
 test_that("per_sampled generates logical matrix of sampled periods",{
@@ -195,12 +195,20 @@ test_that("as_vector converts response object to y vec",{
                     na.omit(as.vector(t(y))))
 })
 
-test_that("get_Kmin finds minimum K value for each site",{
+test_that("get_Kmin finds minimum K by site and primary period",{
   y <- matrix(c(1,NA,0,2,1,1,2,2,3), nrow=3, byrow=T)
   resp <- ubmsResponse(y, "binomial", "P")
-  expect_equal(get_Kmin(resp), c(1,2,3))
+  expect_equal(get_Kmin(resp), matrix(c(1,2,3), ncol=1))
 
   y <- matrix(c(NA,NA,NA,2,1,1,2,2,3), nrow=3, byrow=T)
   resp <- ubmsResponse(y, "binomial", "P")
-  expect_equal(get_Kmin(resp), c(2,3))
+  expect_equal(get_Kmin(resp), matrix(c(2,3),ncol=1))
+
+  y <- matrix(c(1,0,0,0,1,1,NA,1), nrow=2, byrow=T)
+  resp <- ubmsResponse(y, "binomial", "binomial", 2)
+  expect_equal(get_Kmin(resp), matrix(c(1,1,0,1), nrow=2))
+
+  y <- matrix(c(1,0,0,0), nrow=1, byrow=T)
+  resp <- ubmsResponse(y, "binomial", "binomial", 2)
+  expect_equal(get_Kmin(resp), matrix(c(1,0), nrow=1))
 })
