@@ -156,7 +156,29 @@ log_lik = get_loglik_colext(y, M, Tsamp, J, si, psi_raw, phi_raw,
 
 model{
 
-#include /include/model_single_season.stan
+#include /include/rand_priors_single_season.stan
+
+if(has_random_col){
+  for (i in 1:n_group_vars_col){
+    b_col[idx:(n_random_col[i]+idx-1)] ~ normal(0, sigma_col[i]);
+    idx += n_random_col[i];
+  }
+}
+
+idx = 1;
+if(has_random_ext){
+  for (i in 1:n_group_vars_ext){
+    b_ext[idx:(n_random_ext[i]+idx-1)] ~ normal(0, sigma_ext[i]);
+    idx += n_random_ext[i];
+  }
+}
+
+
+#include /include/fixed_priors_single_season.stan
+beta_col ~ normal(0, 2.5);
+beta_ext ~ normal(0, 2.5);
+
+target += sum(log_lik);
 
 }
 
