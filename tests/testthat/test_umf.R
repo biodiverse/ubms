@@ -66,3 +66,38 @@ test_that("process_covs generates correct data frames",{
                cbind(data.frame(.dummy=rep(NA, 3)), 
                      df2[c(1,1,1),,drop=FALSE]))
 })
+
+test_that("drop_final_year removes final year of yearly site covs",{
+  M <- 5; T <- 3
+  test_df <- data.frame(x1=rnorm(M*T), 
+                        x2=factor(rep(c("1","2","3"), M)))
+  expect_equal(levels(test_df$x2), c("1","2","3"))
+
+  dr <- drop_final_year(test_df, 5, 3)
+  expect_is(dr, "data.frame")
+  expect_equal(dim(dr), c(M*(T-1), 2))
+  expect_equal(levels(dr$x2), c("1","2"))
+})
+
+test_that("yearlySiteCovs handled properly",{
+  
+  M <- 30; J <- 3; T <- 3
+  y <- matrix(rbinom(M*J*T,1,0.5), ncol=J*T)
+  sc <- data.frame(x1 = rnorm(M))
+  oc <- data.frame(x2 = rnorm(M*J*T))
+  ysc <- data.frame(ys1 = rnorm(M*T), ys2=factor(rep(c("1","2","3"),M))) 
+  
+  umf_no_ysc <- unmarkedMultFrame(y, siteCovs=sc, obsCovs=oc, numPrimary=3)
+  expect_equal(yearlySiteCovs(umf_no_ysc), NULL)
+  umf_no_ysc <- process_umf(umf_no_ysc)
+  new_ysc <- yearlySiteCovs(umf_no_ysc)
+  expect_equal(names(new_ysc), c('.dummy','x1'))
+  expect_equal(dim(new_ysc), c(M*(T-1), 2))
+
+  umf_ysc <- unmarkedMultFrame(y, siteCovs=sc, obsCovs=oc, 
+                               yearlySiteCovs=ysc, numPrimary=3)
+  umf_ysc <- process_umf(umf_ysc)
+  new_ysc <- yearlySiteCovs(umf_ysc)
+  expect_equal(names(new_ysc), c('ys1', 'ys2', 'x1'))
+  expect_equal(dim(new_ysc), c(M*(T-1), 3))
+})
