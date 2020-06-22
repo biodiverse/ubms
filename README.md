@@ -10,8 +10,8 @@ interface compatible with
 [unmarked](https://cran.r-project.org/web/packages/unmarked/index.html),
 but the model is fit using MCMC with [Stan](https://mc-stan.org/)
 instead of using maximum likelihood. Right now there are Stan versions
-of unmarked functions `occu`, `occuRN`, and `pcount` (`stan_occu`,
-`stan_occuRN`, `stan_pcount`).
+of unmarked functions `occu`, `occuRN`, `colext`, and `pcount`
+(`stan_occu`, `stan_occuRN`, `stan_colext`, `stan_pcount`).
 
 Advantages compared to `unmarked`:
 
@@ -74,17 +74,17 @@ options(mc.cores=3) #number of parallel cores to use
     ## stan_occu(formula = ~x2 ~ x1 + (1 | group), data = umf, refresh = 0)
     ## 
     ## Occupancy:
-    ##                 Estimate    SD   2.5%  97.5% n_eff Rhat
-    ## (Intercept)        0.329 0.310 -0.278  0.957  1184    1
-    ## x1                -0.464 0.117 -0.692 -0.238  5339    1
-    ## sigma [1|group]    1.406 0.293  0.942  2.094  2432    1
+    ##                 Estimate    SD   2.5%  97.5% n_eff  Rhat
+    ## (Intercept)        0.323 0.304 -0.293  0.905  1074 1.001
+    ## x1                -0.466 0.117 -0.695 -0.244  5627 0.999
+    ## sigma [1|group]    1.404 0.278  0.946  2.022  3014 1.002
     ## 
     ## Detection:
-    ##             Estimate     SD  2.5% 97.5% n_eff  Rhat
-    ## (Intercept)    0.383 0.0592 0.267 0.500  5807 1.000
-    ## x2             0.586 0.0629 0.463 0.714  6628 0.999
+    ##             Estimate     SD  2.5% 97.5% n_eff Rhat
+    ## (Intercept)    0.381 0.0591 0.266 0.496  6364    1
+    ## x2             0.587 0.0603 0.471 0.708  6832    1
     ## 
-    ## LOOIC: 2267.163
+    ## LOOIC: 2268.389
 
 Examine residuals for occupancy and detection submodels (following
 [Wright et al. 2019](https://doi.org/10.1002/ecy.2703)). Each panel
@@ -104,8 +104,8 @@ the MacKenzie-Bailey chi-square test:
 ```
 
     ## MacKenzie-Bailey Chi-square 
-    ## Point estimate = 30.185
-    ## Posterior predictive p = 0.494
+    ## Point estimate = 30.054
+    ## Posterior predictive p = 0.482
 
 ``` r
 plot(fm_fit)

@@ -13,7 +13,7 @@ sc2$x1[1] <- NA
 oc2 <- oc
 oc2$x2[4] <- NA
 state2 <- ubmsSubmodel("Occ", "state", sc2, ~x1+(1|group), "plogis")
-det2 <- ubmsSubmodel("Det", "det", oc2, ~x2, "plogis") 
+det2 <- ubmsSubmodel("Det", "det", oc2, ~x2, "plogis")
 sl2 <- ubmsSubmodelList(state2, det2)
 y2 <- matrix(c(1,0,0,1,1,1,NA,0,1), nrow=3, byrow=T)
 resp2 <- ubmsResponse(y2, "binomial", "binomial")
@@ -38,6 +38,26 @@ test_that("setting submodel missing attribute works",{
   expect_equal(det_new@missing, c(T,T,T,F,F,F,T,F,F))
 })
 
+test_that("submodel_set_missing works with transition-type parameters",{
+  ysc <- data.frame(x3 = rnorm(6))
+  col <- ubmsSubmodel("Col", "col", ysc, ~x3, "plogis", transition=TRUE)
+  y3 <- y2
+  y3[1,] <- NA
+  resp3 <- ubmsResponse(y3, "binomial", "binomial", 3)
+
+  new_miss <- submodel_set_missing(col, rep(FALSE,9), resp3)@missing
+  expect_equal(new_miss, c(TRUE,TRUE,rep(FALSE,4)))
+})
+
+test_that("error thrown if dimensions of missing slot changes",{
+  ysc <- data.frame(x3 = rnorm(9))
+  col <- ubmsSubmodel("Col", "col", ysc, ~x3, "plogis", transition=TRUE)
+  y3 <- y2
+  y3[1,] <- NA
+  resp3 <- ubmsResponse(y3, "binomial", "binomial", 3)
+  expect_error(submodel_set_missing(col, rep(FALSE,9), resp3))
+})
+
 test_that("update_missing works for response object",{  
   #No changes
   expect_equivalent(update_missing(resp, sl), resp)
@@ -53,6 +73,16 @@ test_that("find_missing identifies missing values",{
 
   miss2 <- find_missing(resp2, sl2)
   expect_equivalent(miss2, c(T,T,T,T,F,F,T,F,F))
+})
+
+test_that("find_missing ignores transition-type parameters",{
+  ysc <- data.frame(x3 = rnorm(3))
+  col <- ubmsSubmodel("Col", "col", ysc, ~x3, "plogis", transition=FALSE)
+  col2 <- ubmsSubmodel("Col", "col", ysc, ~x3, "plogis", transition=TRUE)
+  sl3 <- ubmsSubmodelList(state2, det2, col)
+  sl4 <- ubmsSubmodelList(state2, det2, col2)
+  expect_equal(find_missing(resp, sl3), find_missing(resp, sl4))
+  expect_equal(find_missing(resp, sl2), find_missing(resp, sl4))
 })
 
 test_that("expand_model_matrix works correctly",{

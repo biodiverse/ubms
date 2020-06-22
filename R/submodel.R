@@ -5,6 +5,7 @@ setClass("ubmsSubmodel",
     data = "data.frame",
     formula = "formula",
     link = "character",
+    transition = "logical",
     missing = "logical"
   ),
   prototype = list(
@@ -13,13 +14,14 @@ setClass("ubmsSubmodel",
     data = data.frame(),
     formula = ~1,
     link = NA_character_,
+    transition = logical(0),
     missing = logical(0)
   )
 )
 
-ubmsSubmodel <- function(name, type, data, formula, link){
+ubmsSubmodel <- function(name, type, data, formula, link, transition=FALSE){
   out <- new("ubmsSubmodel", name=name, type=type, data=data, 
-             formula=formula, link=link)
+             formula=formula, link=link, transition=transition)
   out@missing <- apply(model.matrix(out), 1, function(x) any(is.na(x)))
   out
 }
@@ -34,6 +36,9 @@ setMethod("model.matrix", "ubmsSubmodel",
   
   if(is.null(newdata)){
     out <- model.matrix(formula, mf)
+    if(object@transition & any(is.na(mf))){
+      stop("Missing values are not allowed in yearlySiteCovs", call.=FALSE)
+    }
     if(na.rm) out <- out[!object@missing,,drop=FALSE]
     return(out)
   }

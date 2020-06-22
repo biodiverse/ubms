@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 In-development `R` package for fitting Bayesian hierarchical models of animal occurrence and abundance.
 The package has a formula-based interface compatible with [unmarked](https://cran.r-project.org/web/packages/unmarked/index.html), but the model is fit using MCMC with [Stan](https://mc-stan.org/) instead of using maximum likelihood.
-Right now there are Stan versions of unmarked functions `occu`, `occuRN`, and `pcount` (`stan_occu`, `stan_occuRN`, `stan_pcount`).
+Right now there are Stan versions of unmarked functions `occu`, `occuRN`, `colext`, and `pcount` (`stan_occu`, `stan_occuRN`, `stan_colext`, `stan_pcount`).
 
 Advantages compared to `unmarked`:
 

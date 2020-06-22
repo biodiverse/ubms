@@ -68,6 +68,7 @@ BEGIN_RCPP
 END_RCPP
 }
 
+RcppExport SEXP _rcpp_module_boot_stan_fit4colext_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4occu_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4occuRN_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4pcount_mod();
@@ -77,6 +78,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ubms_exp_counts_occuRN", (DL_FUNC) &_ubms_exp_counts_occuRN, 4},
     {"_ubms_simz_pcount", (DL_FUNC) &_ubms_simz_pcount, 6},
     {"_ubms_simz_occuRN", (DL_FUNC) &_ubms_simz_occuRN, 6},
+    {"_rcpp_module_boot_stan_fit4colext_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4colext_mod, 0},
     {"_rcpp_module_boot_stan_fit4occu_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4occu_mod, 0},
     {"_rcpp_module_boot_stan_fit4occuRN_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4occuRN_mod, 0},
     {"_rcpp_module_boot_stan_fit4pcount_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4pcount_mod, 0},
