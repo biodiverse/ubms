@@ -68,7 +68,10 @@ log_lik = get_loglik_occu(y, M, J, si, logit_psi, logit_p, no_detects);
 
 model{
 
-#include /include/model_single_season.stan
+#include /include/rand_priors_single_season.stan
+#include /include/fixed_priors_single_season.stan
+
+target += sum(log_lik);
 
 }
 

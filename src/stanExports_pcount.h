@@ -41,11 +41,15 @@ stan::io::program_reader prog_reader__() {
     reader.add_event(74, 0, "start", "/include/params_single_season.stan");
     reader.add_event(81, 7, "end", "/include/params_single_season.stan");
     reader.add_event(81, 43, "restart", "model_pcount");
-    reader.add_event(112, 74, "include", "/include/model_single_season.stan");
-    reader.add_event(112, 0, "start", "/include/model_single_season.stan");
-    reader.add_event(137, 25, "end", "/include/model_single_season.stan");
-    reader.add_event(137, 75, "restart", "model_pcount");
-    reader.add_event(141, 77, "end", "model_pcount");
+    reader.add_event(112, 74, "include", "/include/rand_priors_single_season.stan");
+    reader.add_event(112, 0, "start", "/include/rand_priors_single_season.stan");
+    reader.add_event(127, 15, "end", "/include/rand_priors_single_season.stan");
+    reader.add_event(127, 75, "restart", "model_pcount");
+    reader.add_event(127, 75, "include", "/include/fixed_priors_single_season.stan");
+    reader.add_event(127, 0, "start", "/include/fixed_priors_single_season.stan");
+    reader.add_event(129, 2, "end", "/include/fixed_priors_single_season.stan");
+    reader.add_event(129, 76, "restart", "model_pcount");
+    reader.add_event(135, 80, "end", "model_pcount");
     return reader;
 }
 template <typename T1__, typename T2__>
@@ -812,38 +816,38 @@ public:
             }
             // model body
             {
-            current_statement_begin__ = 115;
+            current_statement_begin__ = 113;
             int idx(0);
             (void) idx;  // dummy to suppress unused var warning
             stan::math::fill(idx, std::numeric_limits<int>::min());
             stan::math::assign(idx,1);
-            current_statement_begin__ = 117;
-            lp_accum__.add(normal_log<propto__>(beta_state, 0, 2.5));
-            current_statement_begin__ = 118;
-            lp_accum__.add(normal_log<propto__>(beta_det, 0, 2.5));
-            current_statement_begin__ = 122;
+            current_statement_begin__ = 114;
             if (as_bool(has_random_state)) {
-                current_statement_begin__ = 123;
+                current_statement_begin__ = 115;
                 for (int i = 1; i <= n_group_vars_state; ++i) {
-                    current_statement_begin__ = 124;
+                    current_statement_begin__ = 116;
                     lp_accum__.add(normal_log<propto__>(stan::model::rvalue(b_state, stan::model::cons_list(stan::model::index_min_max(idx, ((get_base1(n_random_state, i, "n_random_state", 1) + idx) - 1)), stan::model::nil_index_list()), "b_state"), 0, get_base1(sigma_state, i, "sigma_state", 1)));
-                    current_statement_begin__ = 125;
+                    current_statement_begin__ = 117;
                     stan::math::assign(idx, (idx + get_base1(n_random_state, i, "n_random_state", 1)));
                 }
             }
-            current_statement_begin__ = 129;
+            current_statement_begin__ = 121;
             stan::math::assign(idx, 1);
-            current_statement_begin__ = 130;
+            current_statement_begin__ = 122;
             if (as_bool(has_random_det)) {
-                current_statement_begin__ = 131;
+                current_statement_begin__ = 123;
                 for (int i = 1; i <= n_group_vars_det; ++i) {
-                    current_statement_begin__ = 132;
+                    current_statement_begin__ = 124;
                     lp_accum__.add(normal_log<propto__>(stan::model::rvalue(b_det, stan::model::cons_list(stan::model::index_min_max(idx, ((get_base1(n_random_det, i, "n_random_det", 1) + idx) - 1)), stan::model::nil_index_list()), "b_det"), 0, get_base1(sigma_det, i, "sigma_det", 1)));
-                    current_statement_begin__ = 133;
+                    current_statement_begin__ = 125;
                     stan::math::assign(idx, (idx + get_base1(n_random_det, i, "n_random_det", 1)));
                 }
             }
-            current_statement_begin__ = 137;
+            current_statement_begin__ = 128;
+            lp_accum__.add(normal_log<propto__>(beta_state, 0, 2.5));
+            current_statement_begin__ = 129;
+            lp_accum__.add(normal_log<propto__>(beta_det, 0, 2.5));
+            current_statement_begin__ = 131;
             lp_accum__.add(sum(log_lik));
             }
         } catch (const std::exception& e) {
