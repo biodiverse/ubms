@@ -17,15 +17,12 @@ real lp_rn(int[] y, real log_lambda, vector logit_r, int J, int K, int Kmin){
   return log_sum_exp(lp);
 }
 
-vector get_loglik_rn(int[] y, int M, int[,] J, vector log_lambda, vector logit_p, 
-                     int K, int[,] Kmin){
+vector get_loglik_rn(int[] y, int M, int[,] J, int[,] si, vector log_lambda, 
+                     vector logit_p, int K, int[,] Kmin){
   vector[M] out;
-  int idx = 1;
-  int end;
   for (i in 1:M){
-    end = idx + J[i,1] - 1;
-    out[i] = lp_rn(y[idx:end], log_lambda[i], logit_p[idx:end], J[i,1], K, Kmin[i,1]);
-    idx += J[i,1];
+    out[i] = lp_rn(y[si[i,1]:si[i,2]], log_lambda[i], logit_p[si[i,1]:si[i,2]], 
+                   J[i,1], K, Kmin[i,1]);
   }
   return out;
 }
@@ -64,13 +61,16 @@ if(has_random_det){
                                     Zv_det, Zu_det, b_det);
 }
 
-log_lik = get_loglik_rn(y, M, J, log_lambda, logit_p, K, Kmin);
+log_lik = get_loglik_rn(y, M, J, si, log_lambda, logit_p, K, Kmin);
 
 }
 
 model{
 
-#include /include/model_single_season.stan
+#include /include/rand_priors_single_season.stan
+#include /include/fixed_priors_single_season.stan
+
+target += sum(log_lik);
 
 }
 

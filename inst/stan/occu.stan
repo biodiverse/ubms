@@ -9,15 +9,12 @@ real lp_occu(int[] y, real logit_psi, vector logit_p, int nd){
   return log_sum_exp(out, log1m_inv_logit(logit_psi));
 }
 
-vector get_loglik_occu(int[] y, int M, int[,] J, vector logit_psi,
+vector get_loglik_occu(int[] y, int M, int[,] J, int[,] si, vector logit_psi,
                   vector logit_p, int[] nd){
   vector[M] out;
-  int idx = 1;
-  int end;
   for (i in 1:M){
-    end = idx + J[i,1] - 1;
-    out[i] = lp_occu(y[idx:end], logit_psi[i], logit_p[idx:end], nd[i]);
-    idx += J[i,1];
+    out[i] = lp_occu(y[si[i,1]:si[i,2]], logit_psi[i], 
+                     logit_p[si[i,1]:si[i,2]], nd[i]);
    }
   return out;
 }
@@ -65,13 +62,16 @@ if(has_random_det){
                                     Zv_det, Zu_det, b_det);
 }
 
-log_lik = get_loglik_occu(y, M, J, logit_psi, logit_p, no_detects);
+log_lik = get_loglik_occu(y, M, J, si, logit_psi, logit_p, no_detects);
 
 }
 
 model{
 
-#include /include/model_single_season.stan
+#include /include/rand_priors_single_season.stan
+#include /include/fixed_priors_single_season.stan
+
+target += sum(log_lik);
 
 }
 
