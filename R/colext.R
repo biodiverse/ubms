@@ -39,8 +39,8 @@ stan_colext <- function(psiformula = ~1, gammaformula = ~1, epsilonformula = ~1,
 
 #Output object-----------------------------------------------------------------
 
-#' @include fit.R 
-setClass("ubmsFitColext", contains = "ubmsFit")
+#' @include occu.R 
+setClass("ubmsFitColext", contains = "ubmsFitOccu")
 
 
 #Method to simulate residuals--------------------------------------------------
@@ -50,14 +50,56 @@ setClass("ubmsFitColext", contains = "ubmsFit")
 
 #Goodness-of-fit---------------------------------------------------------------
 
-#' @describeIn gof 
-#' Applies the MacKenzie-Bailey chi-square goodness of fit test for
-#' ocupancy models (MacKenzie and Bailey 2004).
-#' @references MacKenzie, D. I., & Bailey, L. L. (2004). Assessing the 
-#'  fit of site-occupancy models. Journal of Agricultural, Biological, 
-#'  and Environmental Statistics, 9(3), 300-318.
-#' @include gof.R
-
 #Methods to simulate posterior predictive distributions------------------------
 
 #' @include posterior_predict.R
+setMethod("sim_z", "ubmsFitColext", function(object, samples, re.form, ...){
+  
+  pp <- sapply(submodel_types(object), function(x){
+        t(sim_lp(object, x, transform=TRUE, newdata=NULL, samples=samples,
+                     re.form=re.form))
+        }, simplify=FALSE)
+
+  M <- nrow(pp$state)
+  T <- object@response@max_primary
+  J <- object@response@max_obs
+  nsamp <- length(samples)
+
+  yt <- matrix(t(object@response), ncol=M*T)
+  knownZ <- apply(yt, 2, function(x) sum(x, na.rm=TRUE) > 0)
+  
+  q <- 1 - pp$det
+  inv_psi <- 1 - pp$state
+  z_post <- matrix(NA, M*T, nsamp)
+
+  update_zprob <- function(zprob, psub){
+    if(any(!is.na(psub))){
+      qT <- prod(psub, na.rm=TRUE)
+      zcon <- zprob[2] * qT / (zprob[2] * qT + zprob[1])
+      zprob <- c(1-zcon, zcon)
+    }
+    zprob
+  }
+
+  for (s in 1:nsamp){
+    phi_raw <- cbind(1-pp$col[,s], pp$ext[,s], pp$col[,s], 1-pp$ext[,s])
+    idx <- tidx <- pidx <- 1
+    for (i in 1:M){
+      for (t in 1:T){
+        if(knownZ[idx]){
+          z_post[idx, s] <- 1
+          zprob <- c(0,1)
+        } else {
+          if(t==1) zprob <- c(inv_psi[i,s], pp$state[i,s])
+          else zprob <- zprob %*% matrix(phi_raw[tidx,], nrow=2) 
+          zprob <- update_zprob(zprob, q[pidx:(pidx+J-1), s])
+          z_post[idx, s] <- rbinom(1, 1, zprob[2])
+        }
+        idx <- idx + 1
+        pidx <- pidx + J
+        if(t>1) tidx <- tidx + 1
+      }
+    }
+  }
+  t(z_post)
+})

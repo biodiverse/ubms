@@ -1,6 +1,6 @@
 Package: ubms
-Version: 0.1.2-9009
-Date: 2020-06-22
+Version: 0.1.2-9010
+Date: 2020-06-23
 Title: Fit Unmarked Bayesian Models using Stan
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))
@@ -41,11 +41,11 @@ Collate:
     'inputs.R'
     'fit.R'
     'posterior_predict.R'
-    'gof.R'
     'residuals.R'
+    'gof.R'
+    'occu.R'
     'colext.R'
     'fitlist.R'
-    'occu.R'
     'occuRN.R'
     'mb_chisq.R'
     'missing.R'

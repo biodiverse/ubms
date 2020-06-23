@@ -139,9 +139,9 @@ setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
 
 setMethod("sim_y", "ubmsFitOccu", function(object, samples, re.form, z=NULL, ...){  
   nsamp <- length(samples)
-  y <- getY(object@data)
-  M <- nrow(y)
-  J <- ncol(y)
+  M <- get_n_sites(object@response)
+  J <- object@response@max_obs
+  T <- object@response@max_primary
 
   z <- process_z(object, samples, re.form, z)
   p <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL, 
@@ -149,6 +149,6 @@ setMethod("sim_y", "ubmsFitOccu", function(object, samples, re.form, z=NULL, ...
   
   zp <- z[rep(1:nrow(z), each=J),,drop=FALSE] * p
 
-  y_sim <- suppressWarnings(rbinom(M*J*nsamp, 1, as.vector(zp)))  
-  matrix(y_sim, nrow=nsamp, ncol=M*J, byrow=TRUE)
+  y_sim <- suppressWarnings(rbinom(M*J*T*nsamp, 1, as.vector(zp)))  
+  matrix(y_sim, nrow=nsamp, ncol=M*J*T, byrow=TRUE)
 })
