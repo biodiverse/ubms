@@ -26,8 +26,7 @@ NULL
 #' @importFrom gridExtra grid.arrange
 #' @export
 setMethod("plot", "ubmsFit", function(x, ...){  
-  submods <- submodel_types(x)
-  pl <- lapply(submods, function(s) plot_residuals(x, s, draws=6))
+  pl <- lapply(c("state","det"), function(s) plot_residuals(x, s, draws=6))
   grid.arrange(grobs=pl) 
 })
 

@@ -33,30 +33,6 @@ stan_occu <- function(formula, data, ...){
 setClass("ubmsFitOccu", contains = "ubmsFit")
 
 
-#Method to simulate residuals--------------------------------------------------
-
-#' @include residuals.R
-setMethod("sim_res", "ubmsFitOccu", function(object, submodel, samples, ...){
-
-  lp <- sim_lp(object, submodel, samples=samples, transform=TRUE,
-               newdata=NULL, re.form=NULL)
-  z <- sim_z(object, samples=samples, re.form=NULL)
-
-  if(identical(submodel, "state")){
-    res <- z - lp
-  } else if(identical(submodel, "det")){
-    y <- object@data@y
-    J <- ncol(y)
-    ylong <- as.vector(t(y))
-    zrep <- z[, rep(1:ncol(z), each=J)]
-    z1_mask <- zrep == 1
-    res <- matrix(rep(ylong, each=nrow(lp)), nrow=nrow(lp)) - lp
-    res[!z1_mask] <- NA #residuals conditional on z = 1
-  }
-  res
-})
-
-
 #Goodness-of-fit---------------------------------------------------------------
 
 #' @describeIn gof 

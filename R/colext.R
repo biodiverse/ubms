@@ -43,9 +43,46 @@ stan_colext <- function(psiformula = ~1, gammaformula = ~1, epsilonformula = ~1,
 setClass("ubmsFitColext", contains = "ubmsFitOccu")
 
 
-#Method to simulate residuals--------------------------------------------------
+#Method for fitted values------------------------------------------------------
 
-#' @include residuals.R
+#' @include fitted.R
+setMethod("sim_fitted", "ubmsFitColext", 
+          function(object, submodel, samples, ...){
+  if(submodel == "state") return(colext_occ_prob(object, samples))
+  callNextMethod(object, submodel, samples, ...)
+})
+
+#This can probably be used with the z function below
+colext_occ_prob <- function(object, samples){
+  
+  pp <- sapply(c("state","col","ext"), function(x){
+        t(ubms:::sim_lp(object, x, transform=TRUE, newdata=NULL, samples=samples,
+                     re.form=NULL))
+        }, simplify=FALSE)
+
+  M <- nrow(pp$state)
+  T <- object@response@max_primary
+  nsamp <- length(samples)
+
+  inv_psi <- 1 - pp$state
+  
+  out <- matrix(NA, M*T, nsamp)
+
+  for (s in 1:nsamp){
+    phi_raw <- cbind(1-pp$col[,s], pp$ext[,s], pp$col[,s], 1-pp$ext[,s])
+    idx <- tidx <- 1
+    for (i in 1:M){
+      for (t in 1:T){
+        if(t==1) zprob <- c(inv_psi[i,s], pp$state[i,s])
+        else zprob <- zprob %*% matrix(phi_raw[tidx,], nrow=2)
+        out[idx,s] <- zprob[2]
+        idx <- idx + 1
+        if(t>1) tidx <- tidx + 1
+      }
+    }
+  }
+  t(out)
+}
 
 
 #Goodness-of-fit---------------------------------------------------------------

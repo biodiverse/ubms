@@ -33,8 +33,22 @@ setMethod("residuals", "ubmsFit", function(object, submodel, draws=NULL, ...){
 #Internal function for calculating residuals
 setGeneric("sim_res", function(object, ...) standardGeneric("sim_res"))
 
-setMethod("sim_res", "ubmsFit", function(object, ...){
-  stop("No available method for this fit type", call.=FALSE)
+setMethod("sim_res", "ubmsFit", function(object, submodel, samples, 
+                                         type=c("absolute", "pearson"), ...){
+  type <- match.arg(type, c("absolute", "pearson"))
+
+  fit <- sim_fitted(object, submodel, samples)
+
+  if(identical(submodel, "state")){
+    res <- sim_z(object, samples=samples, re.form=NULL) - fit
+  } else if(identical(submodel, "det")){
+    y <- as_vector(object@response)
+    y <- matrix(rep(y, each=nrow(fit)), nrow=nrow(fit))
+    res <- y - fit
+  }
+
+  if(identical(type, "pearson")) res <- res / sqrt(fit)
+  res
 })
 
 
@@ -89,13 +103,12 @@ setMethod("plot_residuals", "ubmsFit", function(object, submodel, covariate=NULL
 
 setMethod("plot_residuals", "ubmsFit", function(object, submodel, covariate=NULL, 
                                                 draws=9, nbins=NULL, ...){
+  type <- ifelse(object[submodel]@link=="plogis", "absolute", "pearson")
   samples <- get_samples(object, draws)
-  res <- sim_res(object, submodel, samples)
-  lp <- sim_lp(object, submodel, samples=samples, transform=TRUE,
-                      newdata=NULL, re.form=NULL)
- 
+  res <- sim_res(object, submodel, samples, type=type)
+  x <- sim_fitted(object, submodel, samples=samples)
+
   name <- object[submodel]@name
-  x <- lp
   xlab <- "Predicted value"
   if(!is.null(covariate)){
     x <- object[submodel]@data[[covariate]]
@@ -103,10 +116,9 @@ setMethod("plot_residuals", "ubmsFit", function(object, submodel, covariate=NULL
     xlab <- paste(covariate, "value")
   }
 
-  if(identical(object[submodel]@link, "plogis")){
+  if(identical(type, "absolute")){
     return(plot_binned_residuals(x, res, xlab, name, nbins))
   }
-  res <- res / sqrt(lp) #Pearson residuals
   plot_pearson_residuals(x, res, xlab, name)
 })
 
@@ -166,7 +178,6 @@ get_binned_residuals <- function(x, y, ind, nbins=NULL, ...){
 get_breaks <- function(x, nbins){
 
   if(is.null(nbins)) nbins <- ceiling(sqrt(length(x)))
-  #stopifnot(nbins > 3)
 
   bad_break <- TRUE
   while(bad_break){
@@ -181,5 +192,5 @@ get_breaks <- function(x, nbins){
       }
     )
   }
-  list(nbins=nbins, x_binned=x_binned)  
+  list(nbins=length(unique(x_binned)), x_binned=x_binned)  
 }
