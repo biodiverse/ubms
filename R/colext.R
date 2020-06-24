@@ -9,7 +9,7 @@
 #' @param epsilonformula Right-hand sided formula for extinction probability
 #' @param pformula Right-hand sided formula for detection probability
 #' @param data A \code{\link{unmarkedMultFrame}} object
-#' @param ... Arguments passed to the \code{\link{stan}} call, such as 
+#' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
 #' @return \code{ubmsFitColext} object describing the model fit.
@@ -19,16 +19,16 @@
 #'
 #' @seealso \code{\link{colext}}, \code{\link{unmarkedMultFrame}}
 #' @export
-stan_colext <- function(psiformula = ~1, gammaformula = ~1, epsilonformula = ~1, 
+stan_colext <- function(psiformula = ~1, gammaformula = ~1, epsilonformula = ~1,
                         pformula = ~1, data, ...){
 
   umf <- process_umf(data)
 
   response <- ubmsResponse(getY(umf), "binomial", "binomial", umf@numPrimary)
   state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), psiformula, "plogis")
-  col <- ubmsSubmodel("Colonization", "col", yearlySiteCovs(umf), 
+  col <- ubmsSubmodel("Colonization", "col", yearlySiteCovs(umf),
                       gammaformula, "plogis", transition=TRUE)
-  ext <- ubmsSubmodel("Extinction", "ext", yearlySiteCovs(umf), 
+  ext <- ubmsSubmodel("Extinction", "ext", yearlySiteCovs(umf),
                       epsilonformula, "plogis", transition=TRUE)
   det <- ubmsSubmodel("Detection", "det", obsCovs(umf), pformula, "plogis")
   submodels <- ubmsSubmodelList(state, col, ext, det)
@@ -39,14 +39,14 @@ stan_colext <- function(psiformula = ~1, gammaformula = ~1, epsilonformula = ~1,
 
 #Output object-----------------------------------------------------------------
 
-#' @include occu.R 
+#' @include occu.R
 setClass("ubmsFitColext", contains = "ubmsFitOccu")
 
 
 #Method for fitted values------------------------------------------------------
 
 #' @include fitted.R
-setMethod("sim_fitted", "ubmsFitColext", 
+setMethod("sim_fitted", "ubmsFitColext",
           function(object, submodel, samples, ...){
   if(submodel == "state") return(colext_occ_prob(object, samples))
   callNextMethod(object, submodel, samples, ...)
@@ -54,9 +54,9 @@ setMethod("sim_fitted", "ubmsFitColext",
 
 #This can probably be used with the z function below
 colext_occ_prob <- function(object, samples){
-  
+
   pp <- sapply(c("state","col","ext"), function(x){
-        t(ubms:::sim_lp(object, x, transform=TRUE, newdata=NULL, samples=samples,
+        t(sim_lp(object, x, transform=TRUE, newdata=NULL, samples=samples,
                      re.form=NULL))
         }, simplify=FALSE)
 
@@ -65,7 +65,7 @@ colext_occ_prob <- function(object, samples){
   nsamp <- length(samples)
 
   inv_psi <- 1 - pp$state
-  
+
   out <- matrix(NA, M*T, nsamp)
 
   for (s in 1:nsamp){
@@ -91,7 +91,7 @@ colext_occ_prob <- function(object, samples){
 
 #' @include posterior_predict.R
 setMethod("sim_z", "ubmsFitColext", function(object, samples, re.form, ...){
-  
+
   pp <- sapply(submodel_types(object), function(x){
         t(sim_lp(object, x, transform=TRUE, newdata=NULL, samples=samples,
                      re.form=re.form))
@@ -104,7 +104,7 @@ setMethod("sim_z", "ubmsFitColext", function(object, samples, re.form, ...){
 
   yt <- matrix(t(object@response), ncol=M*T)
   knownZ <- apply(yt, 2, function(x) sum(x, na.rm=TRUE) > 0)
-  
+
   q <- 1 - pp$det
   inv_psi <- 1 - pp$state
   z_post <- matrix(NA, M*T, nsamp)
@@ -128,7 +128,7 @@ setMethod("sim_z", "ubmsFitColext", function(object, samples, re.form, ...){
           zprob <- c(0,1)
         } else {
           if(t==1) zprob <- c(inv_psi[i,s], pp$state[i,s])
-          else zprob <- zprob %*% matrix(phi_raw[tidx,], nrow=2) 
+          else zprob <- zprob %*% matrix(phi_raw[tidx,], nrow=2)
           zprob <- update_zprob(zprob, q[pidx:(pidx+J-1), s])
           z_post[idx, s] <- rbinom(1, 1, zprob[2])
         }

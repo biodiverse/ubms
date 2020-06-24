@@ -9,11 +9,11 @@ oc <- data.frame(x3=rnorm(27))
 umf <- unmarkedFrameOccu(y=matrix(rep(c(1,0,0,1,1,0,0,1,0), 3), nrow=9),
         siteCovs=sc, obsCovs=oc)
 #Fit model
-fit <- suppressWarnings(stan_occuRN(~x3~x1, umf, 
+fit <- suppressWarnings(stan_occuRN(~x3~x1, umf,
                                   chains=2, iter=40, refresh=0))
 
 test_that("residuals generates matrix of correct structure",{
-  residuals <- getMethod("residuals", "ubmsFit") #why? only an issue in tests 
+  residuals <- getMethod("residuals", "ubmsFit") #why? only an issue in tests
   r <- residuals(fit, "state", draws=3)
   expect_is(r, "matrix")
   expect_equal(dim(r), c(3,9))
@@ -24,13 +24,13 @@ test_that("residuals generates matrix of correct structure",{
   expect_equal(dim(r), c(40, 9))
 })
 
-test_that("plot_residuals generates correct plot",{  
+test_that("plot_residuals generates correct plot",{
   pdf(NULL)
   pl1 <- plot_residuals(fit, "state")
   pl2 <- plot_residuals(fit, "det")
   pl3 <- plot_residuals(fit, "state", covariate="x1")
   dev.off()
-  
+
   #State should be Pearson
   expect_is(pl1, "gg")
   pl1_build <- ggplot2::ggplot_build(pl1)
@@ -92,7 +92,7 @@ test_that("get_binned_residuals handles NAs",{
   y[2] <- NA
   res <- get_binned_residuals(x, y, ind=1)
   expect_is(res, "data.frame")
-  expect_equal(nrow(res), 5) 
+  expect_equal(nrow(res), 5)
 })
 
 test_that("get_breaks finds correct cut points",{
@@ -104,7 +104,7 @@ test_that("get_breaks finds correct cut points",{
   expect_equal(length(br$x_binned), length(x))
   expect_equal(br$x_binned[1:5], c(3,4,10,6,6))
   expect_equal(length(unique(br$x_binned)), 10)
-  
+
   #Not enough bins
   expect_error(get_breaks(x, 2))
 
@@ -112,7 +112,7 @@ test_that("get_breaks finds correct cut points",{
   set.seed(123)
   x <- c(rnorm(10,0,1), rnorm(10,1,1))
   br2 <- get_breaks(x, 25)
-  expect_equal(br2$nbins, 21)
+  expect_equal(br2$nbins, 20)
   expect_equal(length(br2$x_binned), length(x))
   expect_equal(br2$x_binned[1:5], c(4,6,16,7,8))
 })

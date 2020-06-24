@@ -13,12 +13,12 @@ detection and abundance in that order}
 \item{data}{A \code{\link{unmarkedFramePCount}} object}
 
 \item{K}{Integer upper index of integration for N-mixture. This should be
-set high enough so that it does not affect the parameter estimates. 
+set high enough so that it does not affect the parameter estimates.
 Note that computation time will increase with K.}
 
 \item{mixture}{Character specifying mixture: "P" is only option currently.}
 
-\item{...}{Arguments passed to the \code{\link{stan}} call, such as 
+\item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}
 }
 \value{

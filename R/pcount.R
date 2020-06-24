@@ -7,10 +7,10 @@
 #'  detection and abundance in that order
 #' @param data A \code{\link{unmarkedFramePCount}} object
 #' @param K Integer upper index of integration for N-mixture. This should be
-#'  set high enough so that it does not affect the parameter estimates. 
+#'  set high enough so that it does not affect the parameter estimates.
 #'  Note that computation time will increase with K.
 #' @param mixture Character specifying mixture: "P" is only option currently.
-#' @param ... Arguments passed to the \code{\link{stan}} call, such as 
+#' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
 #' @return \code{ubmsFitPcount} object describing the model fit.
@@ -18,7 +18,7 @@
 #' @seealso \code{\link{pcount}}, \code{\link{unmarkedFramePCount}}
 #' @export
 stan_pcount <- function(formula, data, K=NULL, mixture="P", ...){
-  
+
   forms <- split_formula(formula)
   umf <- process_umf(data)
 
@@ -32,8 +32,26 @@ stan_pcount <- function(formula, data, K=NULL, mixture="P", ...){
 
 #Output object-----------------------------------------------------------------
 
-#' @include fit.R 
+#' @include fit.R
 setClass("ubmsFitPcount", contains = "ubmsFit")
+
+
+#Method for fitted values------------------------------------------------------
+
+#' @include fitted.R
+setMethod("sim_fitted", "ubmsFitPcount",
+          function(object, submodel, samples, ...){
+  if(identical(submodel,"det")){
+    p <- sim_lp(object, submodel, transform=TRUE, newdata=NULL,
+                 samples=samples, re.form=NULL)
+    z <- sim_z(object, samples, re.form=NULL)
+    J <- object@response@max_obs
+    z <- z[, rep(1:ncol(z), each=J)]
+    return(z * p)
+  }
+
+  callNextMethod(object, submodel, samples, ...)
+})
 
 
 #Goodness-of-fit---------------------------------------------------------------
@@ -48,27 +66,28 @@ setMethod("sim_z", "ubmsFitPcount", function(object, samples, re.form, ...){
                    samples=samples, re.form=re.form))
   lam_post <- t(sim_lp(object, submodel="state", transform=TRUE, newdata=NULL,
                      samples=samples, re.form=re.form))
-  
+
   M <- nrow(lam_post)
   J <- nrow(p_post) / M
 
   p_post <- array(p_post, c(J,M,length(samples)))
-  p_post <- aperm(p_post, c(2,1,3)) 
-  
-  y <- getY(object@data)
-  Kinfo <- get_K(y, object@call[["K"]])
+  p_post <- aperm(p_post, c(2,1,3))
 
-  t(simz_pcount(y, lam_post, p_post, Kinfo$K, Kinfo$Kmin, 0:Kinfo$K))
+  y <- getY(object@data)
+  K <- object@response@K
+  Kmin <- get_Kmin(object@response)[,1]
+
+  t(simz_pcount(y, lam_post, p_post, K, Kmin, 0:K))
 })
 
-setMethod("sim_y", "ubmsFitPcount", function(object, samples, re.form, z=NULL, ...){  
+setMethod("sim_y", "ubmsFitPcount", function(object, samples, re.form, z=NULL, ...){
   nsamples <- length(samples)
   y <- getY(object@data)
   M <- nrow(y)
   J <- ncol(y)
-  
+
   z <- process_z(object, samples, re.form, z)
-  p <- sim_lp(object, submodel="det", transform=TRUE, newdata=NULL, 
+  p <- sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
                 samples=samples, re.form=re.form)
   p <- as.vector(t(p))
   N <- as.vector(z[rep(1:nrow(z), each=J),])
