@@ -43,21 +43,46 @@ stan_colext <- function(psiformula = ~1, gammaformula = ~1, epsilonformula = ~1,
 setClass("ubmsFitColext", contains = "ubmsFitOccu")
 
 
-#Method for fitted values------------------------------------------------------
+#Function for projected psi across years---------------------------------------
 
-#' @include fitted.R
-setMethod("sim_fitted", "ubmsFitColext",
-          function(object, submodel, samples, ...){
-  if(submodel == "state") return(colext_occ_prob(object, samples))
-  callNextMethod(object, submodel, samples, ...)
+#' Projected Occupancy Trajectories
+#'
+#' Generate posterior draws of occupancy probability for all sites and primary
+#' periods, i.e. the projected trajectory (Weir et al. 2009).
+#'
+#' @param object A fitted dynamic occupancy model of class inheriting \code{ubmsFit}
+#' @param draws Number of draws from the posterior to use in the check
+#' @param re.form If \code{NULL}, any estimated group-level parameters ("random
+#'  effects") are included. If \code{NA}, they are ignored
+#' @param ... Currently ignored
+#'
+#' @return  A matrix of occupancy values from the posterior predictive distribution.
+#'   The dimensions are \code{draws} by number of sites x primary periods
+#'   in site-major order.
+#'
+#' @references Weir LA, Fiske IJ, Royle J. 2009. Trends in Anuran
+#'   Occupancy from Northeastern States of the North American Amphibian
+#'   Monitoring Program. Herpetological Conservation and Biology.
+#'   4: 389-402.
+#'
+#' @aliases projected
+#' @seealso \code{\link{stan_colext}}
+#' @export
+setGeneric("projected", function(object, ...) standardGeneric("projected"))
+
+#' @rdname projected
+#' @method projected ubmsFitColext
+setMethod("projected", "ubmsFitColext", function(object, draws=NULL,
+                                                 re.form=NULL, ...){
+  samples <- get_samples(object, draws)
+  sim_projected(object, samples, re.form)
 })
 
-#This can probably be used with the z function below
-colext_occ_prob <- function(object, samples){
+sim_projected <- function(object, samples, re.form){
 
   pp <- sapply(c("state","col","ext"), function(x){
         t(sim_lp(object, x, transform=TRUE, newdata=NULL, samples=samples,
-                     re.form=NULL))
+                     re.form=re.form))
         }, simplify=FALSE)
 
   M <- nrow(pp$state)
@@ -83,6 +108,70 @@ colext_occ_prob <- function(object, samples){
   }
   t(out)
 }
+
+
+#Function for turnover---------------------------------------------------------
+
+#' Turnover Probability
+#'
+#' Generate posterior draws of turnover probability from dynamic occupancy models.
+#' Turnover is calculated for each site and each primary period after the first.
+#'
+#' @param object A fitted dynamic occupancy model of class inheriting \code{ubmsFit}
+#' @param draws Number of draws from the posterior to use in the check
+#' @param re.form If \code{NULL}, any estimated group-level parameters ("random
+#'  effects") are included. If \code{NA}, they are ignored
+#' @param ... Currently ignored
+#'
+#' @return  A matrix of turnover values from the posterior predictive distribution.
+#'   The dimensions are \code{draws} by number of sites x (primary periods - 1)
+#'   in site-major order.
+#'
+#' @aliases turnover
+#' @seealso \code{\link{stan_colext}}
+#' @export
+setGeneric("turnover", function(object, ...) standardGeneric("turnover"))
+
+#' @rdname turnover
+#' @method turnover ubmsFitColext
+setMethod("turnover", "ubmsFitColext", function(object, draws, re.form=NULL, ...){
+  samples <- get_samples(object, draws)
+  sim_turnover(object, samples, re.form)
+})
+
+sim_turnover <- function(object, samples, re.form){
+  M <- get_n_sites(object@response)
+  T <- object@response@max_primary
+  nsamp <- length(samples)
+
+  psi_hat <- sim_projected(object, samples, re.form=re.form)
+  col <- sim_lp(object, "col", transform=TRUE, newdata=NULL,
+                samples=samples, re.form=re.form)
+
+  out <- matrix(NA, M*(T-1), nsamp)
+  for (s in 1:nsamp){
+    idx <- 1
+    psi_mat <- matrix(psi_hat[s,], nrow=T)
+    inv_psi_mat <- 1 - psi_mat
+    col_mat <- matrix(col[s,], nrow=(T-1))
+    for (i in 1:M){
+      for (t in 2:T){
+        out[idx, s] <- col_mat[(t-1),i]*inv_psi_mat[(t-1),i] / psi_mat[t,i]
+        idx <- idx + 1
+      }
+    }
+  }
+  t(out)
+}
+
+#Method for fitted values------------------------------------------------------
+
+#' @include fitted.R
+setMethod("sim_fitted", "ubmsFitColext",
+          function(object, submodel, samples, ...){
+  if(submodel == "state") return(sim_projected(object, samples, re.form=NULL))
+  callNextMethod(object, submodel, samples, ...)
+})
 
 
 #Goodness-of-fit---------------------------------------------------------------
