@@ -34,7 +34,7 @@ ocupancy models (MacKenzie and Bailey 2004).
 }}
 
 \references{
-MacKenzie, D. I., & Bailey, L. L. (2004). Assessing the 
- fit of site-occupancy models. Journal of Agricultural, Biological, 
+MacKenzie, D. I., & Bailey, L. L. (2004). Assessing the
+ fit of site-occupancy models. Journal of Agricultural, Biological,
  and Environmental Statistics, 9(3), 300-318.
 }

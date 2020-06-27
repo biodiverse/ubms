@@ -6,7 +6,7 @@
 #' @param formula Double right-hand side formula describing covariates of
 #'  detection and occupancy in that order
 #' @param data A \code{\link{unmarkedFrameOccu}} object
-#' @param ... Arguments passed to the \code{\link{stan}} call, such as 
+#' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
 #' @return \code{ubmsFitOccu} object describing the model fit.
@@ -14,7 +14,7 @@
 #' @seealso \code{\link{occu}}, \code{\link{unmarkedFrameOccu}}
 #' @export
 stan_occu <- function(formula, data, ...){
-  
+
   forms <- split_formula(formula)
   umf <- process_umf(data)
 
@@ -29,34 +29,33 @@ stan_occu <- function(formula, data, ...){
 
 #Output object-----------------------------------------------------------------
 
-#' @include fit.R 
+#' @include fit.R
 setClass("ubmsFitOccu", contains = "ubmsFit")
 
 
 #Goodness-of-fit---------------------------------------------------------------
 
-#' @describeIn gof 
+#' @describeIn gof
 #' Applies the MacKenzie-Bailey chi-square goodness of fit test for
 #' ocupancy models (MacKenzie and Bailey 2004).
-#' @references MacKenzie, D. I., & Bailey, L. L. (2004). Assessing the 
-#'  fit of site-occupancy models. Journal of Agricultural, Biological, 
+#' @references MacKenzie, D. I., & Bailey, L. L. (2004). Assessing the
+#'  fit of site-occupancy models. Journal of Agricultural, Biological,
 #'  and Environmental Statistics, 9(3), 300-318.
 #' @include gof.R
 setMethod("gof", "ubmsFitOccu", function(object, draws=NULL, quiet=FALSE, ...){
 
   samples <- get_samples(object, draws)
   draws <- length(samples)
-  
-  psi <- sim_lp(object, transform=TRUE, submodel="state", newdata=NULL, 
-                       samples, re.form=NULL)
-  p <- sim_lp(object, transform=TRUE, submodel="det", newdata=NULL, 
+
+  psi <- sim_state(object, samples)
+  p <- sim_lp(object, transform=TRUE, submodel="det", newdata=NULL,
                      samples, re.form=NULL)
 
-  yobs <- getY(object@data)
-  M <- nrow(yobs)
-  J <- ncol(yobs)
+  M <- get_n_sites(object@response)
+  T <- object@response@max_primary
+  R <- T * object@response@max_obs
   ysim <- sim_y(object, samples, re.form=NULL)
-  ysim <- array(ysim, c(draws,J,M))
+  ysim <- array(ysim, c(draws,R,M))
   ysim <- aperm(ysim, c(3,2,1))
 
   mb_obs <- mb_sim <- rep(NA, draws)
@@ -64,7 +63,8 @@ setMethod("gof", "ubmsFitOccu", function(object, draws=NULL, quiet=FALSE, ...){
   object_star <- object
   for (i in 1:draws){
     mb_obs[i] <- mb_chisq(object, psi[i,], p[i,])
-    object_star@data@y <- ysim[,,i]
+    object_star@response <- ubmsResponse(ysim[,,i], object@response@y_dist,
+                                         object@response@z_dist, max_primary=T)
     #mb_chisq handles replicating NAs
     mb_sim[i] <- mb_chisq(object_star, psi[i,], p[i,])
     if(!quiet) utils::setTxtProgressBar(pb, i)
@@ -73,15 +73,21 @@ setMethod("gof", "ubmsFitOccu", function(object, draws=NULL, quiet=FALSE, ...){
   ubmsGOF("MacKenzie-Bailey Chi-square", data.frame(obs=mb_obs, sim=mb_sim))
 })
 
+setGeneric("sim_state", function(object, ...) standardGeneric("sim_state"))
+
+setMethod("sim_state", "ubmsFitOccu", function(object, samples, ...){
+  sim_lp(object, transform=TRUE, submodel="state", newdata=NULL,
+         samples, re.form=NULL)
+})
 
 #Methods to simulate posterior predictive distributions------------------------
 
 #' @include posterior_predict.R
-setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){  
- 
-  p_post <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL, 
+setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
+
+  p_post <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
                      samples=samples, re.form=re.form))
-  psi_post <- t(sim_lp(object, submodel="state", transform=TRUE, newdata=NULL, 
+  psi_post <- t(sim_lp(object, submodel="state", transform=TRUE, newdata=NULL,
                        samples=samples, re.form=re.form))
 
   M <- nrow(psi_post)
@@ -89,12 +95,12 @@ setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
   nsamp <- length(samples)
 
   p_post <- array(p_post, c(J,M,nsamp))
-  p_post <- aperm(p_post, c(2,1,3)) 
+  p_post <- aperm(p_post, c(2,1,3))
 
-  z_post <- matrix(NA, M, nsamp) 
+  z_post <- matrix(NA, M, nsamp)
 
   knownZ <- apply(object@data@y, 1, function(x) sum(x, na.rm=T)>0)
-  
+
   z_post[knownZ,] <- 1
 
   unkZ <- which(!knownZ)
@@ -113,18 +119,18 @@ setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
 })
 
 
-setMethod("sim_y", "ubmsFitOccu", function(object, samples, re.form, z=NULL, ...){  
+setMethod("sim_y", "ubmsFitOccu", function(object, samples, re.form, z=NULL, ...){
   nsamp <- length(samples)
   M <- get_n_sites(object@response)
   J <- object@response@max_obs
   T <- object@response@max_primary
 
   z <- process_z(object, samples, re.form, z)
-  p <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL, 
+  p <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
                 samples=samples, re.form=re.form))
-  
+
   zp <- z[rep(1:nrow(z), each=J),,drop=FALSE] * p
 
-  y_sim <- suppressWarnings(rbinom(M*J*T*nsamp, 1, as.vector(zp)))  
+  y_sim <- suppressWarnings(rbinom(M*J*T*nsamp, 1, as.vector(zp)))
   matrix(y_sim, nrow=nsamp, ncol=M*J*T, byrow=TRUE)
 })

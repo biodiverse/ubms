@@ -176,6 +176,10 @@ setMethod("sim_fitted", "ubmsFitColext",
 
 #Goodness-of-fit---------------------------------------------------------------
 
+setMethod("sim_state", "ubmsFitColext", function(object, samples, ...){
+  sim_projected(object, samples, re.form=NULL)
+})
+
 #Methods to simulate posterior predictive distributions------------------------
 
 #' @include posterior_predict.R
