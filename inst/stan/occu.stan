@@ -13,7 +13,7 @@ vector get_loglik_occu(int[] y, int M, int[,] J, int[,] si, vector logit_psi,
                   vector logit_p, int[] nd){
   vector[M] out;
   for (i in 1:M){
-    out[i] = lp_occu(y[si[i,1]:si[i,2]], logit_psi[i], 
+    out[i] = lp_occu(y[si[i,1]:si[i,2]], logit_psi[i],
                      logit_p[si[i,1]:si[i,2]], nd[i]);
    }
   return out;
@@ -52,12 +52,12 @@ logit_psi = X_state * beta_state;
 logit_p = X_det * beta_det;
 
 if(has_random_state){
-  logit_psi = logit_psi + 
+  logit_psi = logit_psi +
               csr_matrix_times_vector(Zdim_state[1], Zdim_state[2], Zw_state,
                                       Zv_state, Zu_state, b_state);
 }
 if(has_random_det){
-  logit_p = logit_p + 
+  logit_p = logit_p +
             csr_matrix_times_vector(Zdim_det[1], Zdim_det[2], Zw_det,
                                     Zv_det, Zu_det, b_det);
 }

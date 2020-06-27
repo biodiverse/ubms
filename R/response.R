@@ -32,8 +32,8 @@ ubmsResponse <- function(y, y_dist, z_dist, max_primary = 1, K=NULL){
 
 get_max_obs <- function(y, max_primary){
   if(ncol(y) %% max_primary != 0){
-    stop("Primary periods must have same number of secondary periods", 
-         call.=FALSE) 
+    stop("Primary periods must have same number of secondary periods",
+         call.=FALSE)
   }
   ncol(y) / max_primary
 }
@@ -111,7 +111,7 @@ generate_inds <- function(count_vec){
 }
 
 setGeneric("as_vector", function(x, ...) as.vector(x))
-setMethod("as_vector", "ubmsResponse", function(x, na.rm=FALSE){  
+setMethod("as_vector", "ubmsResponse", function(x, na.rm=FALSE){
   out <- as.vector(t(x))
   if(na.rm) out <- out[!is.na(out)]
   out

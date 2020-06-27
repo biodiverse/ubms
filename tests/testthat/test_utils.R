@@ -7,7 +7,7 @@ oc <- data.frame(x3=rnorm(9))
 umf <- unmarkedFrameOccu(y=matrix(c(1,0,0,1,1,0,0,1,0), nrow=3),
         siteCovs=sc, obsCovs=oc)
 #Fit model
-fit <- suppressWarnings(stan_occu(~x3~x1+(1|x2), umf, 
+fit <- suppressWarnings(stan_occu(~x3~x1+(1|x2), umf,
                                   chains=2, iter=40, refresh=0))
 
 test_that("get_samples generates sample indices",{

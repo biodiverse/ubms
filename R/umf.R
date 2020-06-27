@@ -1,13 +1,13 @@
 setGeneric("process_umf", function(umf, ...) standardGeneric("process_umf"))
 
 #' @importFrom unmarked yearlySiteCovs
-#' @importFrom unmarked "siteCovs<-" "obsCovs<-" "yearlySiteCovs<-" 
+#' @importFrom unmarked "siteCovs<-" "obsCovs<-" "yearlySiteCovs<-"
 setMethod("process_umf", "unmarkedFrame", function(umf){
 
   nsites <- unmarked::numSites(umf)
   nprimary <- ifelse(methods::.hasSlot(umf, "numPrimary"), umf@numPrimary, 1)
-  nobs <- ncol(umf@y) / nprimary  
-  
+  nobs <- ncol(umf@y) / nprimary
+
   siteCovs(umf) <- process_covs(siteCovs(umf), nsites)
 
   ysc <- siteCovs(umf)
@@ -24,9 +24,9 @@ setMethod("process_umf", "unmarkedFrame", function(umf){
 })
 
 process_covs <- function(covs, n_row, inherit=NULL){
-  
+
   if(is.null(covs)) covs <- data.frame(.dummy=rep(NA, n_row))
-  
+
   if(!is.null(inherit) && !identical(names(inherit), ".dummy")){
     rep_rows <- n_row / nrow(inherit)
     expand_df <- inherit[rep(1:nrow(inherit), each=rep_rows),,drop=FALSE]
@@ -38,5 +38,5 @@ process_covs <- function(covs, n_row, inherit=NULL){
 drop_final_year <- function(yr_df, nsites, nprimary){
   to_drop <- seq(nprimary, nsites*nprimary, by=nprimary)
   yr_df <- yr_df[-to_drop,,drop=FALSE]
-  droplevels(yr_df) 
+  droplevels(yr_df)
 }

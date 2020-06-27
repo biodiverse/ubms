@@ -14,7 +14,7 @@ matrix phi_matrix(row_vector phi_raw){
 
 //delta-step transition prob matrix via Chapman-Kolmogorov equation
 matrix get_phi(matrix phi_raw, int Tstart, int Tnext){
-  matrix[2,2] phi = diag_matrix(rep_vector(1, 2)); 
+  matrix[2,2] phi = diag_matrix(rep_vector(1, 2));
   int delta = Tnext - Tstart;
   if(delta == 1){
     return phi_matrix(phi_raw[Tstart,]);
@@ -27,16 +27,16 @@ matrix get_phi(matrix phi_raw, int Tstart, int Tnext){
 }
 
 //Ts = indices of primary periods when site was sampled (eg not all NA)
-real lp_colext(int[] y, int[] Tsamp, int[] J, row_vector psi, matrix phi_raw, 
+real lp_colext(int[] y, int[] Tsamp, int[] J, row_vector psi, matrix phi_raw,
                vector logit_p, int[] nd){
-  
+
   int T = size(Tsamp);
   matrix[2,2] phi_prod = diag_matrix(rep_vector(1, 2));
   matrix[2,2] phi;
   vector[2] Dpt;
   int idx = 1;
   int end;
-  
+
   if(T > 1){
     for (t in 1:(T-1)){
       phi = get_phi(phi_raw, Tsamp[t], Tsamp[t+1]);
@@ -46,7 +46,7 @@ real lp_colext(int[] y, int[] Tsamp, int[] J, row_vector psi, matrix phi_raw,
       idx += J[t];
     }
   }
-  
+
   end = idx + J[T] - 1;
   Dpt = get_pY(y[idx:end], logit_p[idx:end], nd[T]);
 
@@ -54,13 +54,13 @@ real lp_colext(int[] y, int[] Tsamp, int[] J, row_vector psi, matrix phi_raw,
 }
 
 //needs fixed
-vector get_loglik_colext(int[] y, int M, int[] Tsamp, int[,] J, int[,] si, 
+vector get_loglik_colext(int[] y, int M, int[] Tsamp, int[,] J, int[,] si,
                          matrix psi_raw, matrix phi_raw, vector logit_p,
                          int[,] nd){
   vector[M] out;
   for (i in 1:M){
-    out[i] = lp_colext(y[si[i,1]:si[i,2]], Tsamp[si[i,3]:si[i,4]], J[i,], 
-                       psi_raw[i,], phi_raw[si[i,5]:si[i,6],], 
+    out[i] = lp_colext(y[si[i,1]:si[i,2]], Tsamp[si[i,3]:si[i,4]], J[i,],
+                       psi_raw[i,], phi_raw[si[i,5]:si[i,6],],
                        logit_p[si[i,1]:si[i,2]], nd[i,]);
   }
   return out;
@@ -132,7 +132,7 @@ vector[M] log_lik;
 //psi
 logit_psi = X_state * beta_state;
 if(has_random_state){
-  logit_psi = logit_psi + 
+  logit_psi = logit_psi +
               csr_matrix_times_vector(Zdim_state[1], Zdim_state[2], Zw_state,
                                       Zv_state, Zu_state, b_state);
 }
@@ -145,14 +145,14 @@ for (i in 1:M){
 //phi
 logit_col = X_col * beta_col;
 if(has_random_col){
-  logit_col = logit_col + 
+  logit_col = logit_col +
               csr_matrix_times_vector(Zdim_col[1], Zdim_col[2], Zw_col,
                                       Zv_col, Zu_col, b_col);
 }
 
 logit_ext = X_ext * beta_ext;
 if(has_random_ext){
-  logit_ext = logit_ext + 
+  logit_ext = logit_ext +
               csr_matrix_times_vector(Zdim_ext[1], Zdim_ext[2], Zw_ext,
                                       Zv_ext, Zu_ext, b_ext);
 }
@@ -161,18 +161,18 @@ for (i in 1:(M*(T-1))){
   phi_raw[i,2] = inv_logit(logit_col[i]);
   phi_raw[i,1] = 1 - phi_raw[i,2];
   phi_raw[i,3] = inv_logit(logit_ext[i]);
-  phi_raw[i,4] = 1 - phi_raw[i,3]; 
+  phi_raw[i,4] = 1 - phi_raw[i,3];
 }
 
 //det
 logit_p = X_det * beta_det;
 if(has_random_det){
-  logit_p = logit_p + 
+  logit_p = logit_p +
             csr_matrix_times_vector(Zdim_det[1], Zdim_det[2], Zw_det,
                                     Zv_det, Zu_det, b_det);
 }
 
-log_lik = get_loglik_colext(y, M, Tsamp, J, si, psi_raw, phi_raw, 
+log_lik = get_loglik_colext(y, M, Tsamp, J, si, psi_raw, phi_raw,
                             logit_p, no_detects);
 
 }

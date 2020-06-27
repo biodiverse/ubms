@@ -2,25 +2,25 @@
 #'
 #' Extract residuals for a given submodel from a \code{ubmsFit} object.
 #' Residuals are calculated separately for each submodel
-#' using the posterior predictive distribution of the latent state z, 
-#' following Wright et al. (2019). 
-#' 
+#' using the posterior predictive distribution of the latent state z,
+#' following Wright et al. (2019).
+#'
 #' @param object A fitted model of class \code{ubmsFit}
 #' @param submodel Submodel to get residuals for, for example \code{"det"}
 #' @param draws An integer indicating the number of draws to return. The
 #'   default and maximum number of draws is the size of the posterior sample.
 #' @param ... Currently ignored
 #'
-#' @return A matrix of residual values with dimension \code{draws} by 
+#' @return A matrix of residual values with dimension \code{draws} by
 #'   observations. Note that calculation of residuals
 #'   for the detection submodel is conditional on \eqn{z > 0}, so residuals
-#'   for an observation in a posterior draw where \eqn{z = 0} are assigned 
+#'   for an observation in a posterior draw where \eqn{z = 0} are assigned
 #'   value \code{NA} (Wright et al. 2019).
-#' 
-#' @references Wright, W. J., Irvine, K. M., & Higgs, M. D. (2019). Identifying 
-#'   occupancy model inadequacies: can residuals separately assess detection 
+#'
+#' @references Wright, W. J., Irvine, K. M., & Higgs, M. D. (2019). Identifying
+#'   occupancy model inadequacies: can residuals separately assess detection
 #'   and presence? Ecology, 100(6), e02703.
-#' 
+#'
 #' @include fit.R
 #' @importFrom stats residuals
 #' @export
@@ -33,7 +33,7 @@ setMethod("residuals", "ubmsFit", function(object, submodel, draws=NULL, ...){
 #Internal function for calculating residuals
 setGeneric("sim_res", function(object, ...) standardGeneric("sim_res"))
 
-setMethod("sim_res", "ubmsFit", function(object, submodel, samples, 
+setMethod("sim_res", "ubmsFit", function(object, submodel, samples,
                                          type=c("absolute", "pearson"), ...){
   type <- match.arg(type, c("absolute", "pearson"))
 
@@ -58,42 +58,42 @@ setGeneric("plot_residuals", function(object, ...) standardGeneric("plot_residua
 
 #' Plot Model Residuals
 #'
-#' Plot residuals for a submodel from a \code{ubmsFit} object, for multiple 
+#' Plot residuals for a submodel from a \code{ubmsFit} object, for multiple
 #' posterior draws. By default, residuals are plotted against fitted values.
-#' When the submodel has a binomial response (e.g., detection models), regular 
-#' residual plots are not typically informative. Instead, the residuals and 
-#' fitted values are divided into bins based on fitted value and the averages 
-#' are plotted. For a count response (e.g., Poisson), Pearson residuals are 
+#' When the submodel has a binomial response (e.g., detection models), regular
+#' residual plots are not typically informative. Instead, the residuals and
+#' fitted values are divided into bins based on fitted value and the averages
+#' are plotted. For a count response (e.g., Poisson), Pearson residuals are
 #' calculated. To plot residuals against values of a particular covariate instead
-#' of the fitted values, supply the name of the covariate (as a string) to the 
-#' \code{covariate} argument. 
-#' 
+#' of the fitted values, supply the name of the covariate (as a string) to the
+#' \code{covariate} argument.
+#'
 #' @param object A fitted model of class \code{ubmsFit}
 #' @param submodel Submodel to plot residuals for, for example \code{"det"}
 #' @param covariate If specified, plot residuals against values of a covariate.
-#'   Covariate name should be provided as a string. If \code{NULL}, 
+#'   Covariate name should be provided as a string. If \code{NULL},
 #'   residuals are plotted against predicted values.
-#' @param draws An integer indicating the number of posterior draws to use. 
+#' @param draws An integer indicating the number of posterior draws to use.
 #'   Separate plots are generated for each draw, so this number should be
-#'   relatively small. The default and maximum number of draws is the size of 
+#'   relatively small. The default and maximum number of draws is the size of
 #'   the posterior sample.
-#' @param nbins For submodels with a binomial response, manually set the number 
+#' @param nbins For submodels with a binomial response, manually set the number
 #'   of bins to use
 #' @param ... Currently ignored
 #'
-#' @return A \code{ggplot} of residuals vs. fitted values or covariate values, 
+#' @return A \code{ggplot} of residuals vs. fitted values or covariate values,
 #'   with one panel per posterior draw. For binned residual plots, the shaded area
-#'   represents plus/minus two standard deviations around the mean residual. 
+#'   represents plus/minus two standard deviations around the mean residual.
 #'   If the model is true, we would expect about 95% of the binned residuals to
 #'   fall within this area.
-#' 
+#'
 #' @aliases plot_residuals
-#' @seealso \code{\link{residuals}} 
+#' @seealso \code{\link{residuals}}
 #'
 #' @export
 setMethod("plot_residuals", "ubmsFit", function(object, submodel, covariate=NULL,
                                                 draws=9, nbins=NULL, ...){
-  
+
   if(identical(object[submodel]@link, "plogis")){
     return(plot_binned_residuals(object, submodel, covariate, draws, nbins))
   }
@@ -101,7 +101,7 @@ setMethod("plot_residuals", "ubmsFit", function(object, submodel, covariate=NULL
 
 })
 
-setMethod("plot_residuals", "ubmsFit", function(object, submodel, covariate=NULL, 
+setMethod("plot_residuals", "ubmsFit", function(object, submodel, covariate=NULL,
                                                 draws=9, nbins=NULL, ...){
   type <- ifelse(object[submodel]@link=="plogis", "absolute", "pearson")
   samples <- get_samples(object, draws)
@@ -153,11 +153,11 @@ plot_binned_residuals <- function(x, res, xlab, name, nbins){
     facet_wrap("ind") +
     ggtitle(paste(name, "submodel residuals plot")) +
     labs(x=xlab, y="Mean binned residual") +
-    plot_theme() 
+    plot_theme()
 }
 
 get_binned_residuals <- function(x, y, ind, nbins=NULL, ...){
-  
+
   na <- is.na(x) | is.na(y)
   x <- x[!na]
   y <- y[!na]
@@ -168,7 +168,7 @@ get_binned_residuals <- function(x, y, ind, nbins=NULL, ...){
     in_bin <- breaks$x_binned == i
     se <- stats::sd(y[in_bin]) / sqrt(sum(in_bin))
     data.frame(x_bar = mean(x[in_bin]), y_bar = mean(y[in_bin]),
-               y_lo = -1.96*se, y_hi= 1.96*se) 
+               y_lo = -1.96*se, y_hi= 1.96*se)
   })
   output <- do.call("rbind", output)
   output$ind <- ind
@@ -181,7 +181,7 @@ get_breaks <- function(x, nbins){
 
   bad_break <- TRUE
   while(bad_break){
-    if(nbins < 4) stop("Couldn't find working breakpoints", call.=FALSE)      
+    if(nbins < 4) stop("Couldn't find working breakpoints", call.=FALSE)
     tryCatch({
       breaks_index <- floor(length(x)*(1:(nbins-1))/nbins)
       breaks <- c (-Inf, sort(x)[breaks_index], Inf)
@@ -192,5 +192,5 @@ get_breaks <- function(x, nbins){
       }
     )
   }
-  list(nbins=length(unique(x_binned)), x_binned=x_binned)  
+  list(nbins=length(unique(x_binned)), x_binned=x_binned)
 }

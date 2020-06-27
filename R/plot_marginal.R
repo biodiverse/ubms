@@ -2,10 +2,10 @@ setGeneric("plot_marginal", function(object, ...) standardGeneric("plot_marginal
 
 #' Plot Marginal Effects of Covariates
 #'
-#' Generates marginal fixed effects plots of one or more covariates from a 
+#' Generates marginal fixed effects plots of one or more covariates from a
 #' \code{ubmsFit} submodel. For each plot, the focal covariate is allowed to
 #' vary across its range (or possible discrete values, for a factor), while
-#' the other covariates are held at their means or reference levels. 
+#' the other covariates are held at their means or reference levels.
 #' Random effects are ignored.
 #'
 #' @param object A fitted model of class \code{ubmsFit}
@@ -13,7 +13,7 @@ setGeneric("plot_marginal", function(object, ...) standardGeneric("plot_marginal
 #' @param covariate Plot a specific covariate; provide the name as a string
 #' @param level Probability mass to include in the uncertainty interval
 #' @param ... Currently ignored
-#' 
+#'
 #' @return A \code{ggplot}, potentially with multiple panels, one per covariate
 #'
 #' @aliases plot_marginal
@@ -21,11 +21,11 @@ setGeneric("plot_marginal", function(object, ...) standardGeneric("plot_marginal
 #' @importFrom grid textGrob gpar
 #' @importFrom ggplot2 geom_errorbar
 #' @export
-setMethod("plot_marginal", "ubmsFit", function(object, submodel, covariate=NULL, 
+setMethod("plot_marginal", "ubmsFit", function(object, submodel, covariate=NULL,
                                                level=0.95, ...){
-  
+
   sm <- object[submodel]
-  
+
   if(!is.null(covariate)){
     plots <- list(marginal_covariate_plot(object, submodel, covariate, level))
   } else {
@@ -41,7 +41,7 @@ setMethod("plot_marginal", "ubmsFit", function(object, submodel, covariate=NULL,
   if(nplots > 1){
     dims <- c(ceiling(sqrt(nplots)), round(sqrt(nplots)))
   }
- 
+
   gridExtra::grid.arrange(grobs=plots, nrow=dims[1], ncol=dims[2],
                           left=grid::textGrob(sm@name, rot=90, vjust=0.5,
                           gp=grid::gpar(fontsize=14)))
@@ -65,8 +65,8 @@ marg_numeric_plot <- function(object, submodel, covariate, quant){
   newdata <- get_mean_df(sm)[rep(1, 1000),,drop=FALSE]
   var_range <- range(sm@data[[covariate]], na.rm=TRUE)
   newdata[[covariate]] <- seq(var_range[1], var_range[2], length.out=1000)
-  
-  plot_df <- get_margplot_data(object, submodel, covariate, quant, 
+
+  plot_df <- get_margplot_data(object, submodel, covariate, quant,
                                samples, newdata)
 
   ggplot(data=plot_df, aes_string(x="covariate", y="mn")) +
@@ -83,22 +83,22 @@ marg_factor_plot <- function(object, submodel, covariate, quant){
   nlev <- nlevels(sm@data[[covariate]])
   newdata <- get_mean_df(sm)[rep(1, nlev),,drop=FALSE]
   newdata[[covariate]] <- levels(sm@data[[covariate]])
-  
-  plot_df <- get_margplot_data(object, submodel, covariate, quant, 
+
+  plot_df <- get_margplot_data(object, submodel, covariate, quant,
                                samples, newdata)
 
   ggplot(data=plot_df, aes_string(x="covariate", y="mn")) +
     geom_errorbar(aes_string(ymin="lower", ymax="upper"), width=0.4) +
     geom_point(size=2) +
     labs(x = covariate, y = sm@name) +
-    plot_theme() + 
+    plot_theme() +
     theme(axis.title.y=element_blank())
 }
 
 get_mean_df <- function(submodel){
   vars <- all.vars(lme4::nobars(submodel@formula))
   out <- lapply(vars, function(x, data){
-                   ifelse(col_is_factor(x, data), 
+                   ifelse(col_is_factor(x, data),
                           levels(data[[x]])[1], mean(data[[x]], na.rm=TRUE))},
                     data=submodel@data)
   out <- as.data.frame(out)

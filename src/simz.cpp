@@ -5,7 +5,7 @@
 using namespace arma;
 
 // [[Rcpp::export]]
-arma::imat simz_pcount(arma::umat y, arma::mat lam_post, arma::cube p_post, 
+arma::imat simz_pcount(arma::umat y, arma::mat lam_post, arma::cube p_post,
                        unsigned K, arma::uvec Kmin, arma::uvec kvals){
 
   int M = y.n_rows;
@@ -33,19 +33,19 @@ arma::imat simz_pcount(arma::umat y, arma::mat lam_post, arma::cube p_post,
           }
           bp *= R::dbinom(y(m,j), k, p_post(m,j,i), 0);
         }
-        kprob(k) = pp * bp; 
+        kprob(k) = pp * bp;
       }
       kprob = kprob / sum(kprob);
       Zpost(m,i) = Rcpp::RcppArmadillo::sample(kvals, 1, false, kprob)(0);
     }
   }
-  
+
   return Zpost;
 
 }
 
 // [[Rcpp::export]]
-arma::imat simz_occuRN(arma::umat y, arma::mat lam_post, arma::cube r_post, 
+arma::imat simz_occuRN(arma::umat y, arma::mat lam_post, arma::cube r_post,
                        unsigned K, arma::uvec Kmin, arma::uvec kvals){
 
   int M = y.n_rows;
@@ -68,7 +68,7 @@ arma::imat simz_occuRN(arma::umat y, arma::mat lam_post, arma::cube r_post,
       }
       kprob.zeros();
       for (unsigned k=Kmin(m); k < (K+1); k++){
-        pp = R::dpois(k, lam_post(m, i), 0);        
+        pp = R::dpois(k, lam_post(m, i), 0);
         bp = 1.0;
         for (unsigned j=0; j < J; j++){
           p = 1 - pow(q(m,j,i), k);
@@ -77,13 +77,13 @@ arma::imat simz_occuRN(arma::umat y, arma::mat lam_post, arma::cube r_post,
           }
           bp *= R::dbinom(y(m,j), 1, p, 0);
         }
-        kprob(k) = pp * bp; 
+        kprob(k) = pp * bp;
       }
       kprob = kprob / sum(kprob);
       Zpost(m,i) = Rcpp::RcppArmadillo::sample(kvals, 1, false, kprob)(0);
     }
   }
-  
+
   return Zpost;
 
 }

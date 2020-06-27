@@ -20,13 +20,13 @@ double peh_occu(vec obs, int nd, vec p, double psi){
 
 
 // [[Rcpp::export]]
-arma::vec exp_counts_occu(arma::mat obs, arma::ivec no_detects, 
+arma::vec exp_counts_occu(arma::mat obs, arma::ivec no_detects,
                              arma::vec psi, arma::vec p){
-  
+
   int M = psi.n_elem;
   int J = p.n_elem / M;
   int n_eh = obs.n_cols;
-  
+
   vec counts_expect = zeros(n_eh);
   int idx = 0;
   int pstart, pend;
@@ -50,7 +50,7 @@ double peh_occuRN(vec obs, int Kmin, vec r, double lam){
   double p;
   double cp;
   vec q = 1 - r;
- 
+
   for (int k=Kmin; k<20; k++){
     obs_lik = 1.0;
     for (int j=0; j<J; j++){
@@ -65,13 +65,13 @@ double peh_occuRN(vec obs, int Kmin, vec r, double lam){
 }
 
 // [[Rcpp::export]]
-arma::vec exp_counts_occuRN(arma::mat obs, arma::ivec Kmin, 
+arma::vec exp_counts_occuRN(arma::mat obs, arma::ivec Kmin,
                              arma::vec lam, arma::vec r){
-  
+
   int M = lam.n_elem;
   int J = r.n_elem / M;
   int n_eh = obs.n_cols;
-  
+
   vec counts_expect = zeros(n_eh);
   int idx = 0;
   int pstart, pend;

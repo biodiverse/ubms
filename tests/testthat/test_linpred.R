@@ -7,7 +7,7 @@ oc <- data.frame(x3=rnorm(9))
 umf <- unmarkedFrameOccu(y=matrix(c(1,0,0,1,1,0,0,1,0), nrow=3),
         siteCovs=sc, obsCovs=oc)
 #Fit model
-fit <- suppressWarnings(stan_occu(~x3~x1+(1|x2), umf, 
+fit <- suppressWarnings(stan_occu(~x3~x1+(1|x2), umf,
                                   chains=2, iter=40, refresh=0))
 
 test_that("predict correctly wraps sim_lp",{
@@ -16,7 +16,7 @@ test_that("predict correctly wraps sim_lp",{
   expect_is(pr, "data.frame")
   expect_equal(names(pr), c("Predicted","SD","2.5%","97.5%"))
   expect_equal(pr$Predicted[1:3], c(0.9445,0.9427,0.0625), tol=1e-4)
-  
+
   #Newdata
   nd <- data.frame(x1=0)
   #Missing random effect
@@ -51,7 +51,7 @@ test_that("sim_lp generates posterior correctly",{
   expect_is(lp, "array")
   expect_equal(dim(lp), c(40,3))
   expect_equal(lp[1,], c(7.5339912, 3.153069, -11.0072299), tol=1e-5)
-  
+
   #For a few iterations
   samp <- c(1,2,3)
   lp <- sim_lp(fit, "state", transform=FALSE, newdata=NULL,

@@ -3,15 +3,15 @@ context("Stan input generation")
 test_that("stan inputs are built correctly", {
   sc <- data.frame(x1=rnorm(5), group=factor(c("a","b","a","b","a")))
   state <- ubmsSubmodel("Occ", "state", sc, ~x1+(1|group), "plogis")
-  det <- ubmsSubmodel("Det", "det", sc, ~x1, "plogis") 
+  det <- ubmsSubmodel("Det", "det", sc, ~x1, "plogis")
   sl <- ubmsSubmodelList(state, det)
   y <- matrix(c(1,0,0,1,1,1,0,0,1), nrow=3, byrow=T)
   resp <- ubmsResponse(y, "binomial", "P")
-  
+
   inp <- build_stan_inputs(resp, sl)
   expect_is(inp, "list")
   expect_equal(names(inp), c("stan_data", "pars"))
-  
+
   gs1 <- get_stan_data(resp)
   gs2 <- get_stan_data(state)
   gs3 <- get_stan_data(det)
@@ -22,7 +22,7 @@ test_that("stan inputs are built correctly", {
 test_that("parameter list for stan is generated correctly",{
   sc <- data.frame(x1=rnorm(5), group=factor(c("a","b","a","b","a")))
   state <- ubmsSubmodel("Occ", "state", sc, ~x1+(1|group), "plogis")
-  det <- ubmsSubmodel("Det", "det", sc, ~x1, "plogis") 
+  det <- ubmsSubmodel("Det", "det", sc, ~x1, "plogis")
   sl <- ubmsSubmodelList(state, det)
   sl <- unname(sl@submodels)
   pars <- get_pars(sl)
@@ -35,7 +35,7 @@ test_that("get_stan_data pulls necessary info from response object",{
   resp <- ubmsResponse(y, "binomial", "P")
   dat <- get_stan_data(resp)
   expect_is(dat, "list")
-  expect_equal(names(dat), c("y", "y_dist", "z_dist", "M", "T", "Tsamp", 
+  expect_equal(names(dat), c("y", "y_dist", "z_dist", "M", "T", "Tsamp",
                              "Tsamp_size", "J", "R", "si", "K", "Kmin"))
   expect_equal(dat[[1]], as.vector(t(y)))
   expect_equal(dat[[2]], 0)
@@ -58,10 +58,10 @@ test_that("dist_code returns integer code for distribution", {
 
 test_that("get_stan_data pulls necessary info from submodel",{
   sc <- data.frame(x1=rnorm(5))
-  submod <- ubmsSubmodel("Occ", "state", sc, ~x1, "plogis") 
+  submod <- ubmsSubmodel("Occ", "state", sc, ~x1, "plogis")
   dat <- get_stan_data(submod)
   expect_is(dat, "list")
-  expect_equal(names(dat), 
+  expect_equal(names(dat),
                paste0(c("X","n_fixed","n_group_vars", "has_random",
                              "n_random", "Zdim", "Zw", "Zv", "Zu"),
                       "_", submod@type))
@@ -76,11 +76,11 @@ test_that("get_sparse_Z collapses Z into sparse parts",{
 
   Z1 <- matrix(0, nrow=0, ncol=0)
   Z2 <- matrix(c(1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0), nrow=4)
-  
+
   expect_equal(get_sparse_Z(Z1),
                list(Zdim=c(0,0,1,1,1), Zw=as.array(0),
                     Zv=as.array(0), Zu=as.array(0)))
-  
+
   expect_equal(get_sparse_Z(Z2),
                list(Zdim=c(nrow(Z2), ncol(Z2), w=3, v=3, u=5),
                     Zw=c(1,1,1), Zv=c(1,2,4),
@@ -88,7 +88,7 @@ test_that("get_sparse_Z collapses Z into sparse parts",{
 })
 
 test_that("get_group_vars returns number of grouping variables",{
-  expect_equal(get_group_vars(~x), 0) 
+  expect_equal(get_group_vars(~x), 0)
   expect_equal(get_group_vars(~(1|x)), 1)
   expect_equal(get_group_vars( ~(1|x) + (1|y)), 2)
 })

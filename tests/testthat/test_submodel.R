@@ -26,8 +26,8 @@ test_that("model.matrix method works",{
   covs <- data.frame(x1=c(1,2,3),x2=c(NA,2,4))
   sm <- ubmsSubmodel("Det", "det", covs, ~x1, "plogis")
   mm <- model.matrix(sm)
-  ref <- structure(c(1, 1, 1, 1, 2, 3), .Dim = 3:2, 
-                   .Dimnames =list(c("1","2", "3"), c("(Intercept)", "x1")), 
+  ref <- structure(c(1, 1, 1, 1, 2, 3), .Dim = 3:2,
+                   .Dimnames =list(c("1","2", "3"), c("(Intercept)", "x1")),
                    assign = 0:1)
   expect_equal(mm, ref)
 })
@@ -50,13 +50,13 @@ test_that("model.matrix handles NAs",{
   covs <- data.frame(x1=c(1,2,3),x2=c(NA,2,4))
   sm <- ubmsSubmodel("Det", "det", covs, ~x1+x2, "plogis")
   mm <- model.matrix(sm)
-  ref <- structure(c(1, 1, 1, 1, 2, 3, NA, 2, 4), .Dim = c(3L, 3L), 
-        .Dimnames = list(c("1", "2", "3"), c("(Intercept)", "x1", "x2")), 
+  ref <- structure(c(1, 1, 1, 1, 2, 3, NA, 2, 4), .Dim = c(3L, 3L),
+        .Dimnames = list(c("1", "2", "3"), c("(Intercept)", "x1", "x2")),
         assign = 0:2)
   expect_equal(mm, ref)
   sm@missing[1] <- TRUE
   mm <- model.matrix(sm, na.rm=TRUE)
-  ref <- structure(c(1, 1, 2, 3, 2, 4), .Dim = 2:3, .Dimnames = 
+  ref <- structure(c(1, 1, 2, 3, 2, 4), .Dim = 2:3, .Dimnames =
                    list(c("2","3"), c("(Intercept)", "x1", "x2")))
   expect_equal(mm, ref)
 })
@@ -66,8 +66,8 @@ test_that("model.matrix catches invalid factor levels", {
   sm <- ubmsSubmodel("Det", "det", covs, ~x1+x2, "plogis")
   nd <- data.frame(x1=1, x2="a")
   mm <- ubms:::model.matrix(sm, nd)
-  ref <- structure(c(1, 1, 0, 0), .Dim = c(1L, 4L), 
-        .Dimnames =list("1",c("(Intercept)", "x1", "x2b", "x2c")), 
+  ref <- structure(c(1, 1, 0, 0), .Dim = c(1L, 4L),
+        .Dimnames =list("1",c("(Intercept)", "x1", "x2b", "x2c")),
         assign = c(0L, 1L,2L, 2L), contrasts = list(x2 = "contr.treatment"))
   expect_equal(mm, ref)
   nd <- data.frame(x1=1, x2="d")
@@ -78,8 +78,8 @@ test_that("model.matrix handles functions in formulas", {
   covs <- data.frame(x1=c(2,1))
   sm <- ubmsSubmodel("Det", "det", covs, ~scale(x1), "plogis")
   mm <- model.matrix(sm)
-  ref <- structure(c(1, 1, 0.707106781186547, -0.707106781186547), 
-                   .Dim = c(2L,2L), .Dimnames = list(c("1", "2"), 
+  ref <- structure(c(1, 1, 0.707106781186547, -0.707106781186547),
+                   .Dim = c(2L,2L), .Dimnames = list(c("1", "2"),
                   c("(Intercept)", "scale(x1)")), assign = 0:1)
   expect_equal(mm,ref)
   expect_equal(model.matrix(sm, covs), ref)
@@ -90,9 +90,9 @@ test_that("model.matrix errors if NAs in yearlySiteCovs",{
                      transition=TRUE)
   sm@data$x1[1] <- NA
   expect_error(model.matrix(sm))
-  expect_error(ubmsSubmodel("Col", "col", data.frame(x1=c(1,NA,3)), ~x1, 
+  expect_error(ubmsSubmodel("Col", "col", data.frame(x1=c(1,NA,3)), ~x1,
                             "plogis", transition=TRUE))
-  expect_error(ubmsSubmodel("Col", "col", data.frame(x1=c(1,NA,3)), ~x1, 
+  expect_error(ubmsSubmodel("Col", "col", data.frame(x1=c(1,NA,3)), ~x1,
                             "plogis", transition=FALSE), NA)
 })
 
@@ -108,7 +108,7 @@ test_that("get_reTrms works",{
   dat <- data.frame(x1=rnorm(3), x2=c("a","b","c"))
   rt <- get_reTrms(~(1|x2), dat)
   expect_is(rt, "list")
-  expect_equal(names(rt)[c(1,4,8)], c("Zt","Gp","cnms")) 
+  expect_equal(names(rt)[c(1,4,8)], c("Zt","Gp","cnms"))
 })
 
 test_that("get_reTrms works with NAs",{
@@ -118,25 +118,25 @@ test_that("get_reTrms works with NAs",{
   expect_equal(names(rt)[c(1,4,8)], c("Zt","Gp","cnms"))
   rt <- get_reTrms(~(1+x1|x2), dat)
   expect_is(rt, "list")
-  expect_equal(names(rt)[c(1,4,8)], c("Zt","Gp","cnms")) 
+  expect_equal(names(rt)[c(1,4,8)], c("Zt","Gp","cnms"))
 })
 
 test_that("correct Z matrix is built",{
   covs <- data.frame(x1=c(1,2,3),x2=c(NA,2,4),x3=c('a','a','b'))
   sm <- ubmsSubmodel("Det", "det", covs, ~x1, "plogis")
-  
+
   #No random effect
   expect_equal(Z_matrix(sm), matrix(0, nrow=0,ncol=0))
 
   #Random intercept
   sm <- ubmsSubmodel("Det", "det", covs, ~(1|x3), "plogis")
-  ref <- structure(c(1, 1, 0, 0, 0, 1), .Dim = 3:2, 
+  ref <- structure(c(1, 1, 0, 0, 0, 1), .Dim = 3:2,
                    .Dimnames =list(c("1","2", "3"), c("a", "b")))
   expect_equal(Z_matrix(sm), ref)
-  
+
   #Random slope + intercept
   sm <- ubmsSubmodel("Det", "det", covs, ~(1+x1||x3), "plogis")
-  ref <- structure(c(1, 1, 0, 0, 0, 1, 1, 2, 0, 0, 0, 3), .Dim =3:4, 
+  ref <- structure(c(1, 1, 0, 0, 0, 1, 1, 2, 0, 0, 0, 3), .Dim =3:4,
                    .Dimnames = list(c("1", "2", "3"), c("a", "b", "a", "b")))
   expect_equal(Z_matrix(sm), ref)
 })
@@ -144,14 +144,14 @@ test_that("correct Z matrix is built",{
 test_that("Missing values are handled when Z matrix is built", {
   covs <- data.frame(x1=c(1,2,3),x2=c(NA,2,4),x3=c('a',NA,'b'))
   sm <- ubmsSubmodel("Det", "det", covs, ~(1|x3), "plogis")
-  
+
   #Random intercept
-  ref <- structure(c(1, 0, 0, 0, 0, 1), .Dim = 3:2, 
+  ref <- structure(c(1, 0, 0, 0, 0, 1), .Dim = 3:2,
                    .Dimnames =list(c("1","2", "3"), c("a", "b")))
 
   #Random slope + intercept
   sm <- ubmsSubmodel("Det", "det", covs, ~(1+x1||x3), "plogis")
-  ref <- structure(c(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 3), .Dim =3:4, 
+  ref <- structure(c(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 3), .Dim =3:4,
                    .Dimnames = list(c("1", "2", "3"), c("a", "b", "a", "b")))
   expect_equal(Z_matrix(sm), ref)
 
@@ -182,11 +182,11 @@ test_that("b names are correct",{
                      x3=factor(c("d","e","d")))
   sm <- ubmsSubmodel("Det", "det", covs, ~x1, "plogis")
   expect_equal(b_names(sm), NA_character_)
-  
+
   sm <- ubmsSubmodel("Det", "det", covs, ~x1+(1|x2), "plogis")
   expect_equal(b_names(sm),
                    paste("(Intercept)", c("x2:a", "x2:b", "x2:c")))
-  
+
   sm <- ubmsSubmodel("Det", "det", covs, ~x1+(1+x1||x2), "plogis")
   expect_equal(b_names(sm),
                    c(paste("(Intercept)", c("x2:a", "x2:b", "x2:c")),
@@ -201,10 +201,10 @@ test_that("sigma names are correct", {
   covs <- data.frame(x1=rnorm(3), x2=factor(c("a","b","c")))
   sm <- ubmsSubmodel("Det", "det", covs, ~x1, "plogis")
   expect_equal(sigma_names(sm), NA_character_)
-  
+
   sm <- ubmsSubmodel("Det", "det", covs, ~x1+(1|x2), "plogis")
   expect_equal(sigma_names(sm),"sigma [1|x2]")
-  
+
   sm <- ubmsSubmodel("Det", "det", covs, ~x1+(1+x1||x2), "plogis")
   expect_equal(sigma_names(sm), paste0("sigma [", c("1|x2]", "x1|x2]")))
 })

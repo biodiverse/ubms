@@ -7,9 +7,9 @@ oc <- data.frame(x3=rnorm(9))
 umf <- unmarkedFrameOccu(y=matrix(c(1,0,0,1,1,0,0,1,0), nrow=3),
         siteCovs=sc, obsCovs=oc)
 #Fit model
-fit <- suppressWarnings(stan_occu(~x3~x1+x2, umf, 
+fit <- suppressWarnings(stan_occu(~x3~x1+x2, umf,
                                   chains=2, iter=40, refresh=0))
-fit2 <- suppressWarnings(stan_occu(~1~1, umf, 
+fit2 <- suppressWarnings(stan_occu(~1~1, umf,
                                   chains=2, iter=40, refresh=0))
 
 test_that("plot_marginal creates grid object",{
@@ -74,14 +74,14 @@ test_that("Marginal plot data is generated correctly",{
   expect_equal(mdata,
     structure(list(covariate = c(-1, 1), mn = c(0.980940262011558,
     0.39301938256072), lower = c(0.969065755954778, 0.194268798455224
-    ), upper = c(0.987901780495942, 0.705277052076411)), class = "data.frame", 
+    ), upper = c(0.987901780495942, 0.705277052076411)), class = "data.frame",
               row.names = c(NA,-2L)))
   #Factor
   mdata2 <- get_margplot_data(fit, "state", "x2", c(0.025,0.975),
                               samples=1:3, nd)
   expect_equal(mdata2,
     structure(list(covariate = c("a", "b"), mn = c(0.980940262011558,
-    0.39301938256072), lower = c(0.969065755954778, 0.194268798455224), 
-                   upper = c(0.987901780495942, 0.705277052076411)), 
+    0.39301938256072), lower = c(0.969065755954778, 0.194268798455224),
+                   upper = c(0.987901780495942, 0.705277052076411)),
               class = "data.frame", row.names = c(NA,-2L)))
 })

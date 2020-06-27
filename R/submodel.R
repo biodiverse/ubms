@@ -20,20 +20,20 @@ setClass("ubmsSubmodel",
 )
 
 ubmsSubmodel <- function(name, type, data, formula, link, transition=FALSE){
-  out <- new("ubmsSubmodel", name=name, type=type, data=data, 
+  out <- new("ubmsSubmodel", name=name, type=type, data=data,
              formula=formula, link=link, transition=transition)
   out@missing <- apply(model.matrix(out), 1, function(x) any(is.na(x)))
   out
 }
 
 
-setMethod("model.matrix", "ubmsSubmodel", 
+setMethod("model.matrix", "ubmsSubmodel",
           function(object, newdata=NULL, na.rm=FALSE, ...){
 
   data <- object@data
   formula <- lme4::nobars(object@formula)
   mf <- model.frame(formula, data, na.action=stats::na.pass)
-  
+
   if(is.null(newdata)){
     out <- model.matrix(formula, mf)
     if(object@transition & any(is.na(mf))){
@@ -63,7 +63,7 @@ get_reTrms <- function(formula, data, newdata=NULL){
   lme4::mkReTrms(fb, new_mf, drop.unused.levels=FALSE)
 }
 
-Z_matrix <- function(object, newdata=NULL, na.rm=FALSE, ...){  
+Z_matrix <- function(object, newdata=NULL, na.rm=FALSE, ...){
   data <- object@data
   formula <- object@formula
   check_formula(formula, data)
@@ -72,7 +72,7 @@ Z_matrix <- function(object, newdata=NULL, na.rm=FALSE, ...){
 
   Zt <- get_reTrms(formula, data, newdata)$Zt
   Z <- t(as.matrix(Zt))
-  if(is.null(newdata) & na.rm){ 
+  if(is.null(newdata) & na.rm){
     Z <- Z[!object@missing,,drop=FALSE]
   }
   Z
@@ -81,7 +81,7 @@ Z_matrix <- function(object, newdata=NULL, na.rm=FALSE, ...){
 check_formula <- function(formula, data){
   rand <- lme4::findbars(formula)
   if(is.null(rand)) return(invisible())
- 
+
   char <- paste(deparse(formula))
   if(grepl(":|/", char)){
     stop("Nested random effects (using / and :) are not supported",
@@ -111,17 +111,17 @@ b_names <- function(submodel){
     if (length(nms_i) == 1) {
       z_nms <- c(z_nms, paste0(nms_i, ":", levels(group$flist[[nm]])))
     } else {
-      z_nms <- c(z_nms, c(t(sapply(paste0(nms_i), paste0, ":", 
+      z_nms <- c(z_nms, c(t(sapply(paste0(nms_i), paste0, ":",
                                    levels(group$flist[[nm]])))))
     }
   }
-  z_nms  
+  z_nms
 }
 
 sigma_names <- function(submodel){
   if(!has_random(submodel)) return(NA_character_)
   nms <- get_reTrms(submodel@formula, submodel@data)$cnms
-  nms <- paste0(unlist(nms), "|", names(nms)) 
+  nms <- paste0(unlist(nms), "|", names(nms))
   nms <- gsub("(Intercept)", "1", nms, fixed=TRUE)
   paste0("sigma [", nms, "]")
 }
@@ -157,7 +157,7 @@ ubmsSubmodelList <- function(...){
 }
 
 #' Methods for ubmsSubmodelList objects
-#' 
+#'
 #' Basic methods for ubmsSubmodelList objects
 #'
 #' @name ubmsSubmodelList-methods

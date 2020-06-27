@@ -17,10 +17,10 @@ ubmsFit <- function(model, call, data, response, submodels, ...){
   #Find missing
   response <- update_missing(response, submodels)
   submodels <- update_missing(submodels, response)
-  
+
   #Fit model
   fit <- fit_model(model, response, submodels, ...)
-  
+
   #Construct output
   new(fit_class(model), call=call, data=data, stanfit=fit,
       response=response, submodels=submodels, loo=get_loo(fit))
@@ -34,7 +34,7 @@ fit_class <- function(mod){
 #Fit stan model
 #' @include inputs.R
 fit_model <- function(name, response, submodels, ...){
-  inp <- build_stan_inputs(response, submodels)  
+  inp <- build_stan_inputs(response, submodels)
   fit <- sampling(stanmodels[[name]], data=inp$stan_data, pars=inp$pars, ...)
   process_stanfit(fit, submodels)
 }
@@ -83,7 +83,7 @@ stanfit_b_names <- function(submodels){
 stanfit_sigma_names <- function(submodels){
   nm <- lapply(submodels, sigma_names)
   types <- rep(names(nm), lapply(nm, length))
-  nm <- unlist(nm) 
+  nm <- unlist(nm)
   if(all(is.na(nm))) return(character(0))
   nm <- nm[!is.na(nm)]
   for (i in 1:length(nm)){

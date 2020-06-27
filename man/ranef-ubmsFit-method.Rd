@@ -10,7 +10,7 @@
 \arguments{
 \item{object}{A fitted model of class \code{ubmsFit}}
 
-\item{submodel}{The name of the submodel, as a character string, for 
+\item{submodel}{The name of the submodel, as a character string, for
 which to generate the random effects}
 
 \item{summary}{If \code{TRUE}, calculate mean, SD, and 95% uncertainty interval
@@ -19,7 +19,7 @@ for each random effect term}
 \item{...}{Currently ignored}
 }
 \value{
-If \code{summary=FALSE}, a list of random effect values; if 
+If \code{summary=FALSE}, a list of random effect values; if
  \code{TRUE}, a data frame with columns for random effect mean, SD, and
  95% uncertainty interval lower and upper bounds.
 }

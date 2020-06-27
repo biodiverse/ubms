@@ -22,9 +22,9 @@
 A \code{ggplot}, potentially with multiple panels, one per covariate
 }
 \description{
-Generates marginal fixed effects plots of one or more covariates from a 
+Generates marginal fixed effects plots of one or more covariates from a
 \code{ubmsFit} submodel. For each plot, the focal covariate is allowed to
 vary across its range (or possible discrete values, for a factor), while
-the other covariates are held at their means or reference levels. 
+the other covariates are held at their means or reference levels.
 Random effects are ignored.
 }

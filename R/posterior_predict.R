@@ -25,14 +25,14 @@
 #' @importFrom rstantools posterior_predict
 #' @include fit.R
 #' @export
-setMethod("posterior_predict", "ubmsFit", 
+setMethod("posterior_predict", "ubmsFit",
           function(object, param=c("y","z"), draws=NULL, re.form=NULL, ...){
- 
+
   param <- match.arg(param, c("y", "z"))
   nsamp <- nsamples(object)
   samp_inds <- get_samples(object, draws)
 
-  switch(param, 
+  switch(param,
          "z" = sim_z(object, samples=samp_inds, re.form=re.form),
          "y" = sim_y(object, samples=samp_inds, re.form=re.form))
 })

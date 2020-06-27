@@ -3,7 +3,7 @@ setClass("ubmsGOF", slots=c(statistic="character", estimate="numeric",
 
 #Constructor
 ubmsGOF <- function(stat, samples){
-  new("ubmsGOF", statistic=stat, estimate = mean(samples$obs), 
+  new("ubmsGOF", statistic=stat, estimate = mean(samples$obs),
       samples = samples, post_pred_p = mean(samples$sim > samples$obs))
 }
 
@@ -16,7 +16,7 @@ setMethod("show", "ubmsGOF", function(object){
 #' @importFrom ggplot2 ggplot aes geom_abline geom_point theme_bw labs
 #' @importFrom ggplot2 facet_wrap theme element_blank element_text element_rect
 #' @importFrom ggplot2 geom_label unit aes_string ggtitle
-setMethod("plot", "ubmsGOF", function(x, ...){  
+setMethod("plot", "ubmsGOF", function(x, ...){
   ppval <- data.frame(lab=paste("P =", round(x@post_pred_p, 3)))
   ggplot(x@samples, aes_string(x="obs", y="sim")) +
     geom_abline(aes(intercept=0, slope=1),size=1.2, col='red') +
@@ -33,12 +33,12 @@ setMethod("plot", "ubmsGOF", function(x, ...){
           axis.title=element_text(size=14)) +
     geom_label(data=ppval, aes_string(x=-Inf, y=Inf, label="lab"),
               hjust=-0.2, vjust=1.4, size=5,
-              fill='white', label.size=0, 
+              fill='white', label.size=0,
               label.padding=unit(0.1, "lines"))
 })
 
 #' Check model goodness-of-fit
-#' 
+#'
 #' Goodness-of-fit tests for \code{ubmsFit} models using posterior predictive
 #' checks
 #' @param object A fitted model of class \code{ubmsFit}

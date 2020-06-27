@@ -19,7 +19,7 @@ resp <- ubmsResponse(umf@y,"binomial","binomial",max_primary=1)
 #Build a stanfit object
 set.seed(123)
 inp <- build_stan_inputs(resp, sl)
-sf <- suppressWarnings(rstan::sampling(stanmodels$occu, inp$stan_data, 
+sf <- suppressWarnings(rstan::sampling(stanmodels$occu, inp$stan_data,
                         inp$pars,chains=2, iter=40, refresh=0))
 
 test_that("ubmsFit object is constructed correctly",{
@@ -56,7 +56,7 @@ test_that("fit_model builds model correctly",{
   expect_equal(length(arg), 2)
   expect_equal(arg[[1]]$warmup, 10)
   expect_equal(arg[[1]]$iter, 20)
-  expect_equal(arg[[1]]$refresh, 0) 
+  expect_equal(arg[[1]]$refresh, 0)
 })
 
 test_that("process_stanfit cleans up fitted stan model",{
@@ -79,7 +79,7 @@ test_that("stanfit_names for params in stan object are correct",{
       "b_det[(Intercept) x2:c]", "sigma_det[(Intercept) x2]"))
 })
 
-test_that("beta names for stanfit are generated correctly",{  
+test_that("beta names for stanfit are generated correctly",{
   sl <- ubmsSubmodelList(sm1, sm4)
   expect_equal(stanfit_beta_names(sl@submodels),
     c("beta_det[(Intercept)]", "beta_det[x1]",
@@ -92,22 +92,22 @@ test_that("b names for stanfit are generated correctly",{
   expect_equal(stanfit_b_names(sl@submodels), character(0))
   #1 model with random effect
   sl <- ubmsSubmodelList(sm1, sm2)
-  expect_equal(stanfit_b_names(sl@submodels), 
+  expect_equal(stanfit_b_names(sl@submodels),
     paste0("b_det[(Intercept) x2:",levels(covs$x2),"]"))
   #2 models with random effects
   sl <- ubmsSubmodelList(sm1, sm3)
-  expect_equal(stanfit_b_names(sl@submodels), 
+  expect_equal(stanfit_b_names(sl@submodels),
     c(paste0("b_det[(Intercept) x2:",levels(covs$x2),"]"),
       paste0("b_state[(Intercept) x2:", levels(covs$x2),"]")))
   #Model with multiple random effects
   sl <- ubmsSubmodelList(sm1, sm4)
-  expect_equal(stanfit_b_names(sl@submodels), 
+  expect_equal(stanfit_b_names(sl@submodels),
     c(paste0("b_det[(Intercept) x2:",levels(covs$x2),"]"),
       paste0("b_state[(Intercept) x2:", levels(covs$x2),"]"),
       paste0("b_state[(Intercept) x3:", levels(covs$x3),"]")))
 })
 
-test_that("sigma names for stanfit are generated correctly",{  
+test_that("sigma names for stanfit are generated correctly",{
   sl <- ubmsSubmodelList(sm2, sm2)
   expect_equal(stanfit_sigma_names(sl@submodels), character(0))
   sl <- ubmsSubmodelList(sm1, sm2)
@@ -119,7 +119,7 @@ test_that("sigma names for stanfit are generated correctly",{
                  "sigma_state[(Intercept) x2]"))
   sl <- ubmsSubmodelList(sm1, sm4)
   expect_equal(stanfit_sigma_names(sl@submodels),
-               c("sigma_det[(Intercept) x2]", 
+               c("sigma_det[(Intercept) x2]",
                  "sigma_state[(Intercept) x2]",
                  "sigma_state[(Intercept) x3]"))
 })

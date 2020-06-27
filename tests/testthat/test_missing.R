@@ -3,7 +3,7 @@ context("Missing value handling")
 sc <- data.frame(x1=rnorm(3), group=factor(c("a","b","a")))
 oc <- data.frame(x2=rnorm(9))
 state <- ubmsSubmodel("Occ", "state", sc, ~x1+(1|group), "plogis")
-det <- ubmsSubmodel("Det", "det", oc, ~x2, "plogis") 
+det <- ubmsSubmodel("Det", "det", oc, ~x2, "plogis")
 sl <- ubmsSubmodelList(state, det)
 y <- matrix(c(1,0,0,1,1,1,0,0,1), nrow=3, byrow=T)
 resp <- ubmsResponse(y, "binomial", "binomial")
@@ -18,10 +18,10 @@ sl2 <- ubmsSubmodelList(state2, det2)
 y2 <- matrix(c(1,0,0,1,1,1,NA,0,1), nrow=3, byrow=T)
 resp2 <- ubmsResponse(y2, "binomial", "binomial")
 
-test_that("update_missing works for submodel lists",{ 
+test_that("update_missing works for submodel lists",{
   #No changes
   expect_equivalent(update_missing(sl, resp), sl)
-  
+
   #With missing
   sl_new <- update_missing(sl2, resp2)
   expect_equal(sl_new["state"]@missing, c(T,F,F))
@@ -29,11 +29,11 @@ test_that("update_missing works for submodel lists",{
 })
 
 test_that("setting submodel missing attribute works",{
-  state_new <- submodel_set_missing(sl['state'], 
+  state_new <- submodel_set_missing(sl['state'],
                 c(T,T,T,F,F,F,T,F,F), resp)
   expect_equal(state_new@missing, c(T,F,F))
-  
-  det_new <- submodel_set_missing(sl['det'], 
+
+  det_new <- submodel_set_missing(sl['det'],
                 c(T,T,T,F,F,F,T,F,F), resp)
   expect_equal(det_new@missing, c(T,T,T,F,F,F,T,F,F))
 })
@@ -58,10 +58,10 @@ test_that("error thrown if dimensions of missing slot changes",{
   expect_error(submodel_set_missing(col, rep(FALSE,9), resp3))
 })
 
-test_that("update_missing works for response object",{  
+test_that("update_missing works for response object",{
   #No changes
   expect_equivalent(update_missing(resp, sl), resp)
-  
+
   #With missing
   resp_new <- update_missing(resp2, sl2)
   expect_equivalent(resp_new@missing, c(T,T,T,T,F,F,T,F,F))
@@ -86,7 +86,7 @@ test_that("find_missing ignores transition-type parameters",{
 })
 
 test_that("expand_model_matrix works correctly",{
-  
+
   expand1 <- expand_model_matrix(sl["state"], resp)
   expected <- model.matrix(sl["state"])[rep(1:3, each=3),]
   expect_equivalent(expand1, expected)

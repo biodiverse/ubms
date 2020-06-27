@@ -22,7 +22,7 @@ are included; if \code{FALSE} they are discarded.}
 in \code{pars} are kept; if \code{FALSE} they are excluded.}
 }
 \value{
-If \code{permuted=TRUE}, a list; if \code{permuted=FALSE}, 
+If \code{permuted=TRUE}, a list; if \code{permuted=FALSE},
  an array.
 }
 \description{

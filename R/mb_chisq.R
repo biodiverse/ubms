@@ -79,7 +79,7 @@ setMethod("get_exp_counts", "ubmsFitOccuRN", function(object, obs, lam, p){
 })
 
 split_response_by_T <- function(resp){
-  yt <- ubms:::t(resp)
+  yt <- t(resp)
   J <- resp@max_obs
   lapply(1:resp@max_primary, function(i){
     cols <- (1:J) + (J*(i-1))

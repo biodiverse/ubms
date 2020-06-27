@@ -1,13 +1,13 @@
 #' Predict parameter values from a fitted model
 #'
 #' This method generates predicted parameter values for the original dataset
-#' or a new dataset using the posterior distribution. Standard deviation and 
+#' or a new dataset using the posterior distribution. Standard deviation and
 #' a customizable uncertainty interval are also calculated.
 #'
 #' @param object A fitted model of class \code{ubmsFit}
 #' @param submodel Submodel to predict from, for example \code{"det"}
 #' @param newdata Optional data frame of covariates to generate
-#'   predictions from. If not provided (the default), predictions are 
+#'   predictions from. If not provided (the default), predictions are
 #'   generated from the original data
 #' @param transform If \code{TRUE}, back-transform the predictions to their
 #'   original scale
@@ -16,7 +16,7 @@
 #' @param level Probability mass to include in the uncertainty interval
 #' @param ... Currently ignored
 #'
-#' @return A data frame with one row per prediction and four columns: 
+#' @return A data frame with one row per prediction and four columns:
 #'   1) Predicted point estimates (posterior means),
 #'   2) Standard deviation of the posterior,
 #'   3-4) Lower and upper bounds of the specified uncertainty interval
@@ -31,19 +31,19 @@
 #' @importFrom unmarked predict
 #' @export
 setMethod("predict", "ubmsFit",
-          function(object, submodel, newdata=NULL, transform=TRUE, 
+          function(object, submodel, newdata=NULL, transform=TRUE,
                    re.form=NULL, level=0.95, ...){
-  
+
   samples <- 1:nsamples(object)
   q <- c((1-level)/2, level+(1-level)/2)
-  
+
   lp <- sim_lp(object, submodel=submodel, transform=transform, newdata=newdata,
                samples=samples, re.form=re.form)
-  
+
   stats <- apply(lp, 2, function(x){
         quant <- stats::quantile(x, q, na.rm=TRUE)
         c(Predicted = mean(x), SD = stats::sd(x), quant)
       })
 
-  as.data.frame(t(stats)) 
+  as.data.frame(t(stats))
 })

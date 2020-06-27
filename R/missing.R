@@ -1,4 +1,4 @@
-setGeneric("update_missing", function(object, ...) 
+setGeneric("update_missing", function(object, ...)
            standardGeneric("update_missing"))
 
 #' @include submodel.R

@@ -6,11 +6,11 @@
   types <- sapply(submodels, function(x) x@type)
   submodel_data <- lapply(submodels, get_stan_data)
   submodel_data <- do.call("c", submodel_data)
-  
+
   stan_data <- c(y_data, submodel_data)
 
   pars <- get_pars(submodels)
-  
+
   list(stan_data=stan_data, pars=pars)
 }
 
@@ -31,7 +31,7 @@ setGeneric("get_stan_data", function(object, ...){
 
 
 #' @include response.R
-setMethod("get_stan_data", "ubmsResponse", function(object, ...){  
+setMethod("get_stan_data", "ubmsResponse", function(object, ...){
   list(y = as_vector(object, na.rm=TRUE),
        y_dist = dist_code(object@y_dist),
        z_dist = dist_code(object@z_dist),
@@ -58,7 +58,7 @@ setMethod("get_stan_data", "ubmsSubmodel", function(object, ...){
   n_random <- get_nrandom(object@formula, object@data)
   Zinfo <- get_sparse_Z(Z_matrix(object, na.rm=TRUE))
   X <- model.matrix(object, na.rm=TRUE)
-  out <- list(X=X, n_fixed=ncol(X), n_group_vars=n_group_vars, 
+  out <- list(X=X, n_fixed=ncol(X), n_group_vars=n_group_vars,
               has_random=has_rand, n_random=n_random)
   out <- c(out, Zinfo)
   names(out) <- paste0(names(out), "_", object@type)
@@ -67,7 +67,7 @@ setMethod("get_stan_data", "ubmsSubmodel", function(object, ...){
 
 get_sparse_Z <- function(Z){
   if(all(dim(Z)==c(0,0))){
-    return(list(Zdim=c(0,0,1,1,1), Zw=as.array(0), 
+    return(list(Zdim=c(0,0,1,1,1), Zw=as.array(0),
                 Zv=as.array(0), Zu=as.array(0)))
   }
   wvu <- rstan::extract_sparse_parts(Matrix::Matrix(Z))

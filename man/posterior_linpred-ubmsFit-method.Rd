@@ -18,10 +18,10 @@
 \arguments{
 \item{object}{A fitted model of class \code{ubmsFit}}
 
-\item{transform}{Should the linear predictor be transformed using the 
+\item{transform}{Should the linear predictor be transformed using the
 inverse link function?}
 
-\item{submodel}{The name of the submodel, as a character string, for 
+\item{submodel}{The name of the submodel, as a character string, for
 which to calculate the linear predictor}
 
 \item{newdata}{Optional data frame of newdata to use when calculating the linear
@@ -37,10 +37,10 @@ effects") are included. If \code{NA}, they are ignored}
 }
 \value{
 A matrix of simulations from the posterior predictive distribution
- of the linear predictor. The dimensions are \code{draws} by number of 
+ of the linear predictor. The dimensions are \code{draws} by number of
  linear predictor values (e.g., number of sites or number of observations).
 }
 \description{
-Extract posterior draws of the linear predictor for a \code{ubmsFit} 
+Extract posterior draws of the linear predictor for a \code{ubmsFit}
 submodel, possibly transformed by the inverse-link function.
 }

@@ -20,35 +20,35 @@
 \item{submodel}{Submodel to plot residuals for, for example \code{"det"}}
 
 \item{covariate}{If specified, plot residuals against values of a covariate.
-Covariate name should be provided as a string. If \code{NULL}, 
+Covariate name should be provided as a string. If \code{NULL},
 residuals are plotted against predicted values.}
 
-\item{draws}{An integer indicating the number of posterior draws to use. 
+\item{draws}{An integer indicating the number of posterior draws to use.
 Separate plots are generated for each draw, so this number should be
-relatively small. The default and maximum number of draws is the size of 
+relatively small. The default and maximum number of draws is the size of
 the posterior sample.}
 
-\item{nbins}{For submodels with a binomial response, manually set the number 
+\item{nbins}{For submodels with a binomial response, manually set the number
 of bins to use}
 
 \item{...}{Currently ignored}
 }
 \value{
-A \code{ggplot} of residuals vs. fitted values or covariate values, 
+A \code{ggplot} of residuals vs. fitted values or covariate values,
   with one panel per posterior draw. For binned residual plots, the shaded area
-  represents plus/minus two standard deviations around the mean residual. 
+  represents plus/minus two standard deviations around the mean residual.
   If the model is true, we would expect about 95% of the binned residuals to
   fall within this area.
 }
 \description{
-Plot residuals for a submodel from a \code{ubmsFit} object, for multiple 
+Plot residuals for a submodel from a \code{ubmsFit} object, for multiple
 posterior draws. By default, residuals are plotted against fitted values.
-When the submodel has a binomial response (e.g., detection models), regular 
-residual plots are not typically informative. Instead, the residuals and 
-fitted values are divided into bins based on fitted value and the averages 
-are plotted. For a count response (e.g., Poisson), Pearson residuals are 
+When the submodel has a binomial response (e.g., detection models), regular
+residual plots are not typically informative. Instead, the residuals and
+fitted values are divided into bins based on fitted value and the averages
+are plotted. For a count response (e.g., Poisson), Pearson residuals are
 calculated. To plot residuals against values of a particular covariate instead
-of the fitted values, supply the name of the covariate (as a string) to the 
+of the fitted values, supply the name of the covariate (as a string) to the
 \code{covariate} argument.
 }
 \seealso{

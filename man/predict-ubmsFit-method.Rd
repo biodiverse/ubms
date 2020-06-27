@@ -21,7 +21,7 @@
 \item{submodel}{Submodel to predict from, for example \code{"det"}}
 
 \item{newdata}{Optional data frame of covariates to generate
-predictions from. If not provided (the default), predictions are 
+predictions from. If not provided (the default), predictions are
 generated from the original data}
 
 \item{transform}{If \code{TRUE}, back-transform the predictions to their
@@ -35,7 +35,7 @@ effects") are included. If \code{NA}, they are ignored}
 \item{...}{Currently ignored}
 }
 \value{
-A data frame with one row per prediction and four columns: 
+A data frame with one row per prediction and four columns:
   1) Predicted point estimates (posterior means),
   2) Standard deviation of the posterior,
   3-4) Lower and upper bounds of the specified uncertainty interval
@@ -45,7 +45,7 @@ A data frame with one row per prediction and four columns:
 }
 \description{
 This method generates predicted parameter values for the original dataset
-or a new dataset using the posterior distribution. Standard deviation and 
+or a new dataset using the posterior distribution. Standard deviation and
 a customizable uncertainty interval are also calculated.
 }
 \seealso{

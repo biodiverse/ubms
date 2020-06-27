@@ -24,10 +24,10 @@ setMethod("names", "ubmsFitList", function(x){
 
 #' @rdname ubmsFitList-methods
 #' @export
-setMethod("[[", c("ubmsFitList", "numeric","missing"), 
+setMethod("[[", c("ubmsFitList", "numeric","missing"),
           function(x, i) x@models[[i]])
 
 #' @rdname ubmsFitList-methods
 #' @export
-setMethod("[", c("ubmsFitList", "numeric","missing","missing"), 
+setMethod("[", c("ubmsFitList", "numeric","missing","missing"),
           function(x, i) x@models[i])
