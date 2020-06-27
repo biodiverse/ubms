@@ -12,8 +12,8 @@
 #' @param cores Number of parallel cores to use in calculation
 #' @param y Currently ignored
 #' @param ... Currently ignored
-#' 
-#' @seealso 
+#'
+#' @seealso
 #' \itemize{
 #'  \item The \code{\link{posterior_predict}} for drawing from the posterior
 #'    distribution of the observed outcome or unobserved latent state
@@ -25,9 +25,9 @@ NULL
 #' @rdname ubmsFit-methods
 #' @importFrom gridExtra grid.arrange
 #' @export
-setMethod("plot", "ubmsFit", function(x, ...){  
+setMethod("plot", "ubmsFit", function(x, ...){
   pl <- lapply(c("state","det"), function(s) plot_residuals(x, s, draws=6))
-  grid.arrange(grobs=pl) 
+  grid.arrange(grobs=pl)
 })
 
 
@@ -42,11 +42,11 @@ setMethod("[", c("ubmsFit", "character", "missing", "missing"),
 #' @importFrom rstantools nsamples
 #' @export
 setMethod("nsamples", "ubmsFit", function(object, ...){
-  sum(object@stanfit@sim$n_save - object@stanfit@sim$warmup)
+  sum(object@stanfit@sim$n_save - object@stanfit@sim$warmup2)
 })
 
 setMethod("show", "ubmsFit", function(object){
-  
+
   cat("\nCall:\n")
   print(object@call)
   cat("\n")
@@ -101,7 +101,7 @@ setMethod("waic", "ubmsFit", function(x, ...){
 
 
 #' Extract Samples From a ubmsFit Model
-#' 
+#'
 #' Extract samples from a \code{ubmsFit} model
 #'
 #' @param object A \code{ubmsFit} object
@@ -114,20 +114,20 @@ setMethod("waic", "ubmsFit", function(x, ...){
 #' @param include Logical. If \code{TRUE} provided parameter names
 #'  in \code{pars} are kept; if \code{FALSE} they are excluded.
 #'
-#' @return If \code{permuted=TRUE}, a list; if \code{permuted=FALSE}, 
+#' @return If \code{permuted=TRUE}, a list; if \code{permuted=FALSE},
 #'  an array.
 #'
 #' @importFrom rstan extract
 #' @export
-setMethod("extract", "ubmsFit", 
+setMethod("extract", "ubmsFit",
   function(object, pars, permuted=TRUE, inc_warmup=FALSE, include=TRUE){
   rstan::extract(object@stanfit, pars, permuted, inc_warmup, include)
 })
 
 #' Markov Chain Traceplots
-#' 
+#'
 #' Draws traceplots for chains from a \code{ubmsFit} object
-#' 
+#'
 #' @param object A \code{ubmsFit} object
 #' @param ... Arguments passed to \code{rstan::traceplot}
 
