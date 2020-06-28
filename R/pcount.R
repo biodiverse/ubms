@@ -56,6 +56,49 @@ setMethod("sim_fitted", "ubmsFitPcount",
 
 #Goodness-of-fit---------------------------------------------------------------
 
+#' @describeIn gof
+#' A goodness-of-fit test for N-mixture models based on Pearson's chi-square.
+#' @include gof.R
+setMethod("gof", "ubmsFitPcount", function(object, draws=NULL, quiet=FALSE, ...){
+
+  samples <- get_samples(object, draws)
+  draws <- length(samples)
+
+  lam <- sim_lp(object, "state", transform=TRUE, newdata=NULL,
+                     samples=samples, re.form=NULL)
+  p <- sim_lp(object, "det", transform=TRUE, newdata=NULL, samples=samples,
+                   re.form=NULL)
+
+  M <- get_n_sites(object@response)
+  T <- object@response@max_primary
+  R <- T * object@response@max_obs
+  ysim <- sim_y(object, samples, re.form=NULL)
+  ysim <- array(ysim, c(draws,R,M))
+  ysim <- aperm(ysim, c(3,2,1))
+
+  mb_obs <- mb_sim <- rep(NA, draws)
+  if(!quiet) pb <- utils::txtProgressBar(min = 0, max = draws, style = 3)
+  object_star <- object
+  for (i in 1:draws){
+    mb_obs[i] <- Nmix_chisq(object, lam[i,], p[i,])
+    object_star@response <- ubmsResponse(ysim[,,i], object@response@y_dist,
+                                         object@response@z_dist, max_primary=T)
+    mb_sim[i] <- Nmix_chisq(object_star, lam[i,], p[i,])
+    if(!quiet) utils::setTxtProgressBar(pb, i)
+  }
+  if(!quiet) close(pb)
+  ubmsGOF("N-mixture Chi-square", data.frame(obs=mb_obs, sim=mb_sim))
+})
+
+Nmix_chisq <- function(object, lambda, p){
+  J <- object@response@max_obs
+  lambda <- lambda[rep(1:length(lambda), each=J)]
+  stopifnot(length(lambda) == length(p))
+  fit <- lambda*p
+  obs <- as_vector(object@response, na.rm=FALSE)
+  stopifnot(length(obs) == length(fit))
+  sum((obs - fit)^2/fit, na.rm=TRUE)
+}
 
 #Methods to simulate posterior predictive distributions------------------------
 
