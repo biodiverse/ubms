@@ -26,10 +26,10 @@ stan_colext <- function(psiformula = ~1, gammaformula = ~1, epsilonformula = ~1,
 
   response <- ubmsResponse(getY(umf), "binomial", "binomial", umf@numPrimary)
   state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), psiformula, "plogis")
-  col <- ubmsSubmodel("Colonization", "col", yearlySiteCovs(umf),
-                      gammaformula, "plogis", transition=TRUE)
-  ext <- ubmsSubmodel("Extinction", "ext", yearlySiteCovs(umf),
-                      epsilonformula, "plogis", transition=TRUE)
+  col <- ubmsSubmodelTransition("Colonization", "col", yearlySiteCovs(umf),
+                      gammaformula, "plogis", T=umf@numPrimary)
+  ext <- ubmsSubmodelTransition("Extinction", "ext", yearlySiteCovs(umf),
+                      epsilonformula, "plogis", T=umf@numPrimary)
   det <- ubmsSubmodel("Detection", "det", obsCovs(umf), pformula, "plogis")
   submodels <- ubmsSubmodelList(state, col, ext, det)
 

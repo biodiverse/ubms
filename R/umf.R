@@ -13,12 +13,9 @@ setMethod("process_umf", "unmarkedFrame", function(umf){
   ysc <- siteCovs(umf)
   if(nprimary > 1){
     ysc <- process_covs(yearlySiteCovs(umf), nsites*nprimary, siteCovs(umf))
+    yearlySiteCovs(umf) <- ysc
   }
   obsCovs(umf) <- process_covs(obsCovs(umf), nsites*nprimary*nobs, ysc)
-
-  if(nprimary > 1){
-    yearlySiteCovs(umf) <- drop_final_year(ysc, nsites, nprimary)
-  }
 
   umf
 })
@@ -33,10 +30,4 @@ process_covs <- function(covs, n_row, inherit=NULL){
     covs <- cbind(covs, expand_df)
   }
   covs
-}
-
-drop_final_year <- function(yr_df, nsites, nprimary){
-  to_drop <- seq(nprimary, nsites*nprimary, by=nprimary)
-  yr_df <- yr_df[-to_drop,,drop=FALSE]
-  droplevels(yr_df)
 }

@@ -8,13 +8,35 @@ test_that("ubmsSubmodel can be built",{
   expect_equal(sm@link, "plogis")
   expect_equal(do.call(sm@link, list(0)), 0.5)
   expect_equivalent(sm@missing, rep(FALSE, 3))
-  expect_false(sm@transition)
 })
 
-test_that("Setting transition state works",{
-  sm <- ubmsSubmodel("Col", "col", data.frame(x1=c(1,2,3)), ~x1, "plogis",
-                     transition=TRUE)
-  expect_true(sm@transition)
+test_that("ubmsSubmodelTransition can be built",{
+  sm <- ubmsSubmodelTransition("Col", "col", data.frame(x1=c(1,2,3)), ~x1,
+                               "plogis", 3)
+  expect_true(inherits(sm, "ubmsSubmodelTransition"))
+  expect_equal(nrow(sm@data), 2)
+})
+
+test_that("ubmsSubmodelTransition errors if NAs in yearlySiteCovs",{
+  sm <- ubmsSubmodelTransition("Col", "col", data.frame(x1=c(1,2,3)), ~x1,
+                               "plogis", 3)
+  sm@data$x1[1] <- NA
+  expect_error(ubmsSubmodelTransition("Col", "col", data.frame(x1=c(1,NA,3)), ~x1,
+                            "plogis", 3))
+  expect_error(ubmsSubmodel("Col", "col", data.frame(x1=c(1,NA,3)), ~x1,
+                            "plogis"), NA)
+})
+
+test_that("drop_final_year removes final year of yearly site covs",{
+  M <- 5; T <- 3
+  test_df <- data.frame(x1=rnorm(M*T),
+                        x2=factor(rep(c("1","2","3"), M)))
+  expect_equal(levels(test_df$x2), c("1","2","3"))
+
+  dr <- drop_final_year(test_df, T)
+  expect_is(dr, "data.frame")
+  expect_equal(dim(dr), c(M*(T-1), 2))
+  expect_equal(levels(dr$x2), c("1","2"))
 })
 
 test_that("Missing values are detected when submodel is built",{
@@ -83,17 +105,6 @@ test_that("model.matrix handles functions in formulas", {
                   c("(Intercept)", "scale(x1)")), assign = 0:1)
   expect_equal(mm,ref)
   expect_equal(model.matrix(sm, covs), ref)
-})
-
-test_that("model.matrix errors if NAs in yearlySiteCovs",{
-  sm <- ubmsSubmodel("Col", "col", data.frame(x1=c(1,2,3)), ~x1, "plogis",
-                     transition=TRUE)
-  sm@data$x1[1] <- NA
-  expect_error(model.matrix(sm))
-  expect_error(ubmsSubmodel("Col", "col", data.frame(x1=c(1,NA,3)), ~x1,
-                            "plogis", transition=TRUE))
-  expect_error(ubmsSubmodel("Col", "col", data.frame(x1=c(1,NA,3)), ~x1,
-                            "plogis", transition=FALSE), NA)
 })
 
 test_that("get_xlev gets levels from factor columns",{

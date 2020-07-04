@@ -5,7 +5,6 @@ setClass("ubmsSubmodel",
     data = "data.frame",
     formula = "formula",
     link = "character",
-    transition = "logical",
     missing = "logical"
   ),
   prototype = list(
@@ -14,18 +13,35 @@ setClass("ubmsSubmodel",
     data = data.frame(),
     formula = ~1,
     link = NA_character_,
-    transition = logical(0),
     missing = logical(0)
   )
 )
 
-ubmsSubmodel <- function(name, type, data, formula, link, transition=FALSE){
+ubmsSubmodel <- function(name, type, data, formula, link){
   out <- new("ubmsSubmodel", name=name, type=type, data=data,
-             formula=formula, link=link, transition=transition)
+             formula=formula, link=link)
   out@missing <- apply(model.matrix(out), 1, function(x) any(is.na(x)))
   out
 }
 
+setClass("ubmsSubmodelTransition", contains = "ubmsSubmodel")
+
+#' @importFrom methods as
+ubmsSubmodelTransition <- function(name, type, data, formula, link, T){
+  data <- drop_final_year(data, T)
+  out <- ubmsSubmodel(name, type, data, formula, link)
+  out <- as(out, "ubmsSubmodelTransition")
+  if(any(out@missing)){
+    stop("Missing values are not allowed in yearlySiteCovs", call.=FALSE)
+  }
+  out
+}
+
+drop_final_year <- function(yr_df, nprimary){
+  to_drop <- seq(nprimary, nrow(yr_df), by=nprimary)
+  yr_df <- yr_df[-to_drop,,drop=FALSE]
+  droplevels(yr_df)
+}
 
 setMethod("model.matrix", "ubmsSubmodel",
           function(object, newdata=NULL, na.rm=FALSE, ...){
@@ -36,9 +52,6 @@ setMethod("model.matrix", "ubmsSubmodel",
 
   if(is.null(newdata)){
     out <- model.matrix(formula, mf)
-    if(object@transition & any(is.na(mf))){
-      stop("Missing values are not allowed in yearlySiteCovs", call.=FALSE)
-    }
     if(na.rm) out <- out[!object@missing,,drop=FALSE]
     return(out)
   }

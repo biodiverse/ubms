@@ -39,8 +39,8 @@ test_that("setting submodel missing attribute works",{
 })
 
 test_that("submodel_set_missing works with transition-type parameters",{
-  ysc <- data.frame(x3 = rnorm(6))
-  col <- ubmsSubmodel("Col", "col", ysc, ~x3, "plogis", transition=TRUE)
+  ysc <- data.frame(x3 = rnorm(9))
+  col <- ubmsSubmodelTransition("Col", "col", ysc, ~x3, "plogis", 3)
   y3 <- y2
   y3[1,] <- NA
   resp3 <- ubmsResponse(y3, "binomial", "binomial", 3)
@@ -50,8 +50,8 @@ test_that("submodel_set_missing works with transition-type parameters",{
 })
 
 test_that("error thrown if dimensions of missing slot changes",{
-  ysc <- data.frame(x3 = rnorm(9))
-  col <- ubmsSubmodel("Col", "col", ysc, ~x3, "plogis", transition=TRUE)
+  ysc <- data.frame(x3 = rnorm(12))
+  col <- ubmsSubmodelTransition("Col", "col", ysc, ~x3, "plogis", 3)
   y3 <- y2
   y3[1,] <- NA
   resp3 <- ubmsResponse(y3, "binomial", "binomial", 3)
@@ -77,8 +77,8 @@ test_that("find_missing identifies missing values",{
 
 test_that("find_missing ignores transition-type parameters",{
   ysc <- data.frame(x3 = rnorm(3))
-  col <- ubmsSubmodel("Col", "col", ysc, ~x3, "plogis", transition=FALSE)
-  col2 <- ubmsSubmodel("Col", "col", ysc, ~x3, "plogis", transition=TRUE)
+  col <- ubmsSubmodel("Col", "col", ysc, ~x3, "plogis")
+  col2 <- ubmsSubmodelTransition("Col", "col", ysc, ~x3, "plogis", 3)
   sl3 <- ubmsSubmodelList(state2, det2, col)
   sl4 <- ubmsSubmodelList(state2, det2, col2)
   expect_equal(find_missing(resp, sl3), find_missing(resp, sl4))
