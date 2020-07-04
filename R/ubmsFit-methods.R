@@ -52,16 +52,24 @@ setMethod("show", "ubmsFit", function(object){
   cat("\n")
 
   for (i in submodel_types(object)){
-    to_print <- summary(object, i)[,c(1,3,4,8:10)]
+    to_print <- summary(object, i)[,c(1,3,4,8:10),drop=FALSE]
+    keep_row_names <- nrow(to_print) > 1
     names(to_print)[1:2] <- c("Estimate", "SD")
-    cat(paste0(object[i]@name,":\n"))
-    print(to_print, digits=3)
+    cat(paste0(object[i]@name, get_link_name(object[i]),":\n"))
+    print(to_print, row.names=keep_row_names, digits=3)
     cat("\n")
   }
 
   cat(paste0("LOOIC: ", round(object@loo$estimates[3,1], 3)))
   cat("\n")
 })
+
+get_link_name <- function(submodel){
+  switch(submodel@link,
+        "plogis" = {" (logit-scale)"},
+        "exp" = {" (log-scale)"}
+        )
+}
 
 #' @rdname ubmsFit-methods
 #' @importFrom unmarked summary
