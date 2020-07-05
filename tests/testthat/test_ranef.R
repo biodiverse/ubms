@@ -14,6 +14,8 @@ fit2 <- suppressWarnings(stan_occu(~x3~x1+(1+x1||x2), umf,
                                   chains=2, iter=40, refresh=0))
 fit3 <- suppressWarnings(stan_occu(~x3~x1+(1|x2)+(1|x4), umf,
                                   chains=2, iter=40, refresh=0))
+fit4 <- suppressWarnings(stan_occu(~x3~x1+(1|x2)-1, umf,
+                                  chains=2, iter=40, refresh=0))
 
 test_that("ranef on submodel without random effect errors",{
   expect_error(ranef(fit, "det"))
@@ -27,6 +29,12 @@ test_that("ranef on submodel with one random effect works",{
   expect_equal(names(r$x2), "(Intercept)")
   expect_equal(r$x2$`(Intercept)`,
                c(a=11.3713,b=12.5793,c=-11.7384), tol=1e-5)
+})
+
+test_that("ranef works with means parameterization",{
+  #Might want to do a longer run here in future to match to fit1 results
+  r_mn <- ranef(fit4, "state")
+  expect_is(r_mn, "list")
 })
 
 test_that("ranef summary works with one random effect",{

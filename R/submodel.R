@@ -147,6 +147,12 @@ setMethod("has_random", "ubmsSubmodel", function(object){
   !is.null(lme4::findbars(object@formula))
 })
 
+#Check if submodel has intercept term
+has_intercept <- function(submodel){
+  mm <- model.matrix(submodel)
+  "(Intercept)" %in% colnames(mm)
+}
+
 #Quickly generate parameter names from ubmsSubmodel
 b_par <- function(object){
   paste0("b_", object@type)

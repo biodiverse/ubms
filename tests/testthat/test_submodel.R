@@ -228,6 +228,14 @@ test_that("submodels with random effects are identified",{
   expect_true(has_random(sm))
 })
 
+test_that("submodels with intercepts are identified",{
+  covs <- data.frame(x1=rnorm(3), x2=factor(c("a","b","c")))
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1-1, "plogis")
+  expect_false(has_intercept(sm))
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1, "plogis")
+  expect_true(has_intercept(sm))
+})
+
 test_that("generating parameter names works",{
   covs <- data.frame(x1=rnorm(3), x2=factor(c("a","b","c")))
   sm <- ubmsSubmodel("Det", "det", covs, ~x1+(1|x2), "plogis")

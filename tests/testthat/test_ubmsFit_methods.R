@@ -27,8 +27,8 @@ test_that("nsamples method works for ubmsFit",{
 test_that("show method works for ubmsFit",{
   printed <- utils::capture.output(fit)
   expect_equal(printed[2], "Call:")
-  expect_equal(printed[6], "Occupancy:")
-  expect_equal(printed[12], "Detection:")
+  expect_equal(printed[6], "Occupancy (logit-scale):")
+  expect_equal(printed[12], "Detection (logit-scale):")
   expect_equal(printed[17], "LOOIC: 4.752")
 })
 

@@ -37,14 +37,17 @@ setMethod("ranef","ubmsFit", function(object, submodel, summary=FALSE, ...){
     trm <- fl[[i]]
     if(length(trm)>1) stop("There should only be one term here")
 
-    beta_ind <- which(beta_names(sm) == trm)
-    mn_samples <- extract(object, paste0("beta_",submodel))[[1]]
-    mn_samples <- mn_samples[,beta_ind]
-
     b_ind <- re$Gp[i:(i+1)] + c(1,0)
-    b_samples <- extract(object, paste0("b_",submodel))[[1]]
-    b_samples <- b_samples[,b_ind[1]:b_ind[2]]
-    re_samples <- b_samples + mn_samples
+    re_samples <- extract(object, paste0("b_",submodel))[[1]]
+    re_samples <- re_samples[,b_ind[1]:b_ind[2]]
+
+    #Add mean value if this is an effects parameterization
+    if(trm %in% beta_names(sm)){
+      beta_ind <- which(beta_names(sm) == trm)
+      mn_samples <- extract(object, paste0("beta_",submodel))[[1]]
+      mn_samples <- mn_samples[,beta_ind]
+      re_samples <- re_samples + mn_samples
+    }
 
     fac_lvls <- levels(re$flist[[fac]])
     if(summary){
