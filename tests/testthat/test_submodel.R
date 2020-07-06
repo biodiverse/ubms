@@ -68,6 +68,22 @@ test_that("model.matrix works with newdata",{
   expect_error(model.matrix(sm, nd))
 })
 
+test_that("model.matrix errors if variables in newdata are missing",{
+  covs <- data.frame(x1=c(1,2,3),x2=c(NA,2,4))
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1, "plogis")
+  nd <- data.frame(x1=4, x2=5)
+  expect_error(model.matrix(sm, nd), NA)
+  nd <- data.frame(x3=4)
+  expect_error(model.matrix(sm, nd))
+})
+
+test_that("check_newdata identifies missing variables in newdata",{
+  covs <- data.frame(x1=c(1,2,3),x2=c(NA,2,4))
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1+x2, "plogis")
+  nd <- data.frame(x3=4)
+  expect_error(check_newdata(nd, sm@formula), "newdata: x1, x2")
+})
+
 test_that("model.matrix handles NAs",{
   covs <- data.frame(x1=c(1,2,3),x2=c(NA,2,4))
   sm <- ubmsSubmodel("Det", "det", covs, ~x1+x2, "plogis")

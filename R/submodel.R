@@ -56,10 +56,22 @@ setMethod("model.matrix", "ubmsSubmodel",
     return(out)
   }
 
+  check_newdata(newdata, formula)
   new_mf <- model.frame(stats::terms(mf), newdata, na.action=stats::na.pass,
                         xlev=get_xlev(data, mf))
   model.matrix(formula, new_mf)
 })
+
+#Check if all required variables are in newdata
+check_newdata <- function(newdata, formula){
+  inp_vars <- names(newdata)
+  term_vars <- all.vars(formula)
+  not_found <- ! term_vars %in% inp_vars
+  if(any(not_found)){
+    stop(paste0("Required variables not found in newdata: ",
+               paste(term_vars[not_found], collapse=", ")), call.=FALSE)
+  }
+}
 
 get_xlev <- function(data, model_frame){
   fac_col <- data[, sapply(data, is.factor), drop=FALSE]
