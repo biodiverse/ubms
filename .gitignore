@@ -1,3 +1,5 @@
 *.o
 *.so
 *.pdf
+src/stanExports_*
+src/RcppExports.cpp

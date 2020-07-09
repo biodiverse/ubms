@@ -1,5 +1,6 @@
- build_stan_inputs <- function(response, submodels, ...){
+ build_stan_inputs <- function(name, response, submodels, ...){
 
+  model_code <- name_to_modelcode(name)
   y_data <- get_stan_data(response)
 
   submodels <- unname(submodels@submodels)
@@ -7,14 +8,21 @@
   submodel_data <- lapply(submodels, get_stan_data)
   submodel_data <- do.call("c", submodel_data)
 
-  stan_data <- c(y_data, submodel_data)
+  stan_data <- c(model_code, y_data, submodel_data)
 
   pars <- get_pars(submodels)
 
   list(stan_data=stan_data, pars=pars)
 }
 
+name_to_modelcode <- function(name){
+  list(model_code=switch(name, occu={0}, occuRN={1}, pcount={2}, colext={3}))
+}
+
 get_pars <- function(submodels){
+
+  #Remove placeholder submodels - we don't want to save those parameters
+  submodels <- submodels[!sapply(submodels, is_placeholder)]
 
   types <- sapply(submodels, function(x) x@type)
   pars <- paste0("beta_", types)
@@ -33,7 +41,7 @@ setGeneric("get_stan_data", function(object, ...){
 #' @include response.R
 setMethod("get_stan_data", "ubmsResponse", function(object, ...){
   list(y = as_vector(object, na.rm=TRUE),
-       y_dist = dist_code(object@y_dist),
+       #y_dist = dist_code(object@y_dist),
        z_dist = dist_code(object@z_dist),
        M = get_n_sites(object),
        T = object@max_primary,
@@ -47,9 +55,12 @@ setMethod("get_stan_data", "ubmsResponse", function(object, ...){
 })
 
 dist_code <- function(dist){
-  switch(dist, binomial = {0}, Poisson = {1}, P = {1})
+  switch(dist, binomial = {0}, P = {1}, NB = {2})
 }
 
+setMethod("get_stan_data", "ubmsSubmodelScalar", function(object, ...){
+  list()
+})
 
 #' @include submodel.R
 setMethod("get_stan_data", "ubmsSubmodel", function(object, ...){

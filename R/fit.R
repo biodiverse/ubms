@@ -34,9 +34,15 @@ fit_class <- function(mod){
 #Fit stan model
 #' @include inputs.R
 fit_model <- function(name, response, submodels, ...){
-  inp <- build_stan_inputs(response, submodels)
-  fit <- sampling(stanmodels[[name]], data=inp$stan_data, pars=inp$pars, ...)
+  model <- name_to_stanmodel(name)
+  inp <- build_stan_inputs(name, response, submodels)
+  fit <- sampling(stanmodels[[model]], data=inp$stan_data, pars=inp$pars, ...)
   process_stanfit(fit, submodels)
+}
+
+name_to_stanmodel <- function(name){
+  if(name == "colext") return("colext")
+  return("single_season")
 }
 
 #Do some cleanup on stanfit object
