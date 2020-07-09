@@ -71,17 +71,14 @@ test_that("Marginal plot data is generated correctly",{
   #Continuous
   mdata <- get_margplot_data(fit, "state", "x1", c(0.025,0.975),
                              samples=1:3, nd)
-  expect_equal(mdata,
-    structure(list(covariate = c(-1, 1), mn = c(0.980940262011558,
-    0.39301938256072), lower = c(0.969065755954778, 0.194268798455224
-    ), upper = c(0.987901780495942, 0.705277052076411)), class = "data.frame",
-              row.names = c(NA,-2L)))
+  expect_equal(dim(mdata), c(2,4))
+  expect_is(mdata, "data.frame")
+  expect_equal(names(mdata), c("covariate","mn","lower","upper"))
+
   #Factor
   mdata2 <- get_margplot_data(fit, "state", "x2", c(0.025,0.975),
                               samples=1:3, nd)
-  expect_equal(mdata2,
-    structure(list(covariate = c("a", "b"), mn = c(0.980940262011558,
-    0.39301938256072), lower = c(0.969065755954778, 0.194268798455224),
-                   upper = c(0.987901780495942, 0.705277052076411)),
-              class = "data.frame", row.names = c(NA,-2L)))
+  expect_equal(dim(mdata), c(2,4))
+  expect_is(mdata2, "data.frame")
+  expect_equal(names(mdata2), c("covariate","mn","lower","upper"))
 })

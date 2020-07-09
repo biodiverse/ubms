@@ -15,7 +15,7 @@ test_that("predict correctly wraps sim_lp",{
   pr <- predict(fit, "state")
   expect_is(pr, "data.frame")
   expect_equal(names(pr), c("Predicted","SD","2.5%","97.5%"))
-  expect_equal(pr$Predicted[1:3], c(0.9445,0.9427,0.0625), tol=1e-4)
+  expect_equal(dim(pr), c(3,4))
 
   #Newdata
   nd <- data.frame(x1=0)
@@ -24,7 +24,7 @@ test_that("predict correctly wraps sim_lp",{
   #Should work now
   pr2 <- predict(fit, "state", newdata=nd, re.form=NA)
   expect_is(pr2, "data.frame")
-  expect_equivalent(pr2[1,], c(0.5285,0.3391,0.002045,0.9833), tol=1e-3)
+  expect_equal(dim(pr2), c(1,4))
   #Change level
   pr3 <- predict(fit, "state", newdata=nd, re.form=NA, level=0.8)
   expect_equal(names(pr3)[3:4], c("10%","90%"))
@@ -50,7 +50,6 @@ test_that("sim_lp generates posterior correctly",{
                samp, re.form=NULL)
   expect_is(lp, "array")
   expect_equal(dim(lp), c(40,3))
-  expect_equal(lp[1,], c(7.5339912, 3.153069, -11.0072299), tol=1e-5)
 
   #For a few iterations
   samp <- c(1,2,3)
@@ -58,7 +57,6 @@ test_that("sim_lp generates posterior correctly",{
                samp, re.form=NULL)
   expect_is(lp, "array")
   expect_equal(dim(lp), c(3,3))
-  expect_equal(lp[1,], c(7.5339912, 3.153069, -11.0072299), tol=1e-5)
 })
 
 test_that("sim_lp transforms parameters correctly",{
@@ -103,5 +101,4 @@ test_that("sim_lp handles newdata",{
   lp <- sim_lp(fit,"state",transform=FALSE, newdata=nd, samp,
                re.form=NULL)
   expect_equal(dim(lp), c(3,2))
-  expect_equal(lp[1,], c(6.2926472, 0.4284665), tol=1e-4)
 })
