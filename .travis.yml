@@ -15,6 +15,7 @@ addons:
   apt:
     packages:
       - devscripts
+      - libv8-dev
     sources:
       - ubuntu-toolchain-r-test
 
