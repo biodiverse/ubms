@@ -45,6 +45,7 @@ Collate:
     'gof.R'
     'occu.R'
     'colext.R'
+    'distamp.R'
     'fitlist.R'
     'occuRN.R'
     'mb_chisq.R'

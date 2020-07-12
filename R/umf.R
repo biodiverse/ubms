@@ -15,7 +15,10 @@ setMethod("process_umf", "unmarkedFrame", function(umf){
     ysc <- process_covs(yearlySiteCovs(umf), nsites*nprimary, siteCovs(umf))
     yearlySiteCovs(umf) <- ysc
   }
-  obsCovs(umf) <- process_covs(obsCovs(umf), nsites*nprimary*nobs, ysc)
+
+  if(!inherits(umf, "unmarkedFrameDS")){
+    obsCovs(umf) <- process_covs(obsCovs(umf), nsites*nprimary*nobs, ysc)
+  }
 
   umf
 })

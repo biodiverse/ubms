@@ -3,6 +3,7 @@
 export(gof)
 export(projected)
 export(stan_colext)
+export(stan_distsamp)
 export(stan_occu)
 export(stan_occuRN)
 export(stan_pcount)

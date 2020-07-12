@@ -16,7 +16,8 @@
 }
 
 name_to_modelcode <- function(name){
-  list(model_code=switch(name, occu={0}, occuRN={1}, pcount={2}, colext={3}))
+  list(model_code=switch(name, occu={0}, occuRN={1}, pcount={2}, colext={3},
+                         distsamp={4}))
 }
 
 get_pars <- function(submodels){
