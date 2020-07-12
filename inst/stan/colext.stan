@@ -74,6 +74,8 @@ data{
 
 int has_random_col;
 int has_random_ext;
+int n_obs_col;
+int n_obs_ext;
 int n_fixed_col;
 int n_fixed_ext;
 int n_group_vars_col;

@@ -1,6 +1,6 @@
 functions{
 
-#include /include/functions_detfuns.stan
+#include /include/functions_keyfuns.stan
 #include /include/functions_distsamp.stan
 
 }
@@ -9,9 +9,10 @@ data{
 
 #include /include/data.stan
 int point;
-vector[J[1,1]] db;
+vector[J[1,1] + 1] db;
 int keyfun;
 vector[R] conv_const;
+vector[M] area_adjust;
 
 }
 
@@ -24,7 +25,7 @@ parameters{
 transformed parameters{
 
 vector[M] lp_state;
-vector[R] lp_det;
+vector[n_obs_det] lp_det;
 vector[M] log_lik;
 
 lp_state = X_state * beta_state;
@@ -42,7 +43,7 @@ if(has_random_det){
 }
 
 log_lik = get_loglik_distsamp(y, M, db, si, lp_state, lp_det, z_dist,
-                              beta_scale, point, keyfun, conv_const);
+                              beta_scale, point, keyfun, conv_const, area_adjust);
 
 }
 

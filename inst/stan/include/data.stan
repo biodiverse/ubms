@@ -14,14 +14,16 @@ int Kmin[M,T];
 int z_dist;
 int has_random_state;
 int has_random_det;
+int n_obs_state;
+int n_obs_det;
 int n_fixed_state;
 int n_fixed_det;
 int n_group_vars_state;
 int n_group_vars_det;
 int n_random_state[has_random_state ? n_group_vars_state : 1];
 int n_random_det[has_random_det ? n_group_vars_det: 1];
-matrix[M, n_fixed_state] X_state;
-matrix[R, n_fixed_det] X_det;
+matrix[n_obs_state, n_fixed_state] X_state;
+matrix[n_obs_det, n_fixed_det] X_det;
 
 int Zdim_state[5];
 vector[Zdim_state[3]] Zw_state;

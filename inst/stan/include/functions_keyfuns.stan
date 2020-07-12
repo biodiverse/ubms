@@ -1,6 +1,6 @@
 real int_halfnorm_point(real sigma, real a, real b){
   real s2 = pow(sigma, 2);
-  return s2 * ((1 - exp(-b*b / 2*s2)) - (1 - exp(-a*a / 2*s2)));
+  return s2 * ((1 - exp(-b*b / (2*s2))) - (1 - exp(-a*a / (2*s2))));
 }
 
 real int_halfnorm_line(real sigma, real a, real b){
