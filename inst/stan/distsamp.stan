@@ -12,7 +12,6 @@ int point;
 vector[J[1,1] + 1] db;
 int keyfun;
 vector[R] conv_const;
-vector[M] area_adjust;
 
 }
 
@@ -43,7 +42,7 @@ if(has_random_det){
 }
 
 log_lik = get_loglik_distsamp(y, M, db, si, lp_state, lp_det, z_dist,
-                              beta_scale, point, keyfun, conv_const, area_adjust);
+                              beta_scale, point, keyfun, conv_const);
 
 }
 

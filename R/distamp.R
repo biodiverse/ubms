@@ -58,8 +58,7 @@ setClass("ubmsResponseDistsamp", contains="ubmsResponse",
                    units_in="character", units_out="character"))
 
 ubmsResponseDistsamp <- function(umf, z_dist, keyfun, output, units_out, K=NULL){
-  max_primary <- 1
-  max_primary <- ifelse(.hasSlot(umf, "numPrimary"), umf@numPrimary, 1)
+  max_primary <- ifelse(methods::.hasSlot(umf, "numPrimary"), umf@numPrimary, 1)
   out <- ubmsResponse(umf@y, "P", z_dist, max_primary, K)
   out <- as(out, "ubmsResponseDistsamp")
   out@survey <- umf@survey; out@keyfun <- keyfun; out@output <- output
@@ -76,8 +75,7 @@ setMethod("get_stan_data", "ubmsResponseDistsamp", function(object, ...){
     list(point=ifelse(object@survey=="point",1,0),
     db=object@dist_breaks,
     keyfun = switch(object@keyfun, halfnorm={0}, exp={1}),
-    conv_const = get_conv_const(object),
-    area_adjust = get_area_adjust(object)))
+    conv_const = get_conv_const(object)))
 })
 
 #Builds the values in the denominator of the detection part of the likelihood
@@ -95,7 +93,9 @@ get_conv_const <- function(resp){
     u <- t(apply(a, 1, function(x) x/sum(x)))
     out <- 2 * pi / a * u
   }
-  as.vector(t(out))
+  out <- as.vector(t(out))
+  area_adjust <- get_area_adjust(resp)
+  out * rep(area_adjust, each=length(db)-1)
 }
 
 get_area <- function(resp){
