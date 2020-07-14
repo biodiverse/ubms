@@ -17,7 +17,7 @@
 #'
 #' @return \code{ubmsFitDistsamp} object describing the model fit.
 #'
-#' @references Royle, J. A., D. K. Dawson, & Bates, S. (2004). Modeling
+#' @references Royle, J. A., Dawson, D. K., & Bates, S. (2004). Modeling
 #'  abundance effects in distance sampling. Ecology 85: 1591-1597.
 #'
 #' @seealso \code{\link{distsamp}}, \code{\link{unmarkedFrameDS}}
@@ -129,3 +129,121 @@ get_area_adjust <- function(resp){
 #Goodness-of-fit---------------------------------------------------------------
 
 #Methods to simulate posterior predictive distributions------------------------
+
+#Get detection probability-----------------------------------------------------
+
+#' @importFrom unmarked getP
+setMethod("getP", "ubmsFitDistsamp", function(object, draws=NULL, ...){
+  samples <- get_samples(object, draws)
+  resp <- object@response
+  praw <- t(sim_p(object, samples))
+  praw <- array(praw, c(resp@max_obs, get_n_sites(resp), length(samples)))
+  aperm(praw, c(2,1,3))
+})
+
+setGeneric("sim_p", function(object, samples, ...) standardGeneric("sim_p"))
+
+setMethod("sim_p", "ubmsFitDistsamp", function(object, samples, ...){
+  resp <- object@response
+  resp@output <- "abund" #Don't adjust for area
+  db <- resp@dist_breaks
+  conv_const <- get_conv_const(resp)
+  inds <- get_subset_inds(resp)[,1:2]
+  param1 <- sim_lp(object, "det", transform=TRUE, newdata=NULL,
+                          samples=samples, re.form=NULL)
+
+  stopifnot(ncol(param1) == get_n_sites(resp))
+  param2 <- NULL
+  if(resp@keyfun=="halfnorm"){
+    pfun <- ifelse(resp@survey=="line", distprob_normal_line, distprob_normal_point)
+  }
+  out <- sapply(1:length(samples), function(i){
+    pfun(param1[i,], param2[i,], db, conv_const, inds)
+  })
+  t(out)
+})
+
+distprob_normal_line <- function(sigma, param2, db, conv_const, inds){
+  out <- sapply(1:length(sigma), function(i){
+    int <-  pnorm(db[-1], 0, sd=sigma) - pnorm(db[-length(db)], 0, sd=sigma[i])
+    int <- int / dnorm(0, 0, sd=sigma[i])
+    if(!is.null(conv_const)) int <- int * conv_const[inds[i,1]:inds[i,2]]
+    int
+  })
+  as.vector(out)
+}
+
+distprob_normal_point <- function(sigma, param2, db, conv_const, inds){
+  out <- sapply(1:length(sigma), function(i){
+    s2 <- sigma[i]^2
+    a <- db[-1]; b <- db[-length(db)]
+    int <- s2 * ((1 - exp(-a*a / (2*s2))) - (1-exp(-b*b / (2*s2))))
+    int * conv_const[inds[i,1]:inds[i,2]]
+  })
+  as.vector(out)
+}
+
+#Histogram---------------------------------------------------------------------
+
+#' @importFrom graphics hist
+#' @importFrom ggplot2 geom_histogram
+setMethod("hist", "ubmsFitDistsamp", function(x, draws=30, ...){
+  samples <- get_samples(x, draws)
+  hist_data <- get_hist_data(x)
+  mean_line <- get_mean_line(x)
+
+  out <- ggplot(hist_data, aes_string(x="x")) +
+    geom_histogram(aes_string(y="..density.."),fill='transparent',
+                   col='black',breaks=x@response@dist_breaks)
+  if(draws > 0){
+    sample_lines <- get_sample_lines(x, samples)
+    out <- out +
+      geom_line(data=sample_lines, aes_string(x="x", y="val", group="ind"),
+              alpha=0.3)
+  }
+  out +
+    geom_line(data=mean_line, aes_string(x="x", y="val"), col='red') +
+    labs(x=paste0("Distance (", x@response@units_in,")"), y="Density") +
+    theme_bw() +
+    theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(),
+          axis.text=element_text(size=12), axis.title=element_text(size=14))
+})
+
+get_hist_data <- function(fit){
+  resp <- fit@response
+  db <- fit@response@dist_breaks
+  bin <- db[-length(db)] + diff(db)/2
+  counts <- colSums(resp@y, na.rm=TRUE)
+  data.frame(x=rep(bin, times=counts))
+}
+
+get_mean_line <- function(fit){
+  db <- fit@response@dist_breaks
+  xseq <- seq(db[1], db[length(db)], length.out=1000)
+  par1 <- summary(fit, "det")
+  if(nrow(par1) > 1) warning("Ignoring covariate effects", call.=FALSE)
+  par1 <- exp(par1[1,1])
+  detfun <- get_detfun(fit)
+  data.frame(x=xseq, val=detfun(xseq, par1))
+}
+
+get_sample_lines <- function(fit, samples){
+  db <- fit@response@dist_breaks
+  xseq <- seq(db[1], db[length(db)], length.out=1000)
+  par1 <- exp(extract(fit, "beta_det")[[1]][,1])
+  detfun <- get_detfun(fit)
+  sample_lines <- lapply(samples, function(i){
+                         data.frame(x=xseq, val=detfun(xseq, par1[i]),ind=i)
+                      })
+  do.call("rbind", sample_lines)
+}
+
+get_detfun <- function(fit){
+  resp <- fit@response
+  if(resp@keyfun == "halfnorm"){
+    out <- ifelse(resp@survey=="line", unmarked::dxhn, unmarked::drhn)
+  } else if(resp@keyfun == "exp"){
+    out <- ifelse(resp@survey=="line", unmarked::dxexp, unmarked::drexp)
+  }
+  out
+}

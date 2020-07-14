@@ -39,7 +39,7 @@ et al. (2004) to line or point transect data recorded in discerete
 distance intervals.
 }
 \references{
-Royle, J. A., D. K. Dawson, & Bates, S. (2004). Modeling
+Royle, J. A., Dawson, D. K., & Bates, S. (2004). Modeling
  abundance effects in distance sampling. Ecology 85: 1591-1597.
 }
 \seealso{
