@@ -27,10 +27,11 @@ test_that("get_max_obs calculates max # of observations",{
 
 test_that("get_K takes input and generates valid K",{
   y <- matrix(c(1,NA,0,2,4,1,0,0,3), nrow=3, byrow=T)
-  
-  expect_equal(get_K(y), max(y,na.rm=T)+20)
-  expect_equal(get_K(y, 5), 5)
-  expect_error(get_K(y, 3))
+  resp <- ubmsResponse(y, "P", "P")
+
+  expect_equal(get_K(resp), max(y,na.rm=T)+20)
+  expect_equal(get_K(resp, 5), 5)
+  expect_error(get_K(resp, 3))
 })
 
 test_that("tranpose method works",{
@@ -65,25 +66,25 @@ test_that("get_n_obs gets correct # of obs for each site",{
 test_that("per_sampled generates logical matrix of sampled periods",{
   M <- 3; J <- 3; T <- 4
   y1 = matrix(rbinom(M*T*J,1,0.5),M,T*J)
-  resp1 <- ubmsResponse(y1, "binomial", "binomial", T)  
+  resp1 <- ubmsResponse(y1, "binomial", "binomial", T)
   expect_equal(per_sampled(resp1), matrix(TRUE, nrow=3, ncol=4))
 
   y2 <- y1
   y2[2,1:3] <- NA
   y2[3,10:12] <- NA
-  resp2 <- ubmsResponse(y2, "binomial", "binomial", T) 
+  resp2 <- ubmsResponse(y2, "binomial", "binomial", T)
   ps <- per_sampled(resp2)
   expect_equal(ps, matrix(c(TRUE,FALSE,TRUE,rep(TRUE,8),FALSE),nrow=3))
-  
+
   y3 <- y1[1,,drop=FALSE]
   resp3 <- ubmsResponse(y3, "binomial", "binomial", T)
   expect_equal(per_sampled(resp3), matrix(TRUE, nrow=1, ncol=4))
-  
+
   y4 <- y1
   y4[3,] <- NA
   resp4 <- ubmsResponse(y4, "binomial", "binomial", T)
   expect_equal(per_sampled(resp4), matrix(TRUE, nrow=2, ncol=4))
-  
+
   resp5 <- ubmsResponse(y1, "binomial", "binomial", 1)
   expect_equal(per_sampled(resp5), matrix(TRUE, nrow=3, ncol=1))
 })
@@ -91,12 +92,12 @@ test_that("per_sampled generates logical matrix of sampled periods",{
 test_that("which_per_sampled identifies indices of sampled periods",{
   M <- 3; J <- 3; T <- 4
   y = matrix(rbinom(M*T*J,1,0.5),M,T*J)
-  
+
   y2 <- y
   y2[2,1:3] <- NA
   y2[3,10:12] <- NA
-  resp2 <- ubmsResponse(y2, "binomial", "binomial", T)  
-  expect_equal(which_per_sampled(resp2), 
+  resp2 <- ubmsResponse(y2, "binomial", "binomial", T)
+  expect_equal(which_per_sampled(resp2),
               c(1,2,3,4, 2,3,4, 1,2,3))
 
   y3 <- y
@@ -112,7 +113,7 @@ test_that("which_per_sampled identifies indices of sampled periods",{
 test_that("get_n_pers gets correct # of primary pers by site",{
   M <- 3; J <- 3; T <- 4
   y1 = matrix(rbinom(M*T*J,1,0.5),M,T*J)
-  resp1 <- ubmsResponse(y1, "binomial", "binomial", T)  
+  resp1 <- ubmsResponse(y1, "binomial", "binomial", T)
   np <- get_n_pers(resp1)
   expect_equal(np, rep(T, M))
 
@@ -138,7 +139,7 @@ test_that("get_n_pers gets correct # of primary pers by site",{
 
 test_that("generate_inds creates start-stop indices from count vector",{
   cv1 <- c(3,4,5)
-  expect_equivalent(generate_inds(cv1), 
+  expect_equivalent(generate_inds(cv1),
                     matrix(c(1,3,4,7,8,12), nrow=3, byrow=T))
   cv2 <- c(3)
   expect_equivalent(generate_inds(cv2), matrix(c(1,3), nrow=1))
@@ -150,13 +151,13 @@ test_that("generate_inds creates start-stop indices from count vector",{
 test_that("get_subset_inds works correctly",{
   M <- 3; J <- 3; T <- 4
   y1 = matrix(rbinom(M*T*J,1,0.5),M,T*J)
-  resp1 <- ubmsResponse(y1, "binomial", "binomial", T)  
+  resp1 <- ubmsResponse(y1, "binomial", "binomial", T)
   ind1 <- get_subset_inds(resp1)
   expect_equivalent(ind1,
                     matrix(c(1,12, 1,4, 1,3,
                              13,24, 5,8, 4,6,
                              25,36, 9,12, 7,9), nrow=3, byrow=T))
-  
+
   y2 <- y1
   y2[2,1:3] <- NA
   y2[3,10:12] <- NA
@@ -171,7 +172,7 @@ test_that("get_subset_inds works correctly",{
   resp3 <- ubmsResponse(y3, "binomial", "binomial", T)
   ind3 <- get_subset_inds(resp3)
   expect_equivalent(ind3, matrix(c(1,12,1,4,1,3), nrow=2))
-  
+
   resp4 <- ubmsResponse(y1, "binomial", "binomial", 1)
   ind4 <- get_subset_inds(resp4)
   expect_equivalent(ind4,
@@ -191,7 +192,7 @@ test_that("as_vector converts response object to y vec",{
   y <- matrix(c(1,NA,0,1,1,1,0,0,1), nrow=3, byrow=T)
   resp <- ubmsResponse(y, "binomial", "P")
   expect_equivalent(as_vector(resp), as.vector(t(y)))
-  expect_equivalent(as_vector(resp, na.rm=TRUE), 
+  expect_equivalent(as_vector(resp, na.rm=TRUE),
                     na.omit(as.vector(t(y))))
 })
 

@@ -22,11 +22,9 @@ setClass("ubmsResponse",
 ubmsResponse <- function(y, y_dist, z_dist, max_primary = 1, K=NULL){
   stopifnot(inherits(y, "matrix"))
   out <- new("ubmsResponse", y = y, y_dist= y_dist, z_dist = z_dist,
-          max_primary = max_primary,
-          max_obs = get_max_obs(y, max_primary),
-          K = get_K(y, K)
-      )
+          max_primary = max_primary, max_obs = get_max_obs(y, max_primary))
   out@missing <- is.na(as_vector(out))
+  out@K <- get_K(out, K)
   out
 }
 
@@ -38,12 +36,14 @@ get_max_obs <- function(y, max_primary){
   ncol(y) / max_primary
 }
 
-get_K <- function(y, K=NULL){
-  ymax <- max(y, na.rm=TRUE)
+setGeneric("get_K", function(object, K=NULL, ...) standardGeneric("get_K"))
+
+setMethod("get_K", "ubmsResponse", function(object, K=NULL){
+  ymax <- max(object@y, na.rm=TRUE)
   if(is.null(K)) return(ymax + 20)
   if(K < ymax) stop("K must be larger than max y value", call.=FALSE)
   K
-}
+})
 
 setMethod("t", "ubmsResponse", function(x){
   yt <- t(x@y)

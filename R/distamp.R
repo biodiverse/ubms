@@ -61,6 +61,7 @@ ubmsResponseDistsamp <- function(umf, z_dist, keyfun, output, units_out, K=NULL)
   max_primary <- ifelse(methods::.hasSlot(umf, "numPrimary"), umf@numPrimary, 1)
   out <- ubmsResponse(umf@y, "P", z_dist, max_primary, K)
   out <- as(out, "ubmsResponseDistsamp")
+  out@K <- get_K(out, K)
   out@survey <- umf@survey; out@keyfun <- keyfun; out@output <- output
   out@dist_breaks <- umf@dist.breaks; out@tlength <- umf@tlength
   out@units_in <- umf@unitsIn; out@units_out <- units_out
@@ -126,9 +127,83 @@ get_area_adjust <- function(resp){
   A
 }
 
+#There is some duplicate code with the base class
+#that could be cleaned up here maybe
+setMethod("get_K", "ubmsResponseDistsamp", function(object, K=NULL){
+  ysum <- rowSums(object@y, na.rm=TRUE)
+  ymax <- max(ysum, na.rm=TRUE)
+  if(is.null(K)) return(ymax + 50)
+  if(K < ymax) stop("K must be larger than max y value", call.=FALSE)
+  K
+})
+
+setMethod("get_Kmin", "ubmsResponseDistsamp", function(object){
+  yt <- t(object)
+  keep <- apply(yt, 2, function(x) !all(is.na(x)))
+
+  yt <- matrix(yt, nrow=object@max_obs)
+  out <- apply(yt, 2, function(x){
+            if(all(is.na(x))) return(0)
+            sum(x, na.rm=TRUE)
+          })
+  out <- matrix(out, ncol=object@max_primary, byrow=TRUE)
+  out[keep,,drop=FALSE]
+})
+
 #Goodness-of-fit---------------------------------------------------------------
 
 #Methods to simulate posterior predictive distributions------------------------
+
+setMethod("sim_z", "ubmsFitDistsamp", function(object, samples, re.form, K=NULL, ...){
+  resp <- object@response
+  y <- resp@y
+
+  lam_post <- t(sim_lp(object, "state", transform=TRUE, newdata=NULL,
+                       re.form=re.form, samples=samples))
+  if(resp@output == "density"){
+    lam_post <- lam_post * get_area_adjust(resp)
+  }
+  p_post <- get_p_for_multinom(object, samples)
+
+  K <- get_K(resp, K)
+  Kmin <- get_Kmin(resp)
+  kvals <- 0:K
+
+  t(simz_distsamp(y, lam_post, p_post, K, Kmin, kvals))
+})
+
+setMethod("sim_y", "ubmsFitDistsamp",
+          function(object, samples, re.form, z=NULL, K=NULL, ...){
+  nsamp <- length(samples)
+  M <- get_n_sites(object@response)
+  J <- object@response@max_obs
+  z <- process_z(object, samples, re.form, z)
+  p <- get_p_for_multinom(object, samples)
+
+  out <- array(NA, c(J,M, nsamp))
+  for (i in 1:nsamp){
+    for (m in 1:M){
+      out[,m,i] <- stats::rmultinom(n=1, size=z[m,i], prob=p[m,,i])[1:J]
+    }
+  }
+  matrix(out, nrow=nsamp, byrow=TRUE)
+})
+
+get_p_for_multinom <- function(object, samples){
+  M <- get_n_sites(object@response)
+  J <- object@response@max_obs
+  nsamp <- length(samples)
+  p_post_raw <- t(sim_p(object, samples=samples))
+  p_post_raw <- array(p_post_raw, c(J, M, nsamp))
+  p_post_raw <- aperm(p_post_raw, c(2,1,3))
+
+  p_post <- array(NA, c(M, J+1, nsamp))
+  for (i in 1:nsamp){
+    p_post[,1:J,i] <- p_post_raw[,1:J,i]
+    p_post[,J+1,i] <- 1 - rowSums(p_post_raw[,1:J,i], na.rm=TRUE)
+  }
+  p_post
+}
 
 #Get detection probability-----------------------------------------------------
 
@@ -156,6 +231,8 @@ setMethod("sim_p", "ubmsFitDistsamp", function(object, samples, ...){
   param2 <- NULL
   if(resp@keyfun=="halfnorm"){
     pfun <- ifelse(resp@survey=="line", distprob_normal_line, distprob_normal_point)
+  } else if(resp@keyfun == "exp"){
+    pfun <- ifelse(resp@survey=="line", distprob_exp_line, distprob_exp_point)
   }
   out <- sapply(1:length(samples), function(i){
     pfun(param1[i,], param2[i,], db, conv_const, inds)
@@ -165,10 +242,10 @@ setMethod("sim_p", "ubmsFitDistsamp", function(object, samples, ...){
 
 distprob_normal_line <- function(sigma, param2, db, conv_const, inds){
   out <- sapply(1:length(sigma), function(i){
-    int <-  pnorm(db[-1], 0, sd=sigma) - pnorm(db[-length(db)], 0, sd=sigma[i])
-    int <- int / dnorm(0, 0, sd=sigma[i])
-    if(!is.null(conv_const)) int <- int * conv_const[inds[i,1]:inds[i,2]]
-    int
+    int <-  stats::pnorm(db[-1], 0, sd=sigma[i]) -
+            stats::pnorm(db[-length(db)], 0, sd=sigma[i])
+    int <- int / stats::dnorm(0, 0, sd=sigma[i])
+    int * conv_const[inds[i,1]:inds[i,2]]
   })
   as.vector(out)
 }
@@ -178,6 +255,25 @@ distprob_normal_point <- function(sigma, param2, db, conv_const, inds){
     s2 <- sigma[i]^2
     a <- db[-1]; b <- db[-length(db)]
     int <- s2 * ((1 - exp(-a*a / (2*s2))) - (1-exp(-b*b / (2*s2))))
+    int * conv_const[inds[i,1]:inds[i,2]]
+  })
+  as.vector(out)
+}
+
+distprob_exp_line <- function(rate, param2, db, conv_const, inds){
+  out <- sapply(1:length(rate), function(i){
+    a <- db[-length(db)]; b <- db[-1];
+    int <- rate[i] * (exp(-a/rate[i]) - exp(-b/rate[i]))
+    int * conv_const[inds[i,1]:inds[i,2]]
+  })
+  as.vector(out)
+}
+
+distprob_exp_point <- function(rate, param2, db, conv_const, inds){
+  out <- sapply(1:length(rate), function(i){
+    a <- db[-length(db)]; b <- db[-1]
+    int <- rate[i] * exp(-a/rate[i]) * (a+rate[i]) -
+           rate[i] * exp(-b/rate[i]) * (b+rate[i])
     int * conv_const[inds[i,1]:inds[i,2]]
   })
   as.vector(out)

@@ -20,7 +20,7 @@ real int_halfnorm(real log_sigma, real a, real b, int point){
 }
 
 real int_negexp_point(real rate, real a, real b){
-  return rate * exp(-a/rate) * (a + rate) -
+  return rate * exp(-a/rate) * (a+rate) -
          rate * exp(-b/rate) * (b+rate);
 }
 
