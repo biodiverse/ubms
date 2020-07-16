@@ -279,6 +279,28 @@ distprob_exp_point <- function(rate, param2, db, conv_const, inds){
   as.vector(out)
 }
 
+#Method for fitted values------------------------------------------------------
+
+setMethod("sim_fitted", "ubmsFitDistsamp", function(object, submodel, samples, ...){
+  stopifnot(submodel %in% c("state", "det"))
+  if(submodel == "state"){
+    lp <- sim_lp(object, submodel, transform=TRUE, newdata=NULL, samples=samples,
+                        re.form=NULL)
+    if(object@response@output == "density"){
+      lp <- t(t(lp) * get_area_adjust(object@response))
+    }
+    return(lp)
+  }
+
+  p <- sim_p(object, samples=samples)
+  J <- object@response@max_obs
+  z <- sim_z(object, samples, re.form=NULL)
+  z <- z[, rep(1:ncol(z), each=J)]
+  out <- z * p
+  #out[z == 0] <- NA
+  out
+})
+
 #Histogram---------------------------------------------------------------------
 
 #' @importFrom graphics hist
