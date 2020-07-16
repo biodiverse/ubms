@@ -10,8 +10,9 @@ interface compatible with
 [unmarked](https://cran.r-project.org/web/packages/unmarked/index.html),
 but the model is fit using MCMC with [Stan](https://mc-stan.org/)
 instead of using maximum likelihood. Right now there are Stan versions
-of unmarked functions `occu`, `occuRN`, `colext`, and `pcount`
-(`stan_occu`, `stan_occuRN`, `stan_colext`, `stan_pcount`).
+of unmarked functions `occu`, `occuRN`, `colext`, `pcount`, and
+`distsamp` (`stan_occu`, `stan_occuRN`, `stan_colext`, `stan_pcount`,
+`stan_distsamp`).
 
 Advantages compared to `unmarked`:
 
@@ -69,22 +70,24 @@ options(mc.cores=3) #number of parallel cores to use
 (fm <- stan_occu(~x2 ~x1 + (1|group), umf, refresh=0))
 ```
 
+    ## Warning: Some Pareto k diagnostic values are slightly high. See help('pareto-k-diagnostic') for details.
+
     ## 
     ## Call:
     ## stan_occu(formula = ~x2 ~ x1 + (1 | group), data = umf, refresh = 0)
     ## 
-    ## Occupancy:
+    ## Occupancy (logit-scale):
     ##                 Estimate    SD   2.5%  97.5% n_eff  Rhat
-    ## (Intercept)        0.323 0.304 -0.293  0.905  1074 1.001
-    ## x1                -0.466 0.117 -0.695 -0.244  5627 0.999
-    ## sigma [1|group]    1.404 0.278  0.946  2.022  3014 1.002
+    ## (Intercept)        0.328 0.294 -0.244  0.909   997 1.003
+    ## x1                -0.466 0.115 -0.695 -0.248  5433 0.999
+    ## sigma [1|group]    1.397 0.286  0.936  2.074  2529 0.999
     ## 
-    ## Detection:
+    ## Detection (logit-scale):
     ##             Estimate     SD  2.5% 97.5% n_eff Rhat
-    ## (Intercept)    0.381 0.0591 0.266 0.496  6364    1
-    ## x2             0.587 0.0603 0.471 0.708  6832    1
+    ## (Intercept)    0.381 0.0622 0.259 0.503  6282    1
+    ## x2             0.588 0.0632 0.466 0.714  7106    1
     ## 
-    ## LOOIC: 2268.389
+    ## LOOIC: 2268.24
 
 Examine residuals for occupancy and detection submodels (following
 [Wright et al. 2019](https://doi.org/10.1002/ecy.2703)). Each panel
@@ -104,11 +107,19 @@ the MacKenzie-Bailey chi-square test:
 ```
 
     ## MacKenzie-Bailey Chi-square 
-    ## Point estimate = 30.054
-    ## Posterior predictive p = 0.482
+    ## Point estimate = 30.325
+    ## Posterior predictive p = 0.488
 
 ``` r
 plot(fm_fit)
 ```
 
 ![](README_figs/README-gof-1.png)<!-- -->
+
+Look at the marginal effect of `x2` on detection:
+
+``` r
+plot_marginal(fm, "det")
+```
+
+![](README_figs/README-marginal-1.png)<!-- -->
