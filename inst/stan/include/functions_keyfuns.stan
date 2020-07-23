@@ -39,12 +39,76 @@ real int_negexp(real log_rate, real a, real b, int point){
   return out;
 }
 
-real prob_dist(real par1, real par2, int keyfun, real a, real b, int point){
+//real p_hazard_line(real x, real xc, real[] theta, real[] x_r, int[] x_i){
+//  return(1 - exp(-1 * pow((x/theta[1]), (-1*theta[2]))));
+//}
+
+real p_hazard_line(real x, real[] theta){
+  return(1 - exp(-1 * pow((x/theta[1]), (-1*theta[2]))));
+}
+
+//real p_hazard_point(real x, real xc, real[] theta, real[] x_r, int[] x_i){
+//  return((1 - exp(-1 * pow(x/theta[1], -1*theta[2]))) * x);
+//}
+
+real p_hazard_point(real x, real[] theta){
+  return((1 - exp(-1 * pow(x/theta[1], -1*theta[2]))) * x);
+}
+
+real trap_rule_line(real[] theta, real a, real b){
+  int n = 100;
+  real h = (b - a) / n;
+
+  real int_sum = 0;
+  for (i in 1:(n-1)){
+    int_sum += p_hazard_line(a+i*h, theta);
+  }
+  return( h/2 * (p_hazard_line(a, theta) + 2*int_sum + p_hazard_line(b, theta)) );
+}
+
+real trap_rule_point(real[] theta, real a, real b){
+  int n = 100;
+  real h = (b - a) / n;
+
+  real int_sum = 0;
+  for (i in 1:(n-1)){
+    int_sum += p_hazard_point(a+i*h, theta);
+  }
+  return( h/2 * (p_hazard_point(a, theta) + 2*int_sum + p_hazard_point(b, theta)) );
+}
+
+
+real int_hazard(real log_shape, real log_scale, real a, real b, int point,
+                real[] x_r, int[] x_i){
+
+  real out;
+  real shape = exp(log_shape);
+  real scale = exp(log_scale);
+  real theta[2];
+  theta[1] = shape;
+  //theta[1] = exp(2.13);
+  theta[2] = scale;
+  //theta[2] = exp(0.315);
+
+  if(point){
+    out = trap_rule_point(theta, a, b);
+    //out = integrate_1d(p_hazard_point, a, b, {shape, scale}, x_r, x_i, 0.01);
+  } else{
+    out = trap_rule_line(theta, a, b);
+    //out = integrate_1d(p_hazard_line, a, b, {shape, scale}, x_r, x_i, 0.01);
+  }
+  return out;
+}
+
+real prob_dist(real par1, real par2, int keyfun, real a, real b, int point,
+               real[] x_r, int[] x_i){
   real out;
   if(keyfun == 0){
     out = int_halfnorm(par1, a, b, point);
   } else if(keyfun == 1){
     out = int_negexp(par1, a, b, point);
+  } else if(keyfun == 2){
+    out = int_hazard(par1, par2, a, b, point, x_r, x_i);
   }
   return out;
 }

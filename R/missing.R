@@ -44,6 +44,8 @@ find_missing <- function(response, submodels){
   sub_mm <- submodels@submodels
   #Don't include transition parameters when finding missing values
   sub_mm <- sub_mm[!sapply(sub_mm, inherits, "ubmsSubmodelTransition")]
+  #Don't include placeholder parmeters either
+  sub_mm <- sub_mm[!sapply(sub_mm, is_placeholder)]
   sub_mm <- lapply(sub_mm, expand_model_matrix, response)
   comb <- cbind(as_vector(response), do.call("cbind", sub_mm))
   apply(comb, 1, function(x) any(is.na(x)))

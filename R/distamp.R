@@ -22,7 +22,7 @@
 #'
 #' @seealso \code{\link{distsamp}}, \code{\link{unmarkedFrameDS}}
 #' @export
-stan_distsamp <- function(formula, data, keyfun=c("halfnorm", "exp"),
+stan_distsamp <- function(formula, data, keyfun=c("halfnorm", "exp", "hazard"),
                           output=c("density", "abund"), unitsOut=c("ha", "kmsq"),
                           ...){
 
@@ -32,12 +32,17 @@ stan_distsamp <- function(formula, data, keyfun=c("halfnorm", "exp"),
   unitsOut <- match.arg(unitsOut)
   output <- match.arg(output)
   state_param <- switch(output, density={"Density"}, abund={"Abundance"})
-  det_param <- switch(keyfun, halfnorm={"Scale"}, exp={"Rate"})
+  det_param <- switch(keyfun, halfnorm={"Scale"}, exp={"Rate"},
+                      hazard={"Shape"})
 
   response <- ubmsResponseDistsamp(data, "P", keyfun, output, unitsOut)
   state <- ubmsSubmodel(state_param, "state", siteCovs(umf), forms[[2]], "exp")
   det <- ubmsSubmodel(det_param, "det", siteCovs(umf), forms[[1]], "exp")
-  submodels <- ubmsSubmodelList(state, det)
+
+  scale <- placeholderSubmodel("scale")
+  if(keyfun=="hazard") scale <- ubmsSubmodelScalar("Scale", "scale", "exp")
+
+  submodels <- ubmsSubmodelList(state, det, scale)
 
   ubmsFit("distsamp", match.call(), data, response, submodels, ...)
 }
@@ -75,7 +80,7 @@ setMethod("get_stan_data", "ubmsResponseDistsamp", function(object, ...){
   c(out,
     list(point=ifelse(object@survey=="point",1,0),
     db=object@dist_breaks,
-    keyfun = switch(object@keyfun, halfnorm={0}, exp={1}),
+    keyfun = switch(object@keyfun, halfnorm={0}, exp={1}, hazard={2}),
     conv_const = get_conv_const(object)))
 })
 

@@ -15,6 +15,14 @@ vector[R] conv_const;
 
 }
 
+transformed data{
+
+ //Used in integration for hazard key function
+real x_r[0];
+int x_i[0];
+
+}
+
 parameters{
 
 #include /include/params_single_season.stan
@@ -42,7 +50,7 @@ if(has_random_det){
 }
 
 log_lik = get_loglik_distsamp(y, M, db, si, lp_state, lp_det, z_dist,
-                              beta_scale, point, keyfun, conv_const);
+                              beta_scale, point, keyfun, conv_const, x_r, x_i);
 
 }
 
