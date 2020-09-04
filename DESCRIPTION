@@ -50,6 +50,7 @@ Collate:
     'occuRN.R'
     'mb_chisq.R'
     'missing.R'
+    'multinomPois.R'
     'pcount.R'
     'plot_marginal.R'
     'posterior_linpred.R'

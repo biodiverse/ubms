@@ -10,7 +10,7 @@ int y[R];
 int si[M, 6];
 int K;
 int Kmin[M,T];
-//int y_dist;
+int y_dist;
 int z_dist;
 int has_random_state;
 int has_random_det;

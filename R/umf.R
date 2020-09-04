@@ -6,7 +6,7 @@ setMethod("process_umf", "unmarkedFrame", function(umf){
 
   nsites <- unmarked::numSites(umf)
   nprimary <- ifelse(methods::.hasSlot(umf, "numPrimary"), umf@numPrimary, 1)
-  nobs <- ncol(umf@y) / nprimary
+  nobs <- num_obs(umf)
 
   siteCovs(umf) <- process_covs(siteCovs(umf), nsites)
 
@@ -21,6 +21,17 @@ setMethod("process_umf", "unmarkedFrame", function(umf){
   }
 
   umf
+})
+
+setGeneric("num_obs", function(umf, ...) standardGeneric("num_obs"))
+
+setMethod("num_obs", "unmarkedFrame", function(umf){
+  nprimary <- ifelse(methods::.hasSlot(umf, "numPrimary"), umf@numPrimary, 1)
+  ncol(umf@y) / nprimary
+})
+
+setMethod("num_obs", "unmarkedFrameMPois", function(umf){
+  nrow(umf@obsToY)
 })
 
 process_covs <- function(covs, n_row, inherit=NULL){

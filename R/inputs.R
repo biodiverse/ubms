@@ -17,7 +17,7 @@
 
 name_to_modelcode <- function(name){
   list(model_code=switch(name, occu={0}, occuRN={1}, pcount={2}, colext={3},
-                         distsamp={4}))
+                         distsamp={4}, multinomPois={5}))
 }
 
 get_pars <- function(submodels){
@@ -42,7 +42,7 @@ setGeneric("get_stan_data", function(object, ...){
 #' @include response.R
 setMethod("get_stan_data", "ubmsResponse", function(object, ...){
   list(y = as_vector(object, na.rm=TRUE),
-       #y_dist = dist_code(object@y_dist),
+       y_dist = dist_code(object@y_dist),
        z_dist = dist_code(object@z_dist),
        M = get_n_sites(object),
        T = object@max_primary,
@@ -56,7 +56,7 @@ setMethod("get_stan_data", "ubmsResponse", function(object, ...){
 })
 
 dist_code <- function(dist){
-  switch(dist, binomial = {0}, P = {1}, NB = {2})
+  switch(dist, binomial = {0}, P = {1}, NB = {2}, double = {0}, removal = {1})
 }
 
 setMethod("get_stan_data", "ubmsSubmodelScalar", function(object, ...){
