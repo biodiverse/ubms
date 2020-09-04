@@ -56,7 +56,7 @@ vector get_loglik_multinomPois(int[] y, int M, int[,] si, vector log_lambda,
                                vector logit_p, int pi_type){
 
   vector[M] out;
-  int J = num_elements(logit_p) / M;
+  int J = num_elements(logit_p) / M; // use %/% in future version of stan
   int pstart = 1;
   int pend;
   for (i in 1:M){

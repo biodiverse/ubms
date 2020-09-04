@@ -66,14 +66,14 @@ setMethod("find_missing", "ubmsResponseMultinomPois",
   type <- object@y_dist
 
   y <- as_vector(object)
-  J <- get_n_sites(object)
+  M <- ncol(t(object))
   sc <- expand_model_matrix(submodels@submodels$state, object)
 
   if(type == "removal"){
     oc <- expand_model_matrix(submodels@submodels$det, object)
   } else if (type == "double"){
     oc <- model.matrix(submodels@submodels$det)
-    oc <- oc[rep(1:nrow(oc), rep(c(1,2), J)),]
+    oc <- oc[rep(1:nrow(oc), rep(c(1,2), M)),]
   }
 
   comb <- cbind(y, sc, oc)
