@@ -169,7 +169,7 @@ setMethod("sim_z", "ubmsFitDistsamp", function(object, samples, re.form, K=NULL,
   Kmin <- get_Kmin(resp)
   kvals <- 0:K
 
-  t(simz_distsamp(y, lam_post, p_post, K, Kmin, kvals))
+  t(simz_multinom(y, lam_post, p_post, K, Kmin, kvals))
 })
 
 setMethod("sim_y", "ubmsFitDistsamp",

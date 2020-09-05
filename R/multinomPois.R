@@ -1,7 +1,7 @@
 #' Multinomial-Poisson Mixture Model
 #'
-#' This function fits the multinomial-Poisson mixture model useful for
-#' data collected via survey methods such as removal or double observer sampling
+#' This function fits the multinomial-Poisson mixture model, useful for
+#' data collected via survey methods such as removal or double observer sampling.
 #'
 #' @param formula Double right-hand side formula describing covariates of
 #'  detection and abundance in that order
@@ -103,9 +103,59 @@ setMethod("update_missing", c("ubmsSubmodelList", "ubmsResponseMultinomPois"),
 
 #Goodness-of-fit---------------------------------------------------------------
 
-#' @include gof.R
-
 
 #Methods to simulate posterior predictive distributions------------------------
 
 #' @include posterior_predict.R
+setMethod("sim_z", "ubmsFitMultinomPois", function(object, samples, re.form, K=NULL, ...){
+  resp <- object@response
+  y <- resp@y
+
+  lam_post <- t(sim_lp(object, "state", transform=TRUE, newdata=NULL,
+                       re.form=re.form, samples=samples))
+  p_post <- get_pi_for_multinom(object, samples)
+
+  K <- get_K(resp, K)
+  Kmin <- get_Kmin(resp)
+  kvals <- 0:K
+
+  t(simz_multinom(y, lam_post, p_post, K, Kmin, kvals))
+})
+
+setMethod("sim_y", "ubmsFitMultinomPois",
+          function(object, samples, re.form, z=NULL, K=NULL, ...){
+  nsamp <- length(samples)
+  M <- get_n_sites(object@response)
+  J <- object@response@max_obs
+  z <- process_z(object, samples, re.form, z)
+  p <- get_pi_for_multinom(object, samples)
+
+  out <- array(NA, c(J, M, nsamp))
+  for (i in 1:nsamp){
+    for (m in 1:M){
+      out[,m,i] <- stats::rmultinom(n=1, size=z[m,i], prob=p[m,,i])[1:J]
+    }
+  }
+  matrix(out, nrow=nsamp, byrow=TRUE)
+})
+
+get_pi_for_multinom <- function(object, samples){
+  resp <- object@response
+  nsamp <- length(samples)
+  M <- get_n_sites(resp)
+  J <- resp@max_obs
+  pi_fun <- switch(resp@y_dist, double = unmarked::doublePiFun,
+                   removal = unmarked::removalPiFun)
+
+  p_raw <- t(sim_lp(object, "det", transform=TRUE, newdata=NULL,
+                  re.form=NULL, samples=samples))
+  p_raw <- array(p_raw, c(nrow(p_raw) / M, M, nsamp))
+  p_raw <- aperm(p_raw, c(2,1,3))
+
+  p_post <- array(NA, c(M, J+1, nsamp))
+  for (i in 1:nsamp){
+    p_post[,1:J,i] <- pi_fun(p_raw[,,i])
+    p_post[,J+1,i] <- 1 - rowSums(p_post[,1:J,i])
+  }
+  p_post
+}
