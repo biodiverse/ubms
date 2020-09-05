@@ -10,7 +10,7 @@ stan_multinomPois(formula, data, ...)
 \item{formula}{Double right-hand side formula describing covariates of
 detection and abundance in that order}
 
-\item{data}{A \code{\link{unmarkedFrameMultinomPois}} object}
+\item{data}{A \code{\link{unmarkedFrameMPois}} object}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}
@@ -19,9 +19,9 @@ number of chains \code{chains} or iterations \code{iter}}
 \code{ubmsFitMultinomPois} object describing the model fit.
 }
 \description{
-This function fits the multinomial-Poisson mixture model useful for
-data collected via survey methods such as removal or double observer sampling
+This function fits the multinomial-Poisson mixture model, useful for
+data collected via survey methods such as removal or double observer sampling.
 }
 \seealso{
-\code{\link{multinomPois}}, \code{\link{unmarkedFrameMultinomPois}}
+\code{\link{multinomPois}}, \code{\link{unmarkedFrameMPois}}
 }

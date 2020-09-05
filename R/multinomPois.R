@@ -5,13 +5,13 @@
 #'
 #' @param formula Double right-hand side formula describing covariates of
 #'  detection and abundance in that order
-#' @param data A \code{\link{unmarkedFrameMultinomPois}} object
+#' @param data A \code{\link{unmarkedFrameMPois}} object
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
 #' @return \code{ubmsFitMultinomPois} object describing the model fit.
 #'
-#' @seealso \code{\link{multinomPois}}, \code{\link{unmarkedFrameMultinomPois}}
+#' @seealso \code{\link{multinomPois}}, \code{\link{unmarkedFrameMPois}}
 #' @export
 stan_multinomPois <- function(formula, data, ...){
 
