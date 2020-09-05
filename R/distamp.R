@@ -216,8 +216,7 @@ setMethod("getP", "ubmsFitDistsamp", function(object, draws=NULL, ...){
   aperm(praw, c(2,1,3))
 })
 
-setGeneric("sim_p", function(object, samples, ...) standardGeneric("sim_p"))
-
+#' @include posterior_linpred.R
 setMethod("sim_p", "ubmsFitDistsamp", function(object, samples, ...){
   resp <- object@response
   resp@output <- "abund" #Don't adjust for area

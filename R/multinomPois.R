@@ -159,3 +159,44 @@ get_pi_for_multinom <- function(object, samples){
   }
   p_post
 }
+
+
+#Get detection probability-----------------------------------------------------
+
+#' @importFrom unmarked getP
+setMethod("getP", "ubmsFitMultinomPois", function(object, draws=NULL, ...){
+  samples <- get_samples(object, draws)
+  resp <- object@response
+  praw <- t(sim_p(object, samples))
+  praw <- array(praw, c(resp@max_obs, get_n_sites(resp), length(samples)))
+  aperm(praw, c(2,1,3))
+})
+
+#' @include posterior_linpred.R
+setMethod("sim_p", "ubmsFitMultinomPois", function(object, samples, ...){
+
+  J <- object@response@max_obs
+  p_array <- get_pi_for_multinom(object, samples)[,1:J,]
+  p_array <- aperm(p_array, c(2,1,3))
+  p_mat <- matrix(p_array, ncol=length(samples))
+  t(p_mat)
+})
+
+
+#Method for fitted values------------------------------------------------------
+
+setMethod("sim_fitted", "ubmsFitMultinomPois", function(object, submodel, samples, ...){
+  stopifnot(submodel %in% c("state", "det"))
+  if(submodel == "state"){
+    lp <- sim_lp(object, submodel, transform=TRUE, newdata=NULL,
+                 samples=samples, re.form=NULL)
+    return(lp)
+  }
+
+  p <- sim_p(object, samples=samples)
+  J <- object@response@max_obs
+  z <- sim_z(object, samples, re.form=NULL)
+  z <- z[, rep(1:ncol(z), each=J)]
+  out <- z * p
+  out
+})
