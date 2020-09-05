@@ -10,20 +10,26 @@ interface compatible with
 [unmarked](https://cran.r-project.org/web/packages/unmarked/index.html),
 but the model is fit using MCMC with [Stan](https://mc-stan.org/)
 instead of using maximum likelihood. Right now there are Stan versions
-of unmarked functions `occu`, `occuRN`, `colext`, `pcount`, and
-`distsamp` (`stan_occu`, `stan_occuRN`, `stan_colext`, `stan_pcount`,
-`stan_distsamp`).
+of unmarked functions `occu`, `occuRN`, `colext`, `pcount`, `distsamp`,
+and `multinomPois`. These functions follow the `stan_` prefix naming
+format established by
+[rstanarm](https://cran.r-project.org/web/packages/rstanarm/index.html).
+For example, the Stan version of the `unmarked` function `occu` is
+`stan_occu`.
 
 Advantages compared to `unmarked`:
 
 1.  Obtain posterior distributions of parameters and derived parameters
 2.  Include random effects in parameter formulas (same syntax as `lme4`)
+3.  Assess model fit using WAIC and LOO via the
+    [loo](https://cran.r-project.org/web/packages/loo/index.html)
+    package
 
 Disadvantages compared to `unmarked`:
 
 1.  MCMC is slower than maximum likelihood
-2.  Limited selection of model types
-3.  Potential convergence issues
+2.  Not all model types are supported
+3.  Potential for convergence issues
 
 ### Example
 
@@ -107,8 +113,8 @@ the MacKenzie-Bailey chi-square test:
 ```
 
     ## MacKenzie-Bailey Chi-square 
-    ## Point estimate = 30.325
-    ## Posterior predictive p = 0.488
+    ## Point estimate = 30.381
+    ## Posterior predictive p = 0.482
 
 ``` r
 plot(fm_fit)
