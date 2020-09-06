@@ -109,7 +109,8 @@ setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
 
   for (i in 1:nsamp){
     psi <- psi_post[unkZ, i, drop=FALSE]
-    qT <- apply(q_post[unkZ,,i,drop=FALSE],1, prod)
+    qT <- apply(q_post[unkZ,,i,drop=FALSE], 1,
+                function(x) ifelse(all(is.na(x)), NA, prod(x, na.rm=TRUE)))
     psi_con <- psi * qT / (psi * qT + (1-psi))
     to_sim <- unkZ[!is.na(psi_con)]
     z_post[to_sim, i] <- rbinom(length(to_sim),1,psi_con[!is.na(psi_con)])
