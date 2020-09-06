@@ -2,6 +2,7 @@
 % Please edit documentation in R/ubmsFit-methods.R
 \name{ubmsFit-methods}
 \alias{ubmsFit-methods}
+\alias{coef,ubmsFit-method}
 \alias{plot,ubmsFit,ANY-method}
 \alias{[,ubmsFit,character,missing,missing-method}
 \alias{nsamples,ubmsFit-method}
@@ -14,6 +15,8 @@ These methods are similar to methods defined for objects of class \code{lm},
 separately. Links to those pages are provided in the \strong{See Also}
 section below.}
 \usage{
+\S4method{coef}{ubmsFit}(object, ...)
+
 \S4method{plot}{ubmsFit,ANY}(x, y, ...)
 
 \S4method{[}{ubmsFit,character,missing,missing}(x, i)
@@ -27,11 +30,11 @@ section below.}
 \S4method{waic}{ubmsFit}(x, ...)
 }
 \arguments{
-\item{y}{Currently ignored}
+\item{object, x}{A fitted model of class \code{ubmsFit}}
 
 \item{...}{Currently ignored}
 
-\item{object, x}{A fitted model of class \code{ubmsFit}}
+\item{y}{Currently ignored}
 
 \item{submodel, i}{A submodel, e.g. \code{"det"} for the detection model}
 

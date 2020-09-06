@@ -23,6 +23,19 @@
 NULL
 
 #' @rdname ubmsFit-methods
+#' @importFrom stats coef
+#' @export
+setMethod("coef", "ubmsFit", function(object, ...){
+  sapply(submodel_types(object), function(x){
+    s <- summary(object, x)
+    out <- s$mean
+    names(out) <- paste0(object[x]@type,"[",rownames(s),"]")
+    out
+  }, USE.NAMES=FALSE)
+})
+
+
+#' @rdname ubmsFit-methods
 #' @importFrom gridExtra grid.arrange
 #' @export
 setMethod("plot", "ubmsFit", function(x, ...){
