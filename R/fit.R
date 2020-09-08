@@ -42,7 +42,7 @@ fit_model <- function(name, response, submodels, ...){
 
 name_to_stanmodel <- function(name){
   if(name == "colext") return("colext")
-  if(name == "distsamp") return("distsamp")
+  #if(name == "distsamp") return("distsamp")
   return("single_season")
 }
 

@@ -12,6 +12,13 @@ int K;
 int Kmin[M,T];
 int y_dist;
 int z_dist;
+int n_aux1;
+int n_aux2;
+int n_aux3;
+int aux1[n_aux1]; //Used for various auxiliary data
+vector[n_aux2] aux2;
+vector[n_aux3] aux3;
+
 int has_random_state;
 int has_random_det;
 int n_obs_state;
