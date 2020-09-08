@@ -52,6 +52,8 @@ setMethod("[", c("ubmsFit", "character", "missing", "missing"),
 })
 
 
+#' @rdname ubmsFit-methods
+#' @export
 setMethod("names", "ubmsFit", function(x){
   out <- names(x@stanfit)
   out[!grepl("log_lik\\[|lp__", out)]
@@ -109,7 +111,7 @@ setMethod("summary", "ubmsFit", function(object, submodel, ...){
   out
 })
 
-#' rdname ubmsFit-methods
+#' @rdname ubmsFit-methods
 #' @importFrom unmarked getY
 #' @export
 setMethod("getY", "ubmsFit", function(object){
