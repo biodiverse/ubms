@@ -37,7 +37,8 @@ test_that("get_stan_data pulls necessary info from response object",{
   dat <- get_stan_data(resp)
   expect_is(dat, "list")
   expect_equal(names(dat), c("y", "y_dist", "z_dist", "M", "T", "Tsamp",
-                             "Tsamp_size", "J", "R", "si", "K", "Kmin"))
+                             "Tsamp_size", "J", "R", "si", "K", "Kmin",
+                             "aux1","aux2","aux3","n_aux1","n_aux2","n_aux3"))
   expect_equal(dat$y, as.vector(t(y)))
   expect_equal(dat$y_dist, 0)
   expect_equal(dat$z_dist, 1)
