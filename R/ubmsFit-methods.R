@@ -51,6 +51,13 @@ setMethod("[", c("ubmsFit", "character", "missing", "missing"),
   x@submodels[i]
 })
 
+
+setMethod("names", "ubmsFit", function(x){
+  out <- names(x@stanfit)
+  out[!grepl("log_lik\\[|lp__", out)]
+})
+
+
 #' @rdname ubmsFit-methods
 #' @importFrom rstantools nsamples
 #' @export
@@ -100,6 +107,13 @@ setMethod("summary", "ubmsFit", function(object, submodel, ...){
     out <- rbind(out, random)
   }
   out
+})
+
+#' rdname ubmsFit-methods
+#' @importFrom unmarked getY
+#' @export
+setMethod("getY", "ubmsFit", function(object){
+  object@data@y
 })
 
 #' @rdname ubmsFit-methods
