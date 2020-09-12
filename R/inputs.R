@@ -41,23 +41,34 @@ setGeneric("get_stan_data", function(object, ...){
 
 #' @include response.R
 setMethod("get_stan_data", "ubmsResponse", function(object, ...){
-  list(y = as_vector(object, na.rm=TRUE),
-       y_dist = dist_code(object@y_dist),
-       z_dist = dist_code(object@z_dist),
-       M = get_n_sites(object),
-       T = object@max_primary,
-       Tsamp = which_per_sampled(object),
-       Tsamp_size = length(which_per_sampled(object)),
-       J = get_n_obs(object),
-       R = sum(get_n_obs(object)),
-       si = get_subset_inds(object),
-       K = object@K,
-       Kmin = get_Kmin(object))
+  out <- list(y = as_vector(object, na.rm=TRUE),
+              y_dist = dist_code(object@y_dist),
+              z_dist = dist_code(object@z_dist),
+              M = get_n_sites(object),
+              T = object@max_primary,
+              Tsamp = which_per_sampled(object),
+              Tsamp_size = length(which_per_sampled(object)),
+              J = get_n_obs(object),
+              R = sum(get_n_obs(object)),
+              si = get_subset_inds(object),
+              K = object@K,
+              Kmin = get_Kmin(object))
+  c(out, get_auxiliary_data(object))
 })
 
 dist_code <- function(dist){
-  switch(dist, binomial = {0}, P = {1}, NB = {2}, double = {0}, removal = {1})
+  switch(dist, binomial = {0}, P = {1}, NB = {2}, double = {0}, removal = {1},
+         halfnorm={0}, exp={1}
+  )
 }
+
+setGeneric("get_auxiliary_data", function(object, ...){
+             standardGeneric("get_auxiliary_data")})
+
+setMethod("get_auxiliary_data", "ubmsResponse", function(object, ...){
+  list(aux1=numeric(0), aux2=numeric(0), aux3=numeric(0),
+       n_aux1=0, n_aux2=0, n_aux3=0)
+})
 
 setMethod("get_stan_data", "ubmsSubmodelScalar", function(object, ...){
   list()
