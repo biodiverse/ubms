@@ -7,7 +7,7 @@
 stan_distsamp(
   formula,
   data,
-  keyfun = c("halfnorm", "exp"),
+  keyfun = c("halfnorm", "exp", "hazard"),
   output = c("density", "abund"),
   unitsOut = c("ha", "kmsq"),
   ...
@@ -20,12 +20,13 @@ detection and occupancy in that order}
 \item{data}{A \code{\link{unmarkedFrameDS}} object}
 
 \item{keyfun}{One of the following detection functions:
-\code{"halfnorm"} for half-normal or \code{"exp"} for negative exponential}
+\code{"halfnorm"} for half-normal, \code{"exp"} for negative exponential,
+or \code{"hazard"} for hazard-rate (see warning below)}
 
 \item{output}{Model either density \code{"density"} or abundance \code{"abund"}}
 
 \item{unitsOut}{Units of density. Either \code{"ha"} or \code{"kmsq"} for
-hectares and square kilometers, respectively.}
+hectares and square kilometers, respectively}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}
@@ -38,6 +39,15 @@ This function fits the hierarchical distance sampling model of Royle
 et al. (2004) to line or point transect data recorded in discerete
 distance intervals.
 }
+\section{Warning}{
+ Use of the hazard-rate key function (\code{"hazard"})
+ typically requires a large sample size in order to get good parameter
+ estimates. If you have a relatively small number of points/transects (<100),
+ you should be cautious with the resulting models. Check your results against
+ estimates from \code{unmarked}, which doesn't require as much data to get
+ good estimates of the hazard-rate shape and scale parameters.
+}
+
 \references{
 Royle, J. A., Dawson, D. K., & Bates, S. (2004). Modeling
  abundance effects in distance sampling. Ecology 85: 1591-1597.

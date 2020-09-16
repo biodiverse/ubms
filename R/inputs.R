@@ -58,7 +58,7 @@ setMethod("get_stan_data", "ubmsResponse", function(object, ...){
 
 dist_code <- function(dist){
   switch(dist, binomial = {0}, P = {1}, NB = {2}, double = {0}, removal = {1},
-         halfnorm={0}, exp={1}
+         halfnorm={0}, exp={1}, hazard={2}
   )
 }
 

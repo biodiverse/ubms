@@ -8,21 +8,29 @@
 #'  detection and occupancy in that order
 #' @param data A \code{\link{unmarkedFrameDS}} object
 #' @param keyfun One of the following detection functions:
-#'  \code{"halfnorm"} for half-normal or \code{"exp"} for negative exponential
+#'  \code{"halfnorm"} for half-normal, \code{"exp"} for negative exponential,
+#'  or \code{"hazard"} for hazard-rate (see warning below)
 #' @param output Model either density \code{"density"} or abundance \code{"abund"}
 #' @param unitsOut Units of density. Either \code{"ha"} or \code{"kmsq"} for
-#'  hectares and square kilometers, respectively.
+#'  hectares and square kilometers, respectively
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
 #' @return \code{ubmsFitDistsamp} object describing the model fit.
+#'
+#' @section Warning: Use of the hazard-rate key function (\code{"hazard"})
+#'  typically requires a large sample size in order to get good parameter
+#'  estimates. If you have a relatively small number of points/transects (<100),
+#'  you should be cautious with the resulting models. Check your results against
+#'  estimates from \code{unmarked}, which doesn't require as much data to get
+#'  good estimates of the hazard-rate shape and scale parameters.
 #'
 #' @references Royle, J. A., Dawson, D. K., & Bates, S. (2004). Modeling
 #'  abundance effects in distance sampling. Ecology 85: 1591-1597.
 #'
 #' @seealso \code{\link{distsamp}}, \code{\link{unmarkedFrameDS}}
 #' @export
-stan_distsamp <- function(formula, data, keyfun=c("halfnorm", "exp"),
+stan_distsamp <- function(formula, data, keyfun=c("halfnorm", "exp", "hazard"),
                           output=c("density", "abund"), unitsOut=c("ha", "kmsq"),
                           ...){
 
@@ -32,12 +40,21 @@ stan_distsamp <- function(formula, data, keyfun=c("halfnorm", "exp"),
   unitsOut <- match.arg(unitsOut)
   output <- match.arg(output)
   state_param <- switch(output, density={"Density"}, abund={"Abundance"})
-  det_param <- switch(keyfun, halfnorm={"Scale"}, exp={"Rate"})
+  det_param <- switch(keyfun, halfnorm={"Scale"}, exp={"Rate"},
+                      hazard={"Shape"})
 
   response <- ubmsResponseDistsamp(data, keyfun, "P", output, unitsOut)
   state <- ubmsSubmodel(state_param, "state", siteCovs(umf), forms[[2]], "exp")
   det <- ubmsSubmodel(det_param, "det", siteCovs(umf), forms[[1]], "exp")
-  submodels <- ubmsSubmodelList(state, det)
+
+  scale <- placeholderSubmodel("scale")
+  if(keyfun=="hazard"){
+    warning("Hazard key function may perform poorly with small sample sizes",
+            call.=FALSE)
+    scale <- ubmsSubmodelScalar("Scale", "scale", "exp")
+  }
+
+  submodels <- ubmsSubmodelList(state, det, scale)
 
   ubmsFit("distsamp", match.call(), data, response, submodels, ...)
 }
@@ -222,6 +239,7 @@ setMethod("getP", "ubmsFitDistsamp", function(object, draws=NULL, ...){
 })
 
 #' @include posterior_linpred.R
+
 setMethod("sim_p", "ubmsFitDistsamp", function(object, samples, ...){
   resp <- object@response
   resp@output <- "abund" #Don't adjust for area
@@ -237,9 +255,13 @@ setMethod("sim_p", "ubmsFitDistsamp", function(object, samples, ...){
     pfun <- ifelse(resp@survey=="line", distprob_normal_line, distprob_normal_point)
   } else if(resp@y_dist == "exp"){
     pfun <- ifelse(resp@survey=="line", distprob_exp_line, distprob_exp_point)
+  } else if(resp@y_dist == "hazard"){
+    param2 <- sim_lp(object, "scale", transform=TRUE, newdata=NULL,
+                     samples=samples, re.form=NULL)
+    pfun <- ifelse(resp@survey=="line", distprob_haz_line, distprob_haz_point)
   }
   out <- sapply(1:length(samples), function(i){
-    pfun(param1[i,], param2[i,], db, conv_const, inds)
+    pfun(param1[i,], param2[i,1], db, conv_const, inds)
   })
   t(out)
 })
@@ -283,6 +305,31 @@ distprob_exp_point <- function(rate, param2, db, conv_const, inds){
   as.vector(out)
 }
 
+distprob_haz_line <- function(shape, scale, db, conv_const, inds){
+  out <- sapply(1:length(shape), function(i){
+    a <- db[-length(db)]; b <- db[-1];
+    int <- numeric(length(a))
+    for (j in 1:length(int)){
+      int[j] <- stats::integrate(unmarked::gxhaz, a[j], b[j], shape=shape[i], scale=scale[1])$value
+    }
+    int * conv_const[inds[i,1]:inds[i,2]]
+  })
+  as.vector(out)
+}
+
+distprob_haz_point <- function(shape, scale, db, conv_const, inds){
+  out <- sapply(1:length(shape), function(i){
+    a <- db[-length(db)]; b <- db[-1]
+    int <- numeric(length(a))
+    for (j in 1:length(int)){
+      int[j] <- stats::integrate(unmarked::grhaz, a[j], b[j],
+                                 shape=shape[i], scale=scale)$value
+    }
+    int * conv_const[inds[i,1]:inds[i,2]]
+  })
+  as.vector(out)
+}
+
 #Method for fitted values------------------------------------------------------
 
 setMethod("sim_fitted", "ubmsFitDistsamp", function(object, submodel, samples, ...){
@@ -317,6 +364,15 @@ setMethod("hist", "ubmsFitDistsamp", function(x, draws=30, ...){
   out <- ggplot(hist_data, aes_string(x="x")) +
     geom_histogram(aes_string(y="..density.."),fill='transparent',
                    col='black',breaks=x@response@dist_breaks)
+
+  #Adjust the histogram height to match the density line
+  bar_height <- ggplot2::ggplot_build(out)$data[[1]]$y[1]
+  adj_factor <- max(mean_line$val, na.rm=TRUE) / bar_height
+
+  out <- ggplot(hist_data, aes_string(x="x")) +
+    geom_histogram(aes_string(y=paste0("..density..*",adj_factor)),fill='transparent',
+                   col='black',breaks=x@response@dist_breaks)
+
   if(draws > 0){
     sample_lines <- get_sample_lines(x, samples)
     out <- out +
@@ -346,7 +402,13 @@ get_mean_line <- function(fit){
   if(nrow(par1) > 1) warning("Ignoring covariate effects", call.=FALSE)
   par1 <- exp(par1[1,1])
   detfun <- get_detfun(fit)
-  data.frame(x=xseq, val=detfun(xseq, par1))
+  if(fit@response@y_dist == "hazard"){
+    par2 <- exp(summary(fit, "scale")[1,1])
+    val <- detfun(xseq, par1, par2)
+  } else {
+    val <- detfun(xseq, par1)
+  }
+  data.frame(x=xseq, val=val)
 }
 
 get_sample_lines <- function(fit, samples){
@@ -354,10 +416,21 @@ get_sample_lines <- function(fit, samples){
   xseq <- seq(db[1], db[length(db)], length.out=1000)
   par1 <- exp(extract(fit, "beta_det")[[1]][,1])
   detfun <- get_detfun(fit)
-  sample_lines <- lapply(samples, function(i){
-                         data.frame(x=xseq, val=detfun(xseq, par1[i]),ind=i)
+  df_try <- function(...){
+    tryCatch(detfun(...), error=function(e) NA)
+  }
+  if(fit@response@y_dist=="hazard"){
+    par2 <- exp(extract(fit, "beta_scale")[[1]])
+    sample_lines <- lapply(samples, function(i){
+                         data.frame(x=xseq, val=df_try(xseq, par1[i], par2[i]),ind=i)
                       })
-  do.call("rbind", sample_lines)
+  } else {
+    sample_lines <- lapply(samples, function(i){
+                         data.frame(x=xseq, val=df_try(xseq, par1[i]),ind=i)
+                      })
+  }
+  out <- do.call("rbind", sample_lines)
+  out[!is.na(out$val),]
 }
 
 get_detfun <- function(fit){
@@ -366,6 +439,8 @@ get_detfun <- function(fit){
     out <- ifelse(resp@survey=="line", unmarked::dxhn, unmarked::drhn)
   } else if(resp@y_dist == "exp"){
     out <- ifelse(resp@survey=="line", unmarked::dxexp, unmarked::drexp)
+  } else if(resp@y_dist == "hazard"){
+    out <- ifelse(resp@survey=="line", unmarked::dxhaz, unmarked::drhaz)
   }
   out
 }

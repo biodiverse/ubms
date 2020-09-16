@@ -15,14 +15,12 @@ real lp_distsamp(int[] y, vector db, real log_lambda, real par1, real par2,
 
 vector get_loglik_distsamp(int[] y, int M, vector db, int[,] si,
                            vector log_lambda, vector trans_par1, int z_dist,
-                           real trans_par2, int point, int keyfun,
-                           vector conv_const){
+                           real trans_par2, int point, int keyfun, vector conv_const){
 
   vector[M] out;
   for (i in 1:M){
     out[i] = lp_distsamp(y[si[i,1]:si[i,2]], db, log_lambda[i], trans_par1[i],
-                         trans_par2, point, keyfun,
-                         conv_const[si[i,1]:si[i,2]]);
+                         trans_par2, point, keyfun, conv_const[si[i,1]:si[i,2]]);
   }
   return out;
 }

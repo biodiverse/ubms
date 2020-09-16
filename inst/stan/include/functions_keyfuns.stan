@@ -39,12 +39,70 @@ real int_negexp(real log_rate, real a, real b, int point){
   return out;
 }
 
+//real p_hazard_line(real x, real xc, real[] theta, real[] x_r, int[] x_i){
+//  return(1 - exp(-1 * pow((x/theta[1]), (-1*theta[2]))));
+//}
+
+real p_hazard_line(real x, real[] theta){
+  return(1 - exp(-1 * pow((x/theta[1]), (-1*theta[2]))));
+}
+
+//real p_hazard_point(real x, real xc, real[] theta, real[] x_r, int[] x_i){
+//  return((1 - exp(-1 * pow(x/theta[1], -1*theta[2]))) * x);
+//}
+
+real p_hazard_point(real x, real[] theta){
+  return((1 - exp(-1 * pow(x/theta[1], -1*theta[2]))) * x);
+}
+
+real trap_rule_line(real[] theta, real a, real b){
+  int n = 100;
+  real h = (b - a) / n;
+
+  real int_sum = 0;
+  for (i in 1:(n-1)){
+    int_sum += p_hazard_line(a+i*h, theta);
+  }
+  return h/2 * (p_hazard_line(a, theta) + 2*int_sum + p_hazard_line(b, theta));
+}
+
+real trap_rule_point(real[] theta, real a, real b){
+  int n = 100;
+  real h = (b - a) / n;
+
+  real int_sum = 0;
+  for (i in 1:(n-1)){
+    int_sum += p_hazard_point(a+i*h, theta);
+  }
+  return( h/2 * (p_hazard_point(a, theta) + 2*int_sum + p_hazard_point(b, theta)) );
+}
+
+
+real int_hazard(real log_shape, real log_scale, real a, real b, int point){
+
+  real out;
+  real shape = exp(log_shape);
+  real scale = exp(log_scale);
+  real theta[2];
+  theta[1] = shape;
+  theta[2] = scale;
+
+  if(point){
+    out = trap_rule_point(theta, a, b);
+  } else{
+    out = trap_rule_line(theta, a, b);
+  }
+  return out;
+}
+
 real prob_dist(real par1, real par2, int keyfun, real a, real b, int point){
   real out;
   if(keyfun == 0){
     out = int_halfnorm(par1, a, b, point);
   } else if(keyfun == 1){
     out = int_negexp(par1, a, b, point);
+  } else if(keyfun == 2){
+    out = int_hazard(par1, par2, a, b, point);
   }
   return out;
 }

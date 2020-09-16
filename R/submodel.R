@@ -46,7 +46,8 @@ drop_final_year <- function(yr_df, nprimary){
 setClass("ubmsSubmodelScalar", contains = "ubmsSubmodel")
 
 ubmsSubmodelScalar <- function(name, type, link){
-  ubmsSubmodel(name, type, data.frame(1), ~1, link)
+  out <- ubmsSubmodel(name, type, data.frame(1), ~1, link)
+  as(out, "ubmsSubmodelScalar")
 }
 
 placeholderSubmodel <- function(type){
