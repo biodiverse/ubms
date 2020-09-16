@@ -63,7 +63,7 @@ real trap_rule_line(real[] theta, real a, real b){
   for (i in 1:(n-1)){
     int_sum += p_hazard_line(a+i*h, theta);
   }
-  return( h/2 * (p_hazard_line(a, theta) + 2*int_sum + p_hazard_line(b, theta)) );
+  return h/2 * (p_hazard_line(a, theta) + 2*int_sum + p_hazard_line(b, theta));
 }
 
 real trap_rule_point(real[] theta, real a, real b){

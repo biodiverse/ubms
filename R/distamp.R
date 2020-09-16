@@ -318,6 +318,15 @@ setMethod("hist", "ubmsFitDistsamp", function(x, draws=30, ...){
   out <- ggplot(hist_data, aes_string(x="x")) +
     geom_histogram(aes_string(y="..density.."),fill='transparent',
                    col='black',breaks=x@response@dist_breaks)
+
+  #Adjust the histogram height to match the density line
+  bar_height <- ggplot2::ggplot_build(out)$data[[1]]$y[1]
+  adj_factor <- max(mean_line$val, na.rm=TRUE) / bar_height
+
+  out <- ggplot(hist_data, aes_string(x="x")) +
+    geom_histogram(aes_string(y=paste0("..density..*",adj_factor)),fill='transparent',
+                   col='black',breaks=x@response@dist_breaks)
+
   if(draws > 0){
     sample_lines <- get_sample_lines(x, samples)
     out <- out +
@@ -347,7 +356,13 @@ get_mean_line <- function(fit){
   if(nrow(par1) > 1) warning("Ignoring covariate effects", call.=FALSE)
   par1 <- exp(par1[1,1])
   detfun <- get_detfun(fit)
-  data.frame(x=xseq, val=detfun(xseq, par1))
+  if(fit@response@keyfun == "hazard"){
+    par2 <- exp(summary(fit, "scale")[1,1])
+    val <- detfun(xseq, par1, par2)
+  } else {
+    val <- detfun(xseq, par1)
+  }
+  data.frame(x=xseq, val=val)
 }
 
 get_sample_lines <- function(fit, samples){
@@ -355,10 +370,21 @@ get_sample_lines <- function(fit, samples){
   xseq <- seq(db[1], db[length(db)], length.out=1000)
   par1 <- exp(extract(fit, "beta_det")[[1]][,1])
   detfun <- get_detfun(fit)
-  sample_lines <- lapply(samples, function(i){
-                         data.frame(x=xseq, val=detfun(xseq, par1[i]),ind=i)
+  df_try <- function(...){
+    tryCatch(detfun(...), error=function(e) NA)
+  }
+  if(fit@response@keyfun=="hazard"){
+    par2 <- exp(extract(fit, "beta_scale")[[1]])
+    sample_lines <- lapply(samples, function(i){
+                         data.frame(x=xseq, val=df_try(xseq, par1[i], par2[i]),ind=i)
                       })
-  do.call("rbind", sample_lines)
+  } else {
+    sample_lines <- lapply(samples, function(i){
+                         data.frame(x=xseq, val=df_try(xseq, par1[i]),ind=i)
+                      })
+  }
+  out <- do.call("rbind", sample_lines)
+  out[!is.na(out$val),]
 }
 
 get_detfun <- function(fit){
@@ -367,6 +393,8 @@ get_detfun <- function(fit){
     out <- ifelse(resp@survey=="line", unmarked::dxhn, unmarked::drhn)
   } else if(resp@keyfun == "exp"){
     out <- ifelse(resp@survey=="line", unmarked::dxexp, unmarked::drexp)
+  } else if(resp@keyfun == "hazard"){
+    out <- ifelse(resp@survey=="line", unmarked::dxhaz, unmarked::drhaz)
   }
   out
 }
