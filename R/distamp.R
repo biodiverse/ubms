@@ -8,14 +8,22 @@
 #'  detection and occupancy in that order
 #' @param data A \code{\link{unmarkedFrameDS}} object
 #' @param keyfun One of the following detection functions:
-#'  \code{"halfnorm"} for half-normal or \code{"exp"} for negative exponential
+#'  \code{"halfnorm"} for half-normal, \code{"exp"} for negative exponential,
+#'  or \code{"hazard"} for hazard-rate (see warning below)
 #' @param output Model either density \code{"density"} or abundance \code{"abund"}
 #' @param unitsOut Units of density. Either \code{"ha"} or \code{"kmsq"} for
-#'  hectares and square kilometers, respectively.
+#'  hectares and square kilometers, respectively
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
 #' @return \code{ubmsFitDistsamp} object describing the model fit.
+#'
+#' @section Warning: Use of the hazard-rate key function (\code{"hazard"})
+#'  typically requires a large sample size in order to get good parameter
+#'  estimates. If you have a relatively small number of points/transects (<100),
+#'  you should be cautious with the resulting models. Check your results against
+#'  estimates from \code{unmarked}, which doesn't require as much data to get
+#'  good estimates of the hazard-rate shape and scale parameters.
 #'
 #' @references Royle, J. A., Dawson, D. K., & Bates, S. (2004). Modeling
 #'  abundance effects in distance sampling. Ecology 85: 1591-1597.
@@ -40,7 +48,11 @@ stan_distsamp <- function(formula, data, keyfun=c("halfnorm", "exp", "hazard"),
   det <- ubmsSubmodel(det_param, "det", siteCovs(umf), forms[[1]], "exp")
 
   scale <- placeholderSubmodel("scale")
-  if(keyfun=="hazard") scale <- ubmsSubmodelScalar("Scale", "scale", "exp")
+  if(keyfun=="hazard"){
+    warning("Hazard key function may perform poorly with small sample sizes",
+            call.=FALSE)
+    scale <- ubmsSubmodelScalar("Scale", "scale", "exp")
+  }
 
   submodels <- ubmsSubmodelList(state, det, scale)
 
@@ -227,6 +239,7 @@ setMethod("getP", "ubmsFitDistsamp", function(object, draws=NULL, ...){
 })
 
 #' @include posterior_linpred.R
+
 setMethod("sim_p", "ubmsFitDistsamp", function(object, samples, ...){
   resp <- object@response
   resp@output <- "abund" #Don't adjust for area
@@ -242,9 +255,13 @@ setMethod("sim_p", "ubmsFitDistsamp", function(object, samples, ...){
     pfun <- ifelse(resp@survey=="line", distprob_normal_line, distprob_normal_point)
   } else if(resp@y_dist == "exp"){
     pfun <- ifelse(resp@survey=="line", distprob_exp_line, distprob_exp_point)
+  } else if(resp@y_dist == "hazard"){
+    param2 <- sim_lp(object, "scale", transform=TRUE, newdata=NULL,
+                     samples=samples, re.form=NULL)
+    pfun <- ifelse(resp@survey=="line", distprob_haz_line, distprob_haz_point)
   }
   out <- sapply(1:length(samples), function(i){
-    pfun(param1[i,], param2[i,], db, conv_const, inds)
+    pfun(param1[i,], param2[i,1], db, conv_const, inds)
   })
   t(out)
 })
@@ -283,6 +300,31 @@ distprob_exp_point <- function(rate, param2, db, conv_const, inds){
     a <- db[-length(db)]; b <- db[-1]
     int <- rate[i] * exp(-a/rate[i]) * (a+rate[i]) -
            rate[i] * exp(-b/rate[i]) * (b+rate[i])
+    int * conv_const[inds[i,1]:inds[i,2]]
+  })
+  as.vector(out)
+}
+
+distprob_haz_line <- function(shape, scale, db, conv_const, inds){
+  out <- sapply(1:length(shape), function(i){
+    a <- db[-length(db)]; b <- db[-1];
+    int <- numeric(length(a))
+    for (j in 1:length(int)){
+      int[j] <- stats::integrate(unmarked::gxhaz, a[j], b[j], shape=shape[i], scale=scale[1])$value
+    }
+    int * conv_const[inds[i,1]:inds[i,2]]
+  })
+  as.vector(out)
+}
+
+distprob_haz_point <- function(shape, scale, db, conv_const, inds){
+  out <- sapply(1:length(shape), function(i){
+    a <- db[-length(db)]; b <- db[-1]
+    int <- numeric(length(a))
+    for (j in 1:length(int)){
+      int[j] <- stats::integrate(unmarked::grhaz, a[j], b[j],
+                                 shape=shape[i], scale=scale)$value
+    }
     int * conv_const[inds[i,1]:inds[i,2]]
   })
   as.vector(out)
