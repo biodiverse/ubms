@@ -17,7 +17,7 @@ simz_occuRN <- function(y, lam_post, r_post, K, Kmin, kvals) {
     .Call(`_ubms_simz_occuRN`, y, lam_post, r_post, K, Kmin, kvals)
 }
 
-simz_distsamp <- function(y, lam_post, p_post, K, Kmin, kvals) {
-    .Call(`_ubms_simz_distsamp`, y, lam_post, p_post, K, Kmin, kvals)
+simz_multinom <- function(y, lam_post, p_post, K, Kmin, kvals) {
+    .Call(`_ubms_simz_multinom`, y, lam_post, p_post, K, Kmin, kvals)
 }
 

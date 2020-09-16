@@ -78,37 +78,31 @@ real trap_rule_point(real[] theta, real a, real b){
 }
 
 
-real int_hazard(real log_shape, real log_scale, real a, real b, int point,
-                real[] x_r, int[] x_i){
+real int_hazard(real log_shape, real log_scale, real a, real b, int point){
 
   real out;
   real shape = exp(log_shape);
   real scale = exp(log_scale);
   real theta[2];
   theta[1] = shape;
-  //theta[1] = exp(2.13);
   theta[2] = scale;
-  //theta[2] = exp(0.315);
 
   if(point){
     out = trap_rule_point(theta, a, b);
-    //out = integrate_1d(p_hazard_point, a, b, {shape, scale}, x_r, x_i, 0.01);
   } else{
     out = trap_rule_line(theta, a, b);
-    //out = integrate_1d(p_hazard_line, a, b, {shape, scale}, x_r, x_i, 0.01);
   }
   return out;
 }
 
-real prob_dist(real par1, real par2, int keyfun, real a, real b, int point,
-               real[] x_r, int[] x_i){
+real prob_dist(real par1, real par2, int keyfun, real a, real b, int point){
   real out;
   if(keyfun == 0){
     out = int_halfnorm(par1, a, b, point);
   } else if(keyfun == 1){
     out = int_negexp(par1, a, b, point);
   } else if(keyfun == 2){
-    out = int_hazard(par1, par2, a, b, point, x_r, x_i);
+    out = int_hazard(par1, par2, a, b, point);
   }
   return out;
 }

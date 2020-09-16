@@ -99,7 +99,7 @@ double dmultinom(arma::urowvec x, arma::rowvec prob){
 
 
 // [[Rcpp::export]]
-arma::imat simz_distsamp(arma::umat y, arma::mat lam_post, arma::cube p_post,
+arma::imat simz_multinom(arma::umat y, arma::mat lam_post, arma::cube p_post,
                          unsigned K, arma::uvec Kmin, arma::uvec kvals){
 
   int M = y.n_rows;

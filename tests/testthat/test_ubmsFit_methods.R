@@ -32,6 +32,13 @@ test_that("show method works for ubmsFit",{
   expect_true(grepl("LOOIC:", printed[17]))
 })
 
+test_that("coef method works for ubmsFit",{
+  co <- coef(fit)
+  expect_is(co, "numeric")
+  expect_equal(as.numeric(co), c(summary(fit, "state")$mean,
+                                 summary(fit, "det")$mean))
+})
+
 test_that("summary method works for ubmsFit",{
   sum_fit <- summary(fit, "state")
   expect_is(sum_fit, "data.frame")

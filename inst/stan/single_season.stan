@@ -3,6 +3,9 @@ functions{
 #include /include/functions_occu.stan
 #include /include/functions_occuRN.stan
 #include /include/functions_pcount.stan
+#include /include/functions_keyfuns.stan
+#include /include/functions_distsamp.stan
+#include /include/functions_multinomPois.stan
 
 }
 
@@ -21,7 +24,7 @@ parameters{
 transformed parameters{
 
 vector[M] lp_state;
-vector[R] lp_det;
+vector[n_obs_det] lp_det;
 vector[M] log_lik;
 
 lp_state = X_state * beta_state;
@@ -45,6 +48,11 @@ if(model_code == 0){
 } else if(model_code == 2){
   log_lik = get_loglik_pcount(y, M, J, si, lp_state, lp_det, z_dist,
                               beta_scale, K, Kmin[,1]);
+} else if(model_code == 4){
+  log_lik = get_loglik_distsamp(y, M, aux2, si, lp_state, lp_det, z_dist,
+                                beta_scale, aux1[1], y_dist, aux3);
+} else if(model_code == 5){
+  log_lik = get_loglik_multinomPois(y, M, si, lp_state, lp_det, y_dist);
 }
 
 }

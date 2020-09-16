@@ -52,3 +52,5 @@ setMethod("sim_lp", "ubmsFit", function(object, submodel, transform, newdata,
   if(transform) lp <- do.call(sm@link, list(lp))
   t(unname(lp))
 })
+
+setGeneric("sim_p", function(object, samples, ...) standardGeneric("sim_p"))

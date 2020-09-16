@@ -21,9 +21,18 @@ ubmsFit <- function(model, call, data, response, submodels, ...){
   #Fit model
   fit <- fit_model(model, response, submodels, ...)
 
+  #Remove placeholder submodels
+  submodels <- remove_placeholders(submodels)
+
   #Construct output
   new(fit_class(model), call=call, data=data, stanfit=fit,
       response=response, submodels=submodels, loo=get_loo(fit))
+}
+
+remove_placeholders <- function(submodels){
+  not_place <- !sapply(submodels@submodels, is_placeholder)
+  submodels@submodels <- submodels@submodels[not_place]
+  submodels
 }
 
 fit_class <- function(mod){
@@ -42,7 +51,7 @@ fit_model <- function(name, response, submodels, ...){
 
 name_to_stanmodel <- function(name){
   if(name == "colext") return("colext")
-  if(name == "distsamp") return("distsamp")
+  #if(name == "distsamp") return("distsamp")
   return("single_season")
 }
 

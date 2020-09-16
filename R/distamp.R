@@ -35,7 +35,7 @@ stan_distsamp <- function(formula, data, keyfun=c("halfnorm", "exp", "hazard"),
   det_param <- switch(keyfun, halfnorm={"Scale"}, exp={"Rate"},
                       hazard={"Shape"})
 
-  response <- ubmsResponseDistsamp(data, "P", keyfun, output, unitsOut)
+  response <- ubmsResponseDistsamp(data, keyfun, "P", output, unitsOut)
   state <- ubmsSubmodel(state_param, "state", siteCovs(umf), forms[[2]], "exp")
   det <- ubmsSubmodel(det_param, "det", siteCovs(umf), forms[[1]], "exp")
 
@@ -59,30 +59,35 @@ setClass("ubmsFitDistsamp", contains = "ubmsFit")
 #' @include response.R
 setClass("ubmsResponseDistsamp", contains="ubmsResponse",
          slots = c(survey="character", dist_breaks="numeric", tlength="numeric",
-                   keyfun="character", output="character",
-                   units_in="character", units_out="character"))
+                   output="character", units_in="character", units_out="character"))
 
-ubmsResponseDistsamp <- function(umf, z_dist, keyfun, output, units_out, K=NULL){
+ubmsResponseDistsamp <- function(umf, y_dist, z_dist, output, units_out, K=NULL){
   max_primary <- ifelse(methods::.hasSlot(umf, "numPrimary"), umf@numPrimary, 1)
-  out <- ubmsResponse(umf@y, "P", z_dist, max_primary, K)
+  out <- ubmsResponse(umf@y, y_dist, z_dist, max_primary, K)
   out <- as(out, "ubmsResponseDistsamp")
   out@K <- get_K(out, K)
-  out@survey <- umf@survey; out@keyfun <- keyfun; out@output <- output
+  out@survey <- umf@survey; out@output <- output
   out@dist_breaks <- umf@dist.breaks; out@tlength <- umf@tlength
   out@units_in <- umf@unitsIn; out@units_out <- units_out
   out
 }
 
-
 #' @include inputs.R
-setMethod("get_stan_data", "ubmsResponseDistsamp", function(object, ...){
-  out <- callNextMethod(object, ...)
-  c(out,
-    list(point=ifelse(object@survey=="point",1,0),
-    db=object@dist_breaks,
-    keyfun = switch(object@keyfun, halfnorm={0}, exp={1}, hazard={2}),
-    conv_const = get_conv_const(object)))
+setMethod("get_auxiliary_data", "ubmsResponseDistsamp", function(object, ...){
+  out <- list(aux1=c(ifelse(object@survey=="point", 1, 0), 0), #Hack b/c stan won't handle 1-element vector
+              aux2=object@dist_breaks,
+              aux3=get_conv_const(object))
+  c(out, list(n_aux1=2, n_aux2=length(out$aux2), n_aux3=length(out$aux3)))
 })
+
+#setMethod("get_stan_data", "ubmsResponseDistsamp", function(object, ...){
+#  out <- callNextMethod(object, ...)
+#  c(out,
+#    list(point=ifelse(object@survey=="point",1,0),
+#    db=object@dist_breaks,
+#    keyfun = switch(object@keyfun, halfnorm={0}, exp={1}),
+#    conv_const = get_conv_const(object)))
+#})
 
 #Builds the values in the denominator of the detection part of the likelihood
 get_conv_const <- function(resp){
@@ -174,7 +179,7 @@ setMethod("sim_z", "ubmsFitDistsamp", function(object, samples, re.form, K=NULL,
   Kmin <- get_Kmin(resp)
   kvals <- 0:K
 
-  t(simz_distsamp(y, lam_post, p_post, K, Kmin, kvals))
+  t(simz_multinom(y, lam_post, p_post, K, Kmin, kvals))
 })
 
 setMethod("sim_y", "ubmsFitDistsamp",
@@ -221,8 +226,7 @@ setMethod("getP", "ubmsFitDistsamp", function(object, draws=NULL, ...){
   aperm(praw, c(2,1,3))
 })
 
-setGeneric("sim_p", function(object, samples, ...) standardGeneric("sim_p"))
-
+#' @include posterior_linpred.R
 setMethod("sim_p", "ubmsFitDistsamp", function(object, samples, ...){
   resp <- object@response
   resp@output <- "abund" #Don't adjust for area
@@ -234,9 +238,9 @@ setMethod("sim_p", "ubmsFitDistsamp", function(object, samples, ...){
 
   stopifnot(ncol(param1) == get_n_sites(resp))
   param2 <- NULL
-  if(resp@keyfun=="halfnorm"){
+  if(resp@y_dist=="halfnorm"){
     pfun <- ifelse(resp@survey=="line", distprob_normal_line, distprob_normal_point)
-  } else if(resp@keyfun == "exp"){
+  } else if(resp@y_dist == "exp"){
     pfun <- ifelse(resp@survey=="line", distprob_exp_line, distprob_exp_point)
   }
   out <- sapply(1:length(samples), function(i){
@@ -356,7 +360,7 @@ get_mean_line <- function(fit){
   if(nrow(par1) > 1) warning("Ignoring covariate effects", call.=FALSE)
   par1 <- exp(par1[1,1])
   detfun <- get_detfun(fit)
-  if(fit@response@keyfun == "hazard"){
+  if(fit@response@y_dist == "hazard"){
     par2 <- exp(summary(fit, "scale")[1,1])
     val <- detfun(xseq, par1, par2)
   } else {
@@ -373,7 +377,7 @@ get_sample_lines <- function(fit, samples){
   df_try <- function(...){
     tryCatch(detfun(...), error=function(e) NA)
   }
-  if(fit@response@keyfun=="hazard"){
+  if(fit@response@y_dist=="hazard"){
     par2 <- exp(extract(fit, "beta_scale")[[1]])
     sample_lines <- lapply(samples, function(i){
                          data.frame(x=xseq, val=df_try(xseq, par1[i], par2[i]),ind=i)
@@ -389,11 +393,11 @@ get_sample_lines <- function(fit, samples){
 
 get_detfun <- function(fit){
   resp <- fit@response
-  if(resp@keyfun == "halfnorm"){
+  if(resp@y_dist == "halfnorm"){
     out <- ifelse(resp@survey=="line", unmarked::dxhn, unmarked::drhn)
-  } else if(resp@keyfun == "exp"){
+  } else if(resp@y_dist == "exp"){
     out <- ifelse(resp@survey=="line", unmarked::dxexp, unmarked::drexp)
-  } else if(resp@keyfun == "hazard"){
+  } else if(resp@y_dist == "hazard"){
     out <- ifelse(resp@survey=="line", unmarked::dxhaz, unmarked::drhaz)
   }
   out

@@ -1,8 +1,18 @@
-setGeneric("update_missing", function(object, ...)
+setGeneric("update_missing", function(object, object2, ...)
            standardGeneric("update_missing"))
 
 #' @include submodel.R
-setMethod("update_missing", "ubmsSubmodelList", function(object, response){
+
+#setMethod("update_missing", "ubmsSubmodelList", function(object, response){
+#  is_na <- find_missing(response, object)
+#  mods <- lapply(object@submodels, submodel_set_missing, is_na, response)
+#  object@submodels <- mods
+#  object
+#})
+
+setMethod("update_missing", c("ubmsSubmodelList", "ubmsResponse"),
+  function(object, object2){
+  response <- object2
   is_na <- find_missing(response, object)
   mods <- lapply(object@submodels, submodel_set_missing, is_na, response)
   object@submodels <- mods
@@ -10,6 +20,7 @@ setMethod("update_missing", "ubmsSubmodelList", function(object, response){
 })
 
 submodel_set_missing <- function(submodel, miss_vec, response){
+  if(is_placeholder(submodel)) return(submodel)
   new_miss_vec <- new_missing_vec(submodel, miss_vec, response)
   stopifnot(length(submodel@missing) == length(new_miss_vec))
   submodel@missing <- new_miss_vec
@@ -35,21 +46,35 @@ setMethod("new_missing_vec", "ubmsSubmodelTransition",
 })
 
 #' @include response.R
-setMethod("update_missing", "ubmsResponse", function(object, submodels){
+setMethod("update_missing", c("ubmsResponse", "ubmsSubmodelList"),
+  function(object, object2){
+
+  submodels <- object2
   object@missing <- find_missing(object, submodels)
   object
 })
 
-find_missing <- function(response, submodels){
+setGeneric("find_missing", function(object, ...) standardGeneric("find_missing"))
+
+setMethod("find_missing", "ubmsResponse", function(object, submodels, ...){
   sub_mm <- submodels@submodels
   #Don't include transition parameters when finding missing values
   sub_mm <- sub_mm[!sapply(sub_mm, inherits, "ubmsSubmodelTransition")]
   #Don't include placeholder parmeters either
   sub_mm <- sub_mm[!sapply(sub_mm, is_placeholder)]
-  sub_mm <- lapply(sub_mm, expand_model_matrix, response)
-  comb <- cbind(as_vector(response), do.call("cbind", sub_mm))
+  sub_mm <- lapply(sub_mm, expand_model_matrix, object)
+  comb <- cbind(as_vector(object), do.call("cbind", sub_mm))
   apply(comb, 1, function(x) any(is.na(x)))
-}
+})
+
+#find_missing <- function(response, submodels){
+  #sub_mm <- submodels@submodels
+  #Don't include transition parameters when finding missing values
+  #sub_mm <- sub_mm[!sapply(sub_mm, inherits, "ubmsSubmodelTransition")]
+  #sub_mm <- lapply(sub_mm, expand_model_matrix, response)
+  #comb <- cbind(as_vector(response), do.call("cbind", sub_mm))
+  #apply(comb, 1, function(x) any(is.na(x)))
+#}
 
 expand_model_matrix <- function(submodel, response){
   row_reps <- get_row_reps(submodel, response)

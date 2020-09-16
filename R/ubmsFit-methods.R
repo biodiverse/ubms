@@ -23,6 +23,19 @@
 NULL
 
 #' @rdname ubmsFit-methods
+#' @importFrom unmarked coef
+#' @export
+setMethod("coef", "ubmsFit", function(object, ...){
+  unlist(sapply(submodel_types(object), function(x){
+    s <- summary(object, x)
+    out <- s$mean
+    names(out) <- paste0(object[x]@type,"[",rownames(s),"]")
+    out
+  }, USE.NAMES=FALSE))
+})
+
+
+#' @rdname ubmsFit-methods
 #' @importFrom gridExtra grid.arrange
 #' @export
 setMethod("plot", "ubmsFit", function(x, ...){
@@ -37,6 +50,15 @@ setMethod("[", c("ubmsFit", "character", "missing", "missing"),
   function(x, i){
   x@submodels[i]
 })
+
+
+#' @rdname ubmsFit-methods
+#' @export
+setMethod("names", "ubmsFit", function(x){
+  out <- names(x@stanfit)
+  out[!grepl("log_lik\\[|lp__", out)]
+})
+
 
 #' @rdname ubmsFit-methods
 #' @importFrom rstantools nsamples
@@ -87,6 +109,13 @@ setMethod("summary", "ubmsFit", function(object, submodel, ...){
     out <- rbind(out, random)
   }
   out
+})
+
+#' @rdname ubmsFit-methods
+#' @importFrom unmarked getY
+#' @export
+setMethod("getY", "ubmsFit", function(object){
+  object@data@y
 })
 
 #' @rdname ubmsFit-methods
