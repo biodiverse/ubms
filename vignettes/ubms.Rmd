@@ -2,13 +2,12 @@
 title: "Overview of <b>ubms</b>"
 subtitle: "<b>U</b>nmarked <b>B</b>ayesian <b>M</b>odels with <b>S</b>tan"
 author: Ken Kellner
-date: "`r format(Sys.time(), '%B %-d, %Y')`"
 bibliography: references.bib
 link-citations: yes
 output: 
   rmarkdown::html_vignette:
-    fig_width: 7
-    fig_height: 5
+    fig_width: 5
+    fig_height: 3.5
     number_sections: true
     toc: true
 vignette: >
@@ -32,7 +31,7 @@ knitr::knit_hooks$set(time_it = local({
     }
   }
 }))
-knitr::opts_chunk$set(message=FALSE, warning=FALSE, time_it=TRUE)
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 ```
 
 # Introduction
@@ -304,7 +303,7 @@ Ideally, you want all $\hat{R} > 1.05$.
 To visualize convergence, look at the traceplots:
 
 ```{r}
-traceplot(fit_top)
+traceplot(fit_top, pars=c("beta_state", "beta_det"))
 ```
 
 Our effective sample size `n_eff` is lacking for some parameters as we were previously warned.
@@ -319,7 +318,7 @@ There isn't one widely accepted way of doing it.
 To quickly plot residuals against fitted values, use the `plot` method:
 
 ```{r}
-plot(fit_top)
+plot_residuals(fit_top, submodel="state")
 ```
 
 Note that the residuals are automatically binned, which is appropriate for a binomial response [@Gelman2007].
@@ -396,51 +395,6 @@ nd <- data.frame(ele=100, forest=25)
 predict(fit_top, submodel="state", newdata=nd)
 ```
 
-### Generate predictive map
-
-You can also supply a `stack` of `raster` objects in order to use your fitted model to generate a map of a parameter.
-The `Switzerland` dataset supplied with `unmarked` contains spatial data which can be used with the `crossbill` dataset.
-This example was adapted from the `unmarked` "Species Distributions" [vignette](https://cran.r-project.org/web/packages/unmarked/vignettes/spp-dist.pdf).
-First, we need to convert the necessary covariates in the dataset into `raster` format.
-
-```{r}
-library(raster)
-data(Switzerland)
-
-elevation <- rasterFromXYZ(Switzerland[,c("x","y","elevation")],
-    crs="+proj=somerc +lat_0=46.95240555555556 +lon_0=7.439583333333333 +k_0=1
-    +x_0=600000 +y_0=200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0
-    +units=m +no_defs")
-
-forest <- rasterFromXYZ(Switzerland[,c("x","y","forest")],
-    crs="+proj=somerc +lat_0=46.95240555555556 +lon_0=7.439583333333333 +k_0=1
-    +x_0=600000 +y_0=200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0
-    +units=m +no_defs")
-
-```
-
-Next we combine the two covariates into a `raster` `stack`.
-We also need to name the layers of this stack to exactly match the names of the covariates as they appear in our model.
-If you don't do this, `predict` will not work.
-
-```{r}
-ef_raster <- stack(elevation, forest)
-names(ef_raster) <- c("ele", "forest")
-```
-
-Here's what our covariate maps look like:
-
-```{r}
-plot(ef_raster, col=terrain.colors(100))
-```
-
-Generating a map of predicted occupancy probability is as simple as calling `predict` with our covariate raster stack as the newdata.
-
-```{r}
-pr_raster <- predict(fit_top, "state", newdata=ef_raster)
-plot(pr_raster)
-```
-
 ### Simulate latent occupancy states
 
 One of the advantages of BUGS/JAGS is that you can directly model latent parameters, such as the true unobserved occupancy state of a site $z$.
@@ -481,122 +435,6 @@ ggplot(plot_dat, aes(x=group, y=occ)) +
   theme_bw() +
   theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(),
         axis.text=element_text(size=12), axis.title=element_text(size=14))
-```
-
-# Example: "Stacked" model with random effect 
-
-The `crossbill` data contains 9 years of detection/non-detection data.
-A logical model choice for the full dataset would be the dynamic occupancy model, which estimates initial occupancy along with colonization and extinction probabilities.
-This model is implemented in `unmarked` as `colext` and in `ubms` as `stan_colext`.
-However, in some cases you might not want to fit a dynamic model - for example if you don't have enough data or you aren't interested in the transition probabilities.
-Also, other model types may not have dynamic versions available.
-In these cases you can fit multiple years of data into a single-season model using the "stacked" approach.
-Essentially, you treat unique site-year combinations as sites.
-For a helpful discussion on the topic, see [this](https://groups.google.com/forum/#!topic/unmarked/OHkk98y09Zo) thread on the `unmarked` forums.
-
-Ideally you want to control for the pseudoreplication this creates in some form.
-In `unmarked` you are limited to approaches such as including a dummy variable for site and/or year.
-In `ubms` you can instead include, for example, random site intercepts to account for this pseudoreplication.
-The following example demonstrates how to do this.
-
-## Format the Data
-
-We will use the first 3 years of `crossbill` data (instead of all 9), simply to keep the analysis run time down.
-Converting the `crossbill` data to stacked format is a bit complex.
-The dataset contains 267 unique sites; thus after stacking we should end up with a response variable that contains `267 * 3` "sites" (site-years).
-First, we replicate the site covariates 3 times:
-
-```{r}
-sc_stack <- site_covs[rep(1:nrow(site_covs), 3),]
-names(sc_stack)[1] <- "site"
-dim(sc_stack)
-head(sc_stack)
-```
-
-Notice the inclusion of the site ID variable in the site covariates.
-Next, we write a function that splits a "wide" dataset into pieces and stacks them on top of each other.
-
-```{r}
-wide_to_stacked <- function(input_df, surveys_per_year){
-  #nyears <- ncol(input_df) / surveys_per_year
-  nyears <- 3
-  inds <- split(1:(nyears*surveys_per_year), rep(1:nyears, each=surveys_per_year))
-  split_df <- lapply(1:nyears, function(i){
-                      out <- input_df[,inds[[i]]]
-                      out$site <- 1:nrow(input_df)
-                      out$year <- i
-                      names(out)[1:3] <- paste0("obs",1:3)
-                      out
-              })
-  stack_df <- do.call("rbind", split_df)
-  stack_df$site <- as.factor(stack_df$site)
-  stack_df$year <- as.factor(stack_df$year)
-  stack_df
-}
-```
-
-Next we use the function to convert our original response data into a stacked form.
-
-```{r}
-y_wide <- crossbill[, grep("det", names(crossbill), value=TRUE)]
-y_stack <- wide_to_stacked(y_wide, 3)
-dim(y_stack)
-head(y_stack)
-```
-
-Finally, we do the same with the `date` observation covariate.
-
-```{r}
-date_wide <- crossbill[,grep("date", names(crossbill), value=TRUE)]
-date_stack <- wide_to_stacked(date_wide, 3)
-dim(date_stack)
-```
-
-With our stacked datasets constructed, we build our `unmarkedFrame`:
-
-```{r}
-umf_stack <- unmarkedFrameOccu(y=y_stack[,1:3], siteCovs=sc_stack,
-                         obsCovs=list(date=date_stack[,1:3]))
-```
-
-## Fit the Stacked Model
-
-We'll now fit our top-ranked model from before, but this time with a random effect of site included in the formula for occupancy.
-Random effects are specified using the approach used in with the `lme4` package.
-For example, a random intercept for each level of the covariate `site` is specified with the formula component `(1|site)`.
-Random slopes, or a combination of random slopes and intercepts, are also possible.
-This model will take significantly longer to run.
-
-```{r, eval=FALSE}
-fit_stack <- stan_occu(~scale(date) ~scale(ele) + scale(forest) + (1|site), 
-                       data=umf_stack, chains=3, iter=500, refresh=0)
-fit_stack
-```
-
-```{r, echo=FALSE}
-fit_stack <- stan_occu(~scale(date) ~scale(ele) + scale(forest) + (1|site), 
-                       data=umf_stack, chains=3, iter=300, refresh=0)
-fit_stack
-```
-
-We get more warnings; again these should be fixed by increasing the iterations.
-Our output looks similar to our top model from before, except that we now have an estimate for the site-level variance (`sigma [1|site]`) in our summary table.
-
-## Accessing the random intercepts
-
-In order to get the actual random intercept values, we use the `ranef` function.
-Note that this function behaves like the `lme4` version, not like the `unmarked` version.
-
-```{r}
-ran <- ranef(fit_stack, submodel="state")
-head(ran$site[[1]])
-```
-
-You can also generate summary statistics for each random term:
-
-```{r}
-ran <- ranef(fit_stack, submodel="state", summary=TRUE)
-head(ran$site[[1]])
 ```
 
 # References
