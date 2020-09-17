@@ -1,3 +1,4 @@
+.PHONY: vignettes
 NAME = $(shell grep 'Package:' DESCRIPTION | cut -d ' ' -f2)
 VER = $(shell grep 'Version:' DESCRIPTION | cut -d ' ' -f2)
 
@@ -23,6 +24,9 @@ README:
 	firefox README.html
 	sleep 3
 	rm README.html
+
+vignettes:
+	Rscript -e "devtools::build_vignettes()"
 
 clean-install:
 	R CMD INSTALL --preclean .

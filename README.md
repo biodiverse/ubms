@@ -73,27 +73,26 @@ Fit a model with a random intercept:
 
 ``` r
 options(mc.cores=3) #number of parallel cores to use
-(fm <- stan_occu(~x2 ~x1 + (1|group), umf, refresh=0))
+(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3))
 ```
-
-    ## Warning: Some Pareto k diagnostic values are slightly high. See help('pareto-k-diagnostic') for details.
 
     ## 
     ## Call:
-    ## stan_occu(formula = ~x2 ~ x1 + (1 | group), data = umf, refresh = 0)
+    ## stan_occu(formula = ~x2 ~ x1 + (1 | group), data = umf, chains = 3, 
+    ##     refresh = 0)
     ## 
     ## Occupancy (logit-scale):
     ##                 Estimate    SD   2.5%  97.5% n_eff  Rhat
-    ## (Intercept)        0.328 0.294 -0.244  0.909   997 1.003
-    ## x1                -0.466 0.115 -0.695 -0.248  5433 0.999
-    ## sigma [1|group]    1.397 0.286  0.936  2.074  2529 0.999
+    ## (Intercept)        0.325 0.308 -0.265  0.952   693 1.004
+    ## x1                -0.465 0.115 -0.702 -0.244  6011 0.999
+    ## sigma [1|group]    1.400 0.286  0.947  2.049  1987 1.000
     ## 
     ## Detection (logit-scale):
-    ##             Estimate     SD  2.5% 97.5% n_eff Rhat
-    ## (Intercept)    0.381 0.0622 0.259 0.503  6282    1
-    ## x2             0.588 0.0632 0.466 0.714  7106    1
+    ##             Estimate     SD  2.5% 97.5% n_eff  Rhat
+    ## (Intercept)    0.383 0.0615 0.263 0.506  6596 0.999
+    ## x2             0.587 0.0615 0.467 0.710  5890 0.999
     ## 
-    ## LOOIC: 2268.24
+    ## LOOIC: 2267.452
 
 Examine residuals for occupancy and detection submodels (following
 [Wright et al. 2019](https://doi.org/10.1002/ecy.2703)). Each panel
@@ -109,14 +108,7 @@ Assess model goodness-of-fit with a posterior predictive check, using
 the MacKenzie-Bailey chi-square test:
 
 ``` r
-(fm_fit <- gof(fm, draws=500, quiet=TRUE))
-```
-
-    ## MacKenzie-Bailey Chi-square 
-    ## Point estimate = 30.381
-    ## Posterior predictive p = 0.482
-
-``` r
+fm_fit <- gof(fm, draws=500)
 plot(fm_fit)
 ```
 
@@ -129,3 +121,6 @@ plot_marginal(fm, "det")
 ```
 
 ![](README_figs/README-marginal-1.png)<!-- -->
+
+A more detailed vignette for the package is available
+[here](https://kenkellner.com/blog/ubms-vignette.html).

@@ -1,0 +1,598 @@
+---
+title: "Overview of <b>ubms</b>"
+subtitle: "<b>U</b>nmarked <b>B</b>ayesian <b>M</b>odels with <b>S</b>tan"
+author: Ken Kellner
+date: "`r format(Sys.time(), '%B %-d, %Y')`"
+bibliography: references.bib
+link-citations: yes
+output: 
+  rmarkdown::html_vignette:
+    fig_width: 7
+    fig_height: 5
+    number_sections: true
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Overview of ubms}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+```
+
+# Introduction
+
+## What is ubms?
+
+`ubms` is an R package for fitting models of wildlife occurrence and abundance to with datasets where animals are not individually marked.
+It provides a nearly identical interface to the popular `unmarked` package [@Fiske_2011].
+Instead of using maximum likelihood to fit models (as with `unmarked`), 
+models are fit in a Bayesian framework using [Stan](https://mc-stan.org/) [@Carpenter_2017].
+It is generally expected that you are already familiar with `unmarked` when using `ubms`.
+You can download `ubms`, report issues, or help with development on [Github](https://github.com/kenkellner/ubms).
+
+## Why should you use it?
+
+There are several advantages to using `ubms` over `unmarked`.
+First, it is possible to include random effects in `ubms` models, which is not currently possible in `unmarked`.
+These are specified using the familiar syntax of [lme4](https://cran.r-project.org/web/packages/lme4/index.html) [@Bates_2015].
+Second, `ubms` generates posterior distributions for model parameters, including latent occupancy and abundance parameters.
+These can be useful for post-hoc analyses and diagnostics.
+Finally, fitting models with Stan gives you access to the large ecosystem of Stan-related tools, such as [LOO](https://cran.r-project.org/web/packages/loo/index.html) (leave-one-out-cross validation; [@Vehtari_2017]).
+
+Another alternative to `ubms` would be to fit models in an existing modeling language such as [BUGS](http://www.openbugs.net/), [JAGS](http://mcmc-jags.sourceforge.net/), or directly in Stan.
+`ubms` abstracts away the complex process of defining and writing custom models in these languages which need to be updated each time you make changes to your model.
+It also provides many useful helper functions (e.g. `predict`) which would otherwise require custom code.
+Finally, because of Stan's efficient sampler [@Hoffman_2014] and because the underlying likelihoods in `ubms` are marginalized, `ubms` will often fit models much faster than equivalent models in BUGS or JAGS [@Yackulic_2020].
+
+## What are the disadvantages?
+
+Relative to `unmarked`, `ubms` has fewer types of models available.
+For example, models that incorporate temporary emigration (like `gdistsamp`) [@Chandler2011] are currently not available in `ubms`.
+Models should run much faster in `unmarked` as well.
+If you do not need one of the specific benefits of `ubms` described above, it makes sense to stick with `unmarked`.
+Even if you do plan to use `ubms`, it makes sense to test the models in `unmarked` first.
+The similar interface between the two packages makes this very easy, as you will see in the next section.
+
+Relative to BUGS/JAGS/Stan, `ubms` is less flexible because you cannot customize your model structure.
+You are limited to the provided model types.
+Furthermore, you cannot currently customize prior distributions (although I plan to add this in the future in some form).
+Finally, writing your own BUGS/JAGS model can be valuable for gaining a deeper understanding of how a model works; `ubms`, like `unmarked`, is essentially a black box.
+
+To summarize the advantages and disadvantages: I see `ubms` as an intermediate step along the continuum from `unmarked` to custom models in BUGS/JAGS.
+It is not meant to replace either approach but rather to supplement them, for situations when a Bayesian framework is needed and "off-the-shelf" model structures are adequate.
+
+# Example: Fitting a single-season occupancy model
+
+Occupancy models estimate the probability $\psi$ that a species occupies a site, while accounting for detection probability $p < 1$ [@MacKenzie_2002].
+In order to estimate both $p$ and $\psi$, repeated observations (detection/non-detection data) at each site are required.
+
+## Set up the data
+
+First, load the dataset we'll be using, which comes with `unmarked`:
+
+```{r}
+library(unmarked)
+data(crossbill)
+```
+
+The `crossbill` dataset is a `data.frame` with many columns.
+It contains detection/non-detection data for the European crossbill (*Loxia
+curvirostra*) in Switzerland [@Schmid_2004].
+
+
+```{r}
+dim(crossbill)
+names(crossbill)
+```
+
+Check `?crossbill` for details about each column.
+The first three columns `id`, `ele`, and `forest` are site covariates.
+
+```{r}
+site_covs <- crossbill[,c("id", "ele", "forest")]
+```
+
+The following 27 columns beginning with `det` are the binary detection/non-detection data; 9 years with 3 observations per year.
+For this example we want to fit a single-season occupancy model; thus we will use only the first three columns (year 1) of `det` as our response variable `y`.
+
+```{r}
+y <- crossbill[,c("det991","det992","det993")]
+head(y)
+```
+
+Note that missing values are possible.
+The final 27 columns beginning with `date` are the Julian dates for each observation.
+As with `y` we want only the first three columns corresponding to year 1.
+
+```{r}
+date <- crossbill[,c("date991","date992","date993")]
+```
+
+Finally, we build our `unmarkedFrame` object holding our detection/non-detection data, site covariates, and observation covariates.
+Since we will conduct a single-season occupancy analysis, we need to use `unmarkedFrameOccu` specifically.
+The resulting `unmarkedFrame` can be used by both `unmarked` and `ubms`.
+
+```{r}
+umf <- unmarkedFrameOccu(y=y, siteCovs=site_covs, obsCovs=list(date=date))
+head(umf)
+```
+
+## Fit a model
+
+### Fit the model in unmarked
+
+First, we fit a null model (no covariates) in `unmarked` using the `occu` function.
+The `occu` function requires as input a double formula (for detection and occupancy, respectively) along with our `unmarkedFrame`.
+
+```{r}
+(fit_unm <- occu(~1~1, data=umf))
+```
+
+### Fit the model in ubms
+
+Next, we fit the same model in `ubms`.
+The equivalent to `occu` in `ubms` is `stan_occu`.
+Functions in `ubms` generally use this `stan_` prefix, based on the approach used in package [rstanarm](https://cran.r-project.org/web/packages/rstanarm/index.html) for GLMs.
+We need to provide the same arguments to `stan_occu`.
+In addition, we will specify that we want 3 MCMC chains (`chains=3`), with 500 iterations per chain (`iter=500`) of which the first half will be warmup iterations.
+It is beyond the scope of this vignette to discuss the appropriate number or length of chains; see [the Stan user's guide](https://mc-stan.org/docs/2_24/stan-users-guide/index.html) for more details.
+Generally 4 chains of 2000 iterations each is recommended (of which 1000 per chain are warmups).
+Thus, 500 iterations per chain is probably not enough, but to keep things running quickly it is sufficient for this vignette.
+Note that if you are more familiar with BUGS or JAGS, Stan generally requires a smaller number of iterations to reach convergence thanks to its default NUTS sampler [@Hoffman_2014].
+If you have a good multi-core CPU, you can run chains in parallel.
+Tell Stan how many cores you want to use by setting the `mc.cores` option.
+
+```{r, eval=FALSE}
+library(ubms)
+options(mc.cores=3)
+
+(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=500))
+```
+
+```{r, echo=FALSE}
+library(ubms)
+(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=500, refresh=0))
+```
+
+### Compare results
+
+The structure of the output from `unmarked` and `ubms` is intentionally similar.
+Estimates of the occupancy and detection parameters are also similar, but not identical.
+For a more direct comparison, call the `coef` function on both model objects:
+
+```{r}
+cbind(unmarked=coef(fit_unm), stan=coef(fit_stan))
+```
+
+### Understanding the ubms output summary
+
+Let's look at the output from our `fit_stan` model again:
+
+```{r}
+fit_stan
+```
+
+The first part (under `Call:`) is the command we used to get this model output.
+Underneath are two tables, one per submodel, corresponding to the occupancy and detection parts of the model.
+Within each table there is one row per parameter in the submodel.
+Since `fit_stan` had no covariates, there is only an intercept term for each submodel.
+Model parameters in this summary table are always shown on the appropriate transformed scale, in this case logit.
+To get the corresponding probabilities, you can use the `predict` function, which we will demonstrate later.
+
+For each parameter, the mean and standard deviation of the posterior distribution are given.
+Unlike `unmarked` output, there is no $Z$ or $p$-value.
+Instead, there is a 95% [uncertainty interval](https://statmodeling.stat.columbia.edu/2016/11/26/reminder-instead-confidence-interval-lets-say-uncertainty-interval/) provided.
+
+The final two columns in each summary table `n_eff` and `Rhat` are MCMC diagnostics.
+We will discuss their meaning later.
+
+### Extracting individual parameters
+
+To extract summary values into an R table for easy manipulation, use the `summary` method.
+Note that you have to specify which submodel you want (`"state"` for occupancy or `"det"` for detection).
+
+```{r}
+sum_tab <- summary(fit_stan, "state")
+sum_tab$mean[1]
+```
+
+To extract the entire posterior for a parameter, use the `extract` method.
+To avoid name collisions you need to use the full name of the parameter (which contains both the submodel and the parameter name) when extracting.
+To see a list of the available full parameter names, use the `names` method.
+
+```{r}
+names(fit_stan)
+occ_intercept <- extract(fit_stan, "beta_state[(Intercept)]")[[1]]
+hist(occ_intercept, freq=FALSE)
+lines(density(occ_intercept), col='red', lwd=2)
+```
+
+## Compare candidate models
+
+Now we'll fit a series of candidate models to the `crossbill` data in `ubms` and compare them.
+
+### Fit the models
+
+Along with our previous null model, we'll fit a model with site covariates (elevation and forest), a model with an observation covariate (date), and a "global" model with both site and observation covariates.
+This is just an example; perhaps other models should also be considered if we were preparing this analysis for publication.
+In our model formulas, we have normalized all covariates with `scale` so they have a mean of 0 and a standard deviation of 1.
+This can help improve model convergence and is generally a good idea.
+
+```{r, eval=FALSE}
+fit_null <- fit_stan
+
+fit_sc <- stan_occu(~1~scale(forest)+scale(ele), data=umf,
+                    chains=3, iter=500)
+
+fit_oc <- stan_occu(~scale(date)~1, data=umf, chains=3, iter=500)
+
+fit_global <- stan_occu(~scale(date)~scale(forest)+scale(ele), data=umf,
+                        chains=3, iter=500)
+```
+
+```{r, echo=FALSE}
+fit_null <- fit_stan
+fit_sc <- stan_occu(~1~scale(forest)+scale(ele), data=umf,
+                    chains=3, iter=500, refresh=0)
+fit_oc <- stan_occu(~scale(date)~1, data=umf, chains=3, iter=500, refresh=0)
+```
+
+```{r, warning=TRUE, echo=FALSE}
+fit_global <- stan_occu(~scale(date)~scale(forest)+scale(ele), data=umf,
+                        chains=3, iter=500, refresh=0)
+```
+
+The `fit_global` model gave us some warnings about the effective sample size (`n_eff`) along with a suggested solution.
+We will ignore this warning for now but normally it is a good idea to pay close attention to these warnings.
+
+### Compare the models
+
+First we combine the models into a `fitList`:
+
+```{r}
+mods <- fitList(fit_null, fit_sc, fit_oc, fit_global)
+```
+
+Then we generate a model selection table:
+
+```{r}
+round(modSel(mods), 3)
+```
+
+Instead of AIC, models are compared using leave-one-out cross-validation (LOO) [@Vehtari_2017] via the `loo` package.
+Based on this cross-validation, the expected predictive accuracy (`elpd`) for each model is calculated.
+The model with the largest `elpd` (`fit_global`) performed best.
+The `elpd_diff` column shows the difference in `elpd` between a model and the top model; if this difference is several times larger than the standard error of the difference (`se_diff`), we are confident the model with the larger `elpd` performed better.
+LOO model weights, analogous to AIC weights, are also calculated.
+We can see that the `fit_global` model is clearly the best performing model.
+
+You can obtain LOO information for a single model using the `loo` method:
+
+```{r}
+loo(fit_global)
+```
+
+The `looic` value is analogous to AIC.
+
+You can also obtain the WAIC (Widely Applicable Information Criterion) if you prefer [@Vehtari_2017]:
+
+```{r}
+waic(fit_global)
+```
+
+## Diagnostics and model fit
+
+We'll define the global model as our top model:
+
+```{r}
+fit_top <- fit_global
+fit_top
+```
+
+### MCMC diagnostics
+
+Again looking at the summary of `fit_top`, it appears all chains have adequately converged based on $\hat{R}$ values.
+Ideally, you want all $\hat{R} > 1.05$.
+To visualize convergence, look at the traceplots:
+
+```{r}
+traceplot(fit_top)
+```
+
+Our effective sample size `n_eff` is lacking for some parameters as we were previously warned.
+The rule of thumb is to have `n_eff` > 100 * number of chains (300).
+The easy solution would be to re-run this model with more iterations.
+
+### Model fit
+
+Calculating residuals is tricky for occupancy models.
+There isn't one widely accepted way of doing it.
+`ubms` implements the approach of Wright [@Wright_2019] in which residuals are calculated separately for the state and observation processes.
+To quickly plot residuals against fitted values, use the `plot` method:
+
+```{r}
+plot(fit_top)
+```
+
+Note that the residuals are automatically binned, which is appropriate for a binomial response [@Gelman2007].
+If the model fits the data well, you would expect 95% of the binned residual points to fall within the shaded area.
+You can also plot residuals against covariate values using the `plot_residuals` function:
+
+```{r}
+plot_residuals(fit_top, submodel="state", covariate="forest")
+```
+
+`ubms` also supports goodness-of-fit tests (posterior predictive checks) for some models.
+In the case of occupancy models, there is support for the MacKenzie-Bailey (M-B) chi-square test [@MacKenzie_2004a] via the `gof` function.
+For each posterior draw, the M-B statistic is calculated for the actual data and for a simulated dataset.
+The proportion of draws for which the simulated statistic is larger than the actual statistic should be near 0.5 if the model fits well.
+
+```{r}
+(fit_top_gof <- gof(fit_top, quiet=TRUE))
+plot(fit_top_gof)
+```
+
+Our model appears to have adequate fit based on this posterior predictive check.
+
+You can use the `posterior_predict` function to simulate new datasets, which you can use to calculate your own fit statistic.
+The following command generates one simulated dataset per posterior draw.
+
+```{r}
+sim_y <- posterior_predict(fit_top, "y")
+dim(sim_y)
+```
+
+The output is a matrix with dimensions draws x observations (in site-major order).
+As an example, we can calculate the proportion of zeros in each simulated dataset 
+
+```{r}
+prop0 <- apply(sim_y, 1, function(x) mean(x==0, na.rm=TRUE))
+```
+
+and compare that to the proportion of zeros in the actual dataset.
+
+```{r}
+actual_prop0 <- mean(getY(fit_top) == 0, na.rm=TRUE)
+
+#Compare
+hist(prop0, col='gray')
+abline(v=actual_prop0, col='red', lwd=2)
+```
+
+## Model inference
+
+### Marginal covariate effects
+
+Based on the 95% uncertainty intervals, both forest and elevation have a positive effect on occupancy probability (both intervals do not contain 0).
+Similarly, Julian date has a positive impact on detection probability.
+We can quickly visualize these marginal covariate effects with the `plot_marginal` function:
+
+```{r}
+plot_marginal(fit_top, "state")
+plot_marginal(fit_top, "det")
+```
+
+### Predict parameter values
+
+As with `unmarked`, we can get the predicted $psi$ or $p$ for each site or observation using the `predict` function.
+For example, to get occupancy:
+
+```{r}
+head(predict(fit_top, submodel="state"))
+```
+
+You can also supply newdata as a `data.frame`.
+
+```{r}
+nd <- data.frame(ele=100, forest=25)
+predict(fit_top, submodel="state", newdata=nd)
+```
+
+### Generate predictive map
+
+You can also supply a `stack` of `raster` objects in order to use your fitted model to generate a map of a parameter.
+The `Switzerland` dataset supplied with `unmarked` contains spatial data which can be used with the `crossbill` dataset.
+This example was adapted from the `unmarked` "Species Distributions" [vignette](https://cran.r-project.org/web/packages/unmarked/vignettes/spp-dist.pdf).
+First, we need to convert the necessary covariates in the dataset into `raster` format.
+
+```{r}
+library(raster)
+data(Switzerland)
+
+elevation <- rasterFromXYZ(Switzerland[,c("x","y","elevation")],
+    crs="+proj=somerc +lat_0=46.95240555555556 +lon_0=7.439583333333333 +k_0=1
+    +x_0=600000 +y_0=200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0
+    +units=m +no_defs")
+
+forest <- rasterFromXYZ(Switzerland[,c("x","y","forest")],
+    crs="+proj=somerc +lat_0=46.95240555555556 +lon_0=7.439583333333333 +k_0=1
+    +x_0=600000 +y_0=200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0
+    +units=m +no_defs")
+
+```
+
+Next we combine the two covariates into a `raster` `stack`.
+We also need to name the layers of this stack to exactly match the names of the covariates as they appear in our model.
+If you don't do this, `predict` will not work.
+
+```{r}
+ef_raster <- stack(elevation, forest)
+names(ef_raster) <- c("ele", "forest")
+```
+
+Here's what our covariate maps look like:
+
+```{r}
+plot(ef_raster, col=terrain.colors(100))
+```
+
+Generating a map of predicted occupancy probability is as simple as calling `predict` with our covariate raster stack as the newdata.
+
+```{r}
+pr_raster <- predict(fit_top, "state", newdata=ef_raster)
+plot(pr_raster)
+```
+
+### Simulate latent occupancy states
+
+One of the advantages of BUGS/JAGS is that you can directly model latent parameters, such as the true unobserved occupancy state of a site $z$.
+Using the `posterior_predict` function in `ubms`, you can generate an equivalent posterior distribution of $z$.
+
+```{r}
+zpost <- posterior_predict(fit_top, "z")
+dim(zpost)
+```
+
+The output has one row per posterior draw, and one column per site.
+The posterior of $z$ can be useful for post-hoc analyses.
+For example, suppose you wanted to test for a difference in mean occupancy probability between sites 1-50 and sites 51-100:
+
+```{r}
+group1 <- rowMeans(zpost[,1:50], na.rm=TRUE)
+group2 <- rowMeans(zpost[,51:100], na.rm=TRUE)
+
+plot_dat <- rbind(data.frame(group="group1", occ=mean(group1),
+                             lower=quantile(group1, 0.025),
+                             upper=quantile(group2, 0.975)),
+                  data.frame(group="group2", occ=mean(group2),
+                             lower=quantile(group2, 0.025),
+                             upper=quantile(group2, 0.975)))
+
+```
+
+Now plot the posterior distributions of the two means:
+
+```{r}
+library(ggplot2)
+
+ggplot(plot_dat, aes(x=group, y=occ)) +
+  geom_errorbar(aes(ymin=lower, ymax=upper), width=0.2) +
+  geom_point(size=3) +
+  ylim(0,1) +
+  labs(x="Group", y="Occupancy + 95% UI") +
+  theme_bw() +
+  theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(),
+        axis.text=element_text(size=12), axis.title=element_text(size=14))
+```
+
+# Example: "Stacked" model with random effect 
+
+The `crossbill` data contains 9 years of detection/non-detection data.
+A logical model choice for the full dataset would be the dynamic occupancy model, which estimates initial occupancy along with colonization and extinction probabilities.
+This model is implemented in `unmarked` as `colext` and in `ubms` as `stan_colext`.
+However, in some cases you might not want to fit a dynamic model - for example if you don't have enough data or you aren't interested in the transition probabilities.
+Also, other model types may not have dynamic versions available.
+In these cases you can fit multiple years of data into a single-season model using the "stacked" approach.
+Essentially, you treat unique site-year combinations as sites.
+For a helpful discussion on the topic, see [this](https://groups.google.com/forum/#!topic/unmarked/OHkk98y09Zo) thread on the `unmarked` forums.
+
+Ideally you want to control for the pseudoreplication this creates in some form.
+In `unmarked` you are limited to approaches such as including a dummy variable for site and/or year.
+In `ubms` you can instead include, for example, random site intercepts to account for this pseudoreplication.
+The following example demonstrates how to do this.
+
+## Format the Data
+
+We will use the first 3 years of `crossbill` data (instead of all 9), simply to keep the analysis run time down.
+Converting the `crossbill` data to stacked format is a bit complex.
+The dataset contains 267 unique sites; thus after stacking we should end up with a response variable that contains `267 * 3` "sites" (site-years).
+First, we replicate the site covariates 3 times:
+
+```{r}
+sc_stack <- site_covs[rep(1:nrow(site_covs), 3),]
+names(sc_stack)[1] <- "site"
+dim(sc_stack)
+head(sc_stack)
+```
+
+Notice the inclusion of the site ID variable in the site covariates.
+Next, we write a function that splits a "wide" dataset into pieces and stacks them on top of each other.
+
+```{r}
+wide_to_stacked <- function(input_df, surveys_per_year){
+  #nyears <- ncol(input_df) / surveys_per_year
+  nyears <- 3
+  inds <- split(1:(nyears*surveys_per_year), rep(1:nyears, each=surveys_per_year))
+  split_df <- lapply(1:nyears, function(i){
+                      out <- input_df[,inds[[i]]]
+                      out$site <- 1:nrow(input_df)
+                      out$year <- i
+                      names(out)[1:3] <- paste0("obs",1:3)
+                      out
+              })
+  stack_df <- do.call("rbind", split_df)
+  stack_df$site <- as.factor(stack_df$site)
+  stack_df$year <- as.factor(stack_df$year)
+  stack_df
+}
+```
+
+Next we use the function to convert our original response data into a stacked form.
+
+```{r}
+y_wide <- crossbill[, grep("det", names(crossbill), value=TRUE)]
+y_stack <- wide_to_stacked(y_wide, 3)
+dim(y_stack)
+head(y_stack)
+```
+
+Finally, we do the same with the `date` observation covariate.
+
+```{r}
+date_wide <- crossbill[,grep("date", names(crossbill), value=TRUE)]
+date_stack <- wide_to_stacked(date_wide, 3)
+dim(date_stack)
+```
+
+With our stacked datasets constructed, we build our `unmarkedFrame`:
+
+```{r}
+umf_stack <- unmarkedFrameOccu(y=y_stack[,1:3], siteCovs=sc_stack,
+                         obsCovs=list(date=date_stack[,1:3]))
+```
+
+## Fit the Stacked Model
+
+We'll now fit our top-ranked model from before, but this time with a random effect of site included in the formula for occupancy.
+Random effects are specified using the approach used in with the `lme4` package.
+For example, a random intercept for each level of the covariate `site` is specified with the formula component `(1|site)`.
+Random slopes, or a combination of random slopes and intercepts, are also possible.
+This model will take significantly longer to run.
+
+```{r, eval=FALSE}
+fit_stack <- stan_occu(~scale(date) ~scale(ele) + scale(forest) + (1|site), 
+                       data=umf_stack, chains=3, iter=500, refresh=0)
+fit_stack
+```
+
+```{r, echo=FALSE}
+fit_stack <- stan_occu(~scale(date) ~scale(ele) + scale(forest) + (1|site), 
+                       data=umf_stack, chains=3, iter=300, refresh=0)
+fit_stack
+```
+
+We get more warnings; again these should be fixed by increasing the iterations.
+Our output looks similar to our top model from before, except that we now have an estimate for the site-level variance (`sigma [1|site]`) in our summary table.
+
+## Accessing the random intercepts
+
+In order to get the actual random intercept values, we use the `ranef` function.
+Note that this function behaves like the `lme4` version, not like the `unmarked` version.
+
+```{r}
+ran <- ranef(fit_stack, submodel="state")
+head(ran$site[[1]])
+```
+
+You can also generate summary statistics for each random term:
+
+```{r}
+ran <- ranef(fit_stack, submodel="state", summary=TRUE)
+head(ran$site[[1]])
+```
+
+# References
+
+<div id="refs"></div>

@@ -36,7 +36,7 @@ Disadvantages compared to `unmarked`:
 
 Simulate occupancy data including a random effect on occupancy:
 
-```{r,message=F,warning=F}
+```{r,message=FALSE}
 library(ubms)
 
 set.seed(123)
@@ -72,22 +72,40 @@ umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
 
 Fit a model with a random intercept:
 
-```{r}
+```{r, eval=FALSE}
 options(mc.cores=3) #number of parallel cores to use
-(fm <- stan_occu(~x2 ~x1 + (1|group), umf, refresh=0))
+(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3))
 ```
+
+```{r, echo=FALSE, warning=FALSE}
+set.seed(123)
+options(mc.cores=3)
+(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3, refresh=0))
+```
+
 
 Examine residuals for occupancy and detection submodels (following [Wright et al. 2019](https://doi.org/10.1002/ecy.2703)).
 Each panel represents a draw from the posterior distribution.
 
-```{r resids, fig.height=7}
+```{r, eval=FALSE}
+plot(fm)
+```
+
+```{r resids, fig.height=7, echo=FALSE}
+set.seed(123)
 plot(fm)
 ```
 
 Assess model goodness-of-fit with a posterior predictive check, using the MacKenzie-Bailey chi-square test:
 
-```{r gof}
-(fm_fit <- gof(fm, draws=500, quiet=TRUE))
+```{r, eval=FALSE}
+fm_fit <- gof(fm, draws=500)
+plot(fm_fit)
+```
+
+```{r gof, echo=FALSE}
+set.seed(123)
+fm_fit <- gof(fm, draws=500, quiet=TRUE)
 plot(fm_fit)
 ```
 
@@ -97,3 +115,4 @@ Look at the marginal effect of `x2` on detection:
 plot_marginal(fm, "det")
 ```
 
+A more detailed vignette for the package is available [here](https://kenkellner.com/blog/ubms-vignette.html).
