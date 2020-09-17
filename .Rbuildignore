@@ -12,3 +12,5 @@ README_figs*
 .Rdata
 src/stanExports_*
 src/RcppExports.cpp
+^doc$
+^Meta$

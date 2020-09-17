@@ -3,3 +3,5 @@
 *.pdf
 src/stanExports_*
 src/RcppExports.cpp
+doc
+Meta
