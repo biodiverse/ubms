@@ -18,7 +18,21 @@ vignette: >
 ---
 
 ```{r, echo=FALSE}
-knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+knitr::knit_hooks$set(time_it = local({
+  now <- NULL
+  function(before, options) {
+    if (before) {
+      # record the current time before each chunk
+      now <<- Sys.time()
+    } else {
+      # calculate the time difference after a chunk
+      res <- difftime(Sys.time(), now)
+      # return a character string to show the time
+      paste("Time for this code chunk to run:", res)
+    }
+  }
+}))
+knitr::opts_chunk$set(message=FALSE, warning=FALSE, time_it=TRUE)
 ```
 
 # Introduction
@@ -136,10 +150,10 @@ Next, we fit the same model in `ubms`.
 The equivalent to `occu` in `ubms` is `stan_occu`.
 Functions in `ubms` generally use this `stan_` prefix, based on the approach used in package [rstanarm](https://cran.r-project.org/web/packages/rstanarm/index.html) for GLMs.
 We need to provide the same arguments to `stan_occu`.
-In addition, we will specify that we want 3 MCMC chains (`chains=3`), with 500 iterations per chain (`iter=500`) of which the first half will be warmup iterations.
+In addition, we will specify that we want 3 MCMC chains (`chains=3`), with 300 iterations per chain (`iter=300`) of which the first half will be warmup iterations.
 It is beyond the scope of this vignette to discuss the appropriate number or length of chains; see [the Stan user's guide](https://mc-stan.org/docs/2_24/stan-users-guide/index.html) for more details.
 Generally 4 chains of 2000 iterations each is recommended (of which 1000 per chain are warmups).
-Thus, 500 iterations per chain is probably not enough, but to keep things running quickly it is sufficient for this vignette.
+Thus, 300 iterations per chain is probably not enough, but to keep things running quickly it is sufficient for this vignette.
 Note that if you are more familiar with BUGS or JAGS, Stan generally requires a smaller number of iterations to reach convergence thanks to its default NUTS sampler [@Hoffman_2014].
 If you have a good multi-core CPU, you can run chains in parallel.
 Tell Stan how many cores you want to use by setting the `mc.cores` option.
@@ -148,12 +162,12 @@ Tell Stan how many cores you want to use by setting the `mc.cores` option.
 library(ubms)
 options(mc.cores=3)
 
-(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=500))
+(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300))
 ```
 
 ```{r, echo=FALSE}
 library(ubms)
-(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=500, refresh=0))
+(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300, refresh=0))
 ```
 
 ### Compare results
@@ -211,11 +225,11 @@ lines(density(occ_intercept), col='red', lwd=2)
 
 ## Compare candidate models
 
-Now we'll fit a series of candidate models to the `crossbill` data in `ubms` and compare them.
+Now we'll fit two candidate models to the `crossbill` data in `ubms` and compare them.
 
 ### Fit the models
 
-Along with our previous null model, we'll fit a model with site covariates (elevation and forest), a model with an observation covariate (date), and a "global" model with both site and observation covariates.
+Along with our previous null model, we'll fit a "global" model with both site and observation covariates.
 This is just an example; perhaps other models should also be considered if we were preparing this analysis for publication.
 In our model formulas, we have normalized all covariates with `scale` so they have a mean of 0 and a standard deviation of 1.
 This can help improve model convergence and is generally a good idea.
@@ -223,25 +237,17 @@ This can help improve model convergence and is generally a good idea.
 ```{r, eval=FALSE}
 fit_null <- fit_stan
 
-fit_sc <- stan_occu(~1~scale(forest)+scale(ele), data=umf,
-                    chains=3, iter=500)
-
-fit_oc <- stan_occu(~scale(date)~1, data=umf, chains=3, iter=500)
-
 fit_global <- stan_occu(~scale(date)~scale(forest)+scale(ele), data=umf,
-                        chains=3, iter=500)
+                        chains=3, iter=300)
 ```
 
 ```{r, echo=FALSE}
 fit_null <- fit_stan
-fit_sc <- stan_occu(~1~scale(forest)+scale(ele), data=umf,
-                    chains=3, iter=500, refresh=0)
-fit_oc <- stan_occu(~scale(date)~1, data=umf, chains=3, iter=500, refresh=0)
 ```
 
 ```{r, warning=TRUE, echo=FALSE}
 fit_global <- stan_occu(~scale(date)~scale(forest)+scale(ele), data=umf,
-                        chains=3, iter=500, refresh=0)
+                        chains=3, iter=300, refresh=0)
 ```
 
 The `fit_global` model gave us some warnings about the effective sample size (`n_eff`) along with a suggested solution.
@@ -252,7 +258,7 @@ We will ignore this warning for now but normally it is a good idea to pay close 
 First we combine the models into a `fitList`:
 
 ```{r}
-mods <- fitList(fit_null, fit_sc, fit_oc, fit_global)
+mods <- fitList(fit_null, fit_global)
 ```
 
 Then we generate a model selection table:
@@ -330,17 +336,17 @@ For each posterior draw, the M-B statistic is calculated for the actual data and
 The proportion of draws for which the simulated statistic is larger than the actual statistic should be near 0.5 if the model fits well.
 
 ```{r}
-(fit_top_gof <- gof(fit_top, quiet=TRUE))
+(fit_top_gof <- gof(fit_top, draws=100, quiet=TRUE))
 plot(fit_top_gof)
 ```
 
 Our model appears to have adequate fit based on this posterior predictive check.
 
 You can use the `posterior_predict` function to simulate new datasets, which you can use to calculate your own fit statistic.
-The following command generates one simulated dataset per posterior draw.
+The following command generates 100 simulated datasets.
 
 ```{r}
-sim_y <- posterior_predict(fit_top, "y")
+sim_y <- posterior_predict(fit_top, "y", draws=100)
 dim(sim_y)
 ```
 
@@ -441,7 +447,7 @@ One of the advantages of BUGS/JAGS is that you can directly model latent paramet
 Using the `posterior_predict` function in `ubms`, you can generate an equivalent posterior distribution of $z$.
 
 ```{r}
-zpost <- posterior_predict(fit_top, "z")
+zpost <- posterior_predict(fit_top, "z", draws=100)
 dim(zpost)
 ```
 
