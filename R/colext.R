@@ -14,6 +14,16 @@
 #'
 #' @return \code{ubmsFitColext} object describing the model fit.
 #'
+#' @examples
+#' \dontrun{
+#' data(frogs)
+#' umf <- formatMult(masspcru)
+#' umf@y[umf@y > 1] <- 1 #convert counts to presence/absence
+#' umf <- umf[1:100,] #Use only 100 sites
+#'
+#' fit_frog <- stan_colext(~1, ~1, ~1, ~1, umf, chains=3, iter=300)
+#' }
+#'
 #' @references MacKenzie DI, Nicholas JD, Hines JE, Knutson MG, Franklin AB.
 #'             2003. Ecology 84: 2200-2207.
 #'

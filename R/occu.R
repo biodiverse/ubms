@@ -11,6 +11,22 @@
 #'
 #' @return \code{ubmsFitOccu} object describing the model fit.
 #'
+#' @examples
+#' \dontrun{
+#' data(frogs)
+#' pferUMF <- unmarkedFrameOccu(pfer.bin)
+#'
+#' #Add some covariates
+#' siteCovs(pferUMF) <- data.frame(cov1=rnorm(numSites(pferUMF)))
+#'
+#' #Fit model
+#' (fm <- stan_occu(~1~cov1, pferUMF, chains=3, iter=300))
+#' }
+#'
+#' @references MacKenzie DI, Nichols JD, Lachman GB, Droege S, Royle JA,
+#'  Langtimm CA. 2002. Estimating site occupancy rates when detection
+#'  probabilities are less than one. Ecology 83: 2248-2255.
+#'
 #' @seealso \code{\link{occu}}, \code{\link{unmarkedFrameOccu}}
 #' @export
 stan_occu <- function(formula, data, ...){

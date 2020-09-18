@@ -22,6 +22,17 @@ number of chains \code{chains} or iterations \code{iter}}
 This function fits the multinomial-Poisson mixture model, useful for
 data collected via survey methods such as removal or double observer sampling.
 }
+\examples{
+\dontrun{
+data(ovendata)
+ovenFrame <- unmarkedFrameMPois(ovendata.list$data,
+                                siteCovs=ovendata.list$covariates,
+                                type="removal")
+
+oven_fit <- stan_multinomPois(~1~scale(ufc), ovenFrame, chains=3, iter=300)
+}
+
+}
 \seealso{
 \code{\link{multinomPois}}, \code{\link{unmarkedFrameMPois}}
 }

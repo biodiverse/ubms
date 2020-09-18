@@ -39,6 +39,11 @@ This function fits the hierarchical distance sampling model of Royle
 et al. (2004) to line or point transect data recorded in discerete
 distance intervals.
 }
+\note{
+Values of `dist.breaks` in the `unmarkedFrameDS` should be as small
+ as possible (<10) to facilitate convergence. Consider converting `unitsIn` from
+ meters to kilometers, for example. See example below.
+}
 \section{Warning}{
  Use of the hazard-rate key function (\code{"hazard"})
  typically requires a large sample size in order to get good parameter
@@ -48,6 +53,19 @@ distance intervals.
  good estimates of the hazard-rate shape and scale parameters.
 }
 
+\examples{
+\dontrun{
+data(issj)
+#Note use of km instead of m for distance breaks
+jayUMF <- unmarkedFrameDS(y=as.matrix(issj[,1:3]),
+                          siteCovs=issj[,c("elevation","forest")],
+                          dist.breaks=c(0,0.1,0.2,0.3),
+                          unitsIn="km", survey="point")
+
+fm_jay <- stan_distsamp(~1~scale(elevation), jayUMF, chains=3, iter=300)
+}
+
+}
 \references{
 Royle, J. A., Dawson, D. K., & Bates, S. (2004). Modeling
  abundance effects in distance sampling. Ecology 85: 1591-1597.
