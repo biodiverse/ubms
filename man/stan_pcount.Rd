@@ -26,7 +26,21 @@ number of chains \code{chains} or iterations \code{iter}}
 }
 \description{
 This function fits the single season N-mixture model of
-Royle et al. (2002).
+Royle et al. (2004).
+}
+\examples{
+\dontrun{
+data(mallard)
+mallardUMF <- unmarkedFramePCount(mallard.y, siteCovs=mallard.site)
+
+(fm_mallard <- stan_pcount(~1~elev+forest, mallardUMF, K=30,
+                           chains=3, iter=300))
+}
+
+}
+\references{
+Royle JA. 2004. N-mixture models for estimating populaiton size
+ from spatially replicated counts. Biometrics 60: 105-108.
 }
 \seealso{
 \code{\link{pcount}}, \code{\link{unmarkedFramePCount}}

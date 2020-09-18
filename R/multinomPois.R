@@ -11,6 +11,16 @@
 #'
 #' @return \code{ubmsFitMultinomPois} object describing the model fit.
 #'
+#' @examples
+#' \dontrun{
+#' data(ovendata)
+#' ovenFrame <- unmarkedFrameMPois(ovendata.list$data,
+#'                                 siteCovs=ovendata.list$covariates,
+#'                                 type="removal")
+#'
+#' oven_fit <- stan_multinomPois(~1~scale(ufc), ovenFrame, chains=3, iter=300)
+#' }
+#'
 #' @seealso \code{\link{multinomPois}}, \code{\link{unmarkedFrameMPois}}
 #' @export
 stan_multinomPois <- function(formula, data, ...){

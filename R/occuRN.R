@@ -15,6 +15,19 @@
 #'
 #' @return \code{ubmsFitOccuRN} object describing the model fit.
 #'
+#' @examples
+#' \dontrun{
+#' data(birds)
+#' woodthrushUMF <- unmarkedFrameOccu(woodthrush.bin)
+#' #Add a site covariate
+#' siteCovs(woodthrushUMF) <- data.frame(cov1=rnorm(numSites(woodthrushUMF)))
+#'
+#' (fm_wood <- stan_occuRN(~1~cov1, woodthrushUMF, chains=3, iter=300))
+#' }
+#'
+#' @references Royle JA, Nichols JD. 2003. Estimating abundance from
+#'  repeated presence-absence data or point counts. Ecology 84: 777-790.
+#'
 #' @seealso \code{\link{occuRN}}, \code{\link{unmarkedFrameOccu}}
 #' @export
 stan_occuRN <- function(formula, data, K=20, ...){
