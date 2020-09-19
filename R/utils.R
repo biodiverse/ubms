@@ -22,6 +22,7 @@ plot_theme <- function(){
     theme_bw() +
     theme(panel.grid.major=element_blank(),
           panel.grid.minor=element_blank(),
+          plot.title=element_text(size=14),
           axis.text=element_text(size=12),
           axis.title=element_text(size=14),
           strip.background=element_blank(),

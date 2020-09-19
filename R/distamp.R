@@ -79,7 +79,7 @@ stan_distsamp <- function(formula, data, keyfun=c("halfnorm", "exp", "hazard"),
 #Output object-----------------------------------------------------------------
 
 #' @include fit.R
-setClass("ubmsFitDistsamp", contains = "ubmsFit")
+setClass("ubmsFitDistsamp", contains = "ubmsFitAbun")
 
 
 #Response class----------------------------------------------------------------
@@ -107,15 +107,6 @@ setMethod("get_auxiliary_data", "ubmsResponseDistsamp", function(object, ...){
               aux3=get_conv_const(object))
   c(out, list(n_aux1=2, n_aux2=length(out$aux2), n_aux3=length(out$aux3)))
 })
-
-#setMethod("get_stan_data", "ubmsResponseDistsamp", function(object, ...){
-#  out <- callNextMethod(object, ...)
-#  c(out,
-#    list(point=ifelse(object@survey=="point",1,0),
-#    db=object@dist_breaks,
-#    keyfun = switch(object@keyfun, halfnorm={0}, exp={1}),
-#    conv_const = get_conv_const(object)))
-#})
 
 #Builds the values in the denominator of the detection part of the likelihood
 get_conv_const <- function(resp){
@@ -188,7 +179,6 @@ setMethod("get_Kmin", "ubmsResponseDistsamp", function(object){
   out[keep,,drop=FALSE]
 })
 
-#Goodness-of-fit---------------------------------------------------------------
 
 #Methods to simulate posterior predictive distributions------------------------
 
@@ -346,6 +336,19 @@ distprob_haz_point <- function(shape, scale, db, conv_const, inds){
   as.vector(out)
 }
 
+
+#Goodness-of-fit---------------------------------------------------------------
+
+#' @include posterior_linpred.R
+setMethod("sim_state", "ubmsFitDistsamp", function(object, samples, ...){
+    lp <- methods::callNextMethod(object, samples, ...)
+    if(object@response@output == "density"){
+      lp <- t(t(lp) * get_area_adjust(object@response))
+    }
+    lp
+})
+
+
 #Method for fitted values------------------------------------------------------
 
 setMethod("sim_fitted", "ubmsFitDistsamp", function(object, submodel, samples, ...){
@@ -367,6 +370,7 @@ setMethod("sim_fitted", "ubmsFitDistsamp", function(object, submodel, samples, .
   #out[z == 0] <- NA
   out
 })
+
 
 #Histogram---------------------------------------------------------------------
 

@@ -21,20 +21,15 @@ setMethod("plot", "ubmsGOF", function(x, ...){
   ggplot(x@samples, aes_string(x="obs", y="sim")) +
     geom_abline(aes(intercept=0, slope=1),size=1.2, col='red') +
     geom_point(alpha=0.4) +
-    ggtitle(paste("Posterior predictive check:", x@statistic)) +
-    theme_bw() +
-    labs(y="Simulated data", x="Observed data") +
-    theme(panel.grid.major=element_blank(),
-          panel.grid.minor=element_blank(),
-          plot.title=element_text(size=14),
-          strip.background=element_rect(fill="transparent"),
-          strip.text=element_text(size=14),
-          axis.text=element_text(size=12),
-          axis.title=element_text(size=14)) +
     geom_label(data=ppval, aes_string(x=-Inf, y=Inf, label="lab"),
-              hjust=-0.2, vjust=1.4, size=5,
-              fill='white', label.size=0,
-              label.padding=unit(0.1, "lines"))
+               hjust=-0.2, vjust=1.4, size=5,
+               fill='white', label.size=0,
+               label.padding=unit(0.1, "lines")) +
+    ggtitle(paste("Posterior predictive check:", x@statistic)) +
+    labs(y="Simulated data", x="Observed data") +
+    plot_theme() +
+    theme(strip.background=element_rect(fill="transparent"),
+          strip.text=element_text(size=14))
 })
 
 #' Check model goodness-of-fit
@@ -53,3 +48,45 @@ setMethod("plot", "ubmsGOF", function(x, ...){
 #' @export
 setGeneric("gof", function(object, draws=NULL, ...){
              standardGeneric("gof")})
+
+
+# Generic function for goodness-of-fit test------------------------------------
+sim_gof <- function(object, draws, func, name, quiet=FALSE, ...){
+  samples <- get_samples(object, draws)
+  draws <- length(samples)
+
+  state <- sim_state(object, samples)
+  p <- sim_p(object, samples)
+
+  M <- get_n_sites(object@response)
+  T <- object@response@max_primary
+  R <- T * object@response@max_obs
+  ysim <- sim_y(object, samples, re.form=NULL)
+  ysim <- array(ysim, c(draws,R,M))
+  ysim <- aperm(ysim, c(3,2,1))
+
+  stat_obs <- stat_sim <- rep(NA, draws)
+  if(!quiet) pb <- utils::txtProgressBar(min = 0, max = draws, style = 3)
+  object_star <- object
+  for (i in 1:draws){
+    stat_obs[i] <- func(object, state[i,], p[i,])
+    object_star@response <- ubmsResponse(ysim[,,i], object@response@y_dist,
+                                         object@response@z_dist, max_primary=T)
+    stat_sim[i] <- func(object_star, state[i,], p[i,])
+    if(!quiet) utils::setTxtProgressBar(pb, i)
+  }
+  if(!quiet) close(pb)
+  ubmsGOF(name, data.frame(obs=stat_obs, sim=stat_sim))
+}
+
+# N-mixture Chi-square test for abundance models-------------------------------
+
+Nmix_chisq <- function(object, lambda, p){
+  J <- object@response@max_obs
+  lambda <- lambda[rep(1:length(lambda), each=J)]
+  stopifnot(length(lambda) == length(p))
+  fit <- lambda*p
+  obs <- as_vector(object@response, na.rm=FALSE)
+  stopifnot(length(obs) == length(fit))
+  sum((obs - fit)^2/fit, na.rm=TRUE)
+}

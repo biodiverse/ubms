@@ -48,7 +48,7 @@ get_pifun_type <- function(umf){
 #Output object-----------------------------------------------------------------
 
 #' @include fit.R
-setClass("ubmsFitMultinomPois", contains = "ubmsFit")
+setClass("ubmsFitMultinomPois", contains = "ubmsFitAbun")
 
 
 #Response class----------------------------------------------------------------
@@ -110,8 +110,6 @@ setMethod("update_missing", c("ubmsSubmodelList", "ubmsResponseMultinomPois"),
 
   object
 })
-
-#Goodness-of-fit---------------------------------------------------------------
 
 
 #Methods to simulate posterior predictive distributions------------------------
