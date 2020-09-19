@@ -28,6 +28,7 @@
 #'  probabilities are less than one. Ecology 83: 2248-2255.
 #'
 #' @seealso \code{\link{occu}}, \code{\link{unmarkedFrameOccu}}
+#' @include fit.R
 #' @export
 stan_occu <- function(formula, data, ...){
 
@@ -43,12 +44,6 @@ stan_occu <- function(formula, data, ...){
 }
 
 
-#Output object-----------------------------------------------------------------
-
-#' @include fit.R
-setClass("ubmsFitOccu", contains = "ubmsFit")
-
-
 #Goodness-of-fit---------------------------------------------------------------
 
 #' @describeIn gof
@@ -59,42 +54,9 @@ setClass("ubmsFitOccu", contains = "ubmsFit")
 #'  and Environmental Statistics, 9(3), 300-318.
 #' @include gof.R
 setMethod("gof", "ubmsFitOccu", function(object, draws=NULL, quiet=FALSE, ...){
-
-  samples <- get_samples(object, draws)
-  draws <- length(samples)
-
-  psi <- sim_state(object, samples)
-  p <- sim_lp(object, transform=TRUE, submodel="det", newdata=NULL,
-                     samples, re.form=NULL)
-
-  M <- get_n_sites(object@response)
-  T <- object@response@max_primary
-  R <- T * object@response@max_obs
-  ysim <- sim_y(object, samples, re.form=NULL)
-  ysim <- array(ysim, c(draws,R,M))
-  ysim <- aperm(ysim, c(3,2,1))
-
-  mb_obs <- mb_sim <- rep(NA, draws)
-  if(!quiet) pb <- utils::txtProgressBar(min = 0, max = draws, style = 3)
-  object_star <- object
-  for (i in 1:draws){
-    mb_obs[i] <- mb_chisq(object, psi[i,], p[i,])
-    object_star@response <- ubmsResponse(ysim[,,i], object@response@y_dist,
-                                         object@response@z_dist, max_primary=T)
-    #mb_chisq handles replicating NAs
-    mb_sim[i] <- mb_chisq(object_star, psi[i,], p[i,])
-    if(!quiet) utils::setTxtProgressBar(pb, i)
-  }
-  if(!quiet) close(pb)
-  ubmsGOF("MacKenzie-Bailey Chi-square", data.frame(obs=mb_obs, sim=mb_sim))
+  sim_gof(object, draws, mb_chisq, "MacKenzie-Bailey Chi-square", quiet)
 })
 
-setGeneric("sim_state", function(object, ...) standardGeneric("sim_state"))
-
-setMethod("sim_state", "ubmsFitOccu", function(object, samples, ...){
-  sim_lp(object, transform=TRUE, submodel="state", newdata=NULL,
-         samples, re.form=NULL)
-})
 
 #Methods to simulate posterior predictive distributions------------------------
 

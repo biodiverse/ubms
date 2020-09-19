@@ -70,8 +70,6 @@ setMethod("sim_fitted", "ubmsFitOccuRN",
   callNextMethod(object, submodel, samples, ...)
 })
 
-#Goodness of fit---------------------------------------------------------------
-
 
 #Methods to simulate posterior predictive distributions------------------------
 

@@ -186,6 +186,7 @@ setMethod("sim_fitted", "ubmsFitColext",
 
 #Goodness-of-fit---------------------------------------------------------------
 
+#' @include posterior_linpred.R
 setMethod("sim_state", "ubmsFitColext", function(object, samples, ...){
   sim_projected(object, samples, re.form=NULL)
 })

@@ -13,6 +13,12 @@ setClass("ubmsFit",
           )
 )
 
+# Child class for occupancy-type models
+setClass("ubmsFitOccu", contains = "ubmsFit")
+
+# Child class for abundance/N-mixture type models
+setClass("ubmsFitAbun", contains = "ubmsFit")
+
 ubmsFit <- function(model, call, data, response, submodels, ...){
   #Find missing
   response <- update_missing(response, submodels)

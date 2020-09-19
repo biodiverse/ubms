@@ -4,14 +4,14 @@
 \alias{gof}
 \alias{plot,ubmsGOF,ANY-method}
 \alias{gof,ubmsFitOccu-method}
-\alias{gof,ubmsFitPcount-method}
+\alias{gof,ubmsFitAbun-method}
 \title{Check model goodness-of-fit}
 \usage{
 gof(object, draws = NULL, ...)
 
 \S4method{gof}{ubmsFitOccu}(object, draws = NULL, quiet = FALSE, ...)
 
-\S4method{gof}{ubmsFitPcount}(object, draws = NULL, quiet = FALSE, ...)
+\S4method{gof}{ubmsFitAbun}(object, draws = NULL, quiet = FALSE, ...)
 }
 \arguments{
 \item{object}{A fitted model of class \code{ubmsFit}}
@@ -35,7 +35,7 @@ checks
 \item \code{gof,ubmsFitOccu-method}: Applies the MacKenzie-Bailey chi-square goodness of fit test for
 ocupancy models (MacKenzie and Bailey 2004).
 
-\item \code{gof,ubmsFitPcount-method}: A goodness-of-fit test for N-mixture models based on Pearson's chi-square.
+\item \code{gof,ubmsFitAbun-method}: A goodness-of-fit test for N-mixture type models based on Pearson's chi-square.
 }}
 
 \references{

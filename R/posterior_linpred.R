@@ -36,6 +36,7 @@ setMethod("posterior_linpred", "ubmsFit",
          samples=samp_inds, re.form=re.form)
 })
 
+# Method for simulating linear predictor---------------------------------------
 
 setGeneric("sim_lp", function(object, ...) standardGeneric("sim_lp"))
 
@@ -58,4 +59,21 @@ setMethod("sim_lp", "ubmsFit", function(object, submodel, transform, newdata,
   t(unname(lp))
 })
 
+
+# Method simulating state parameter (special case of sim_lp)-------------------
+
+setGeneric("sim_state", function(object, ...) standardGeneric("sim_state"))
+
+setMethod("sim_state", "ubmsFit", function(object, samples, ...){
+  sim_lp(object, transform=TRUE, submodel="state", newdata=NULL,
+         samples, re.form=NULL)
+})
+
+
+# Method simulating detection probability (special case of sim_lp)-------------
+
 setGeneric("sim_p", function(object, samples, ...) standardGeneric("sim_p"))
+
+setMethod("sim_p", "ubmsFit", function(object, samples, ...){
+  sim_lp(object, "det", transform=TRUE, newdata=NULL, samples=samples, re.form=NULL)
+})
