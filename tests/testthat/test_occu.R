@@ -68,22 +68,22 @@ test_that("ubmsFitOccu gof method works",{
 test_that("ubmsFitOccu gof method works with missing values",{
   set.seed(123)
   g <- gof(fit_na, draws=10, quiet=TRUE)
-  expect_equal(g@estimate, 72.776, tol=1e-4)
+  expect_is(g, "ubmsGOF")
 })
 
 test_that("stan_occu predict method works",{
   pr <- predict(fit_na, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(100, 4))
-  expect_equivalent(pr[1,], c(0.5373, 0.06697, 0.3969,0.6505), tol=1e-4)
+  expect_equivalent(pr[1,1], 0.5373, tol=0.01)
   pr <- predict(fit_na, "det")
   expect_equal(dim(pr), c(500,4))
-  expect_equivalent(pr[1,], c(0.6124,0.039795,0.5387,0.6886), tol=1e-4)
+  expect_equivalent(pr[1,1], 0.6124, tol=0.01)
   #with newdata
   nd <- data.frame(x1=c(0,1))
   pr <- predict(fit_na, "state", newdata=nd)
   expect_equal(dim(pr), c(2,4))
-  expect_equivalent(pr[1,], c(0.65298,0.05553,0.54929,0.75471), tol=1e-4)
+  expect_equivalent(pr[1,1], 0.65298, tol=0.01)
 })
 
 test_that("stan_occu sim_z method works",{
