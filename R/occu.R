@@ -100,13 +100,14 @@ setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
 
 setMethod("sim_y", "ubmsFitOccu", function(object, samples, re.form, z=NULL, ...){
   nsamp <- length(samples)
-  M <- get_n_sites(object@response)
+  M <- nrow(object@response@y)
   J <- object@response@max_obs
   T <- object@response@max_primary
 
   z <- process_z(object, samples, re.form, z)
   p <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
                 samples=samples, re.form=re.form))
+  p[object@response@missing] <- NA
 
   zp <- z[rep(1:nrow(z), each=J),,drop=FALSE] * p
 

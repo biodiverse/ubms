@@ -83,8 +83,10 @@ setMethod("sim_z", "ubmsFitPcount", function(object, samples, re.form, ...){
 
   p_post <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
                    samples=samples, re.form=re.form))
+  p_post[object["det"]@missing] <- NA
   lam_post <- t(sim_lp(object, submodel="state", transform=TRUE, newdata=NULL,
                      samples=samples, re.form=re.form))
+  lam_post[object["state"]@missing] <- NA
 
   M <- nrow(lam_post)
   J <- nrow(p_post) / M
@@ -94,10 +96,11 @@ setMethod("sim_z", "ubmsFitPcount", function(object, samples, re.form, ...){
 
   y <- getY(object@data)
   K <- object@response@K
-  Kmin <- get_Kmin(object@response)[,1]
+  Kmin <- apply(y, 1, function(x) ifelse(all(is.na(x)), NA, max(x, na.rm=TRUE)))
 
   t(simz_pcount(y, lam_post, p_post, K, Kmin, 0:K))
 })
+
 
 setMethod("sim_y", "ubmsFitPcount", function(object, samples, re.form, z=NULL, ...){
   nsamples <- length(samples)

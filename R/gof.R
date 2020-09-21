@@ -58,7 +58,7 @@ sim_gof <- function(object, draws, func, name, quiet=FALSE, ...){
   state <- sim_state(object, samples)
   p <- sim_p(object, samples)
 
-  M <- get_n_sites(object@response)
+  M <- ncol(t(object@response)) #Should fix get_n_sites method for this
   T <- object@response@max_primary
   R <- T * object@response@max_obs
   ysim <- sim_y(object, samples, re.form=NULL)
