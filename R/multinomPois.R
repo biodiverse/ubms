@@ -121,10 +121,11 @@ setMethod("sim_z", "ubmsFitMultinomPois", function(object, samples, re.form, K=N
 
   lam_post <- t(sim_lp(object, "state", transform=TRUE, newdata=NULL,
                        re.form=re.form, samples=samples))
+  lam_post[object["state"]@missing] <- NA
   p_post <- get_pi_for_multinom(object, samples)
 
-  K <- get_K(resp, K)
-  Kmin <- get_Kmin(resp)
+  K <- object@response@K
+  Kmin <- apply(y, 1, function(x) ifelse(all(is.na(x)), NA, max(x, na.rm=TRUE)))
   kvals <- 0:K
 
   t(simz_multinom(y, lam_post, p_post, K, Kmin, kvals))
@@ -133,7 +134,7 @@ setMethod("sim_z", "ubmsFitMultinomPois", function(object, samples, re.form, K=N
 setMethod("sim_y", "ubmsFitMultinomPois",
           function(object, samples, re.form, z=NULL, K=NULL, ...){
   nsamp <- length(samples)
-  M <- get_n_sites(object@response)
+  M <- nrow(object@response@y)
   J <- object@response@max_obs
   z <- process_z(object, samples, re.form, z)
   p <- get_pi_for_multinom(object, samples)
@@ -141,6 +142,7 @@ setMethod("sim_y", "ubmsFitMultinomPois",
   out <- array(NA, c(J, M, nsamp))
   for (i in 1:nsamp){
     for (m in 1:M){
+      if(is.na(z[m,i])) next
       out[,m,i] <- stats::rmultinom(n=1, size=z[m,i], prob=p[m,,i])[1:J]
     }
   }
@@ -150,13 +152,14 @@ setMethod("sim_y", "ubmsFitMultinomPois",
 get_pi_for_multinom <- function(object, samples){
   resp <- object@response
   nsamp <- length(samples)
-  M <- get_n_sites(resp)
+  M <- nrow(object@response@y)
   J <- resp@max_obs
   pi_fun <- switch(resp@y_dist, double = unmarked::doublePiFun,
                    removal = unmarked::removalPiFun)
 
   p_raw <- t(sim_lp(object, "det", transform=TRUE, newdata=NULL,
                   re.form=NULL, samples=samples))
+  p_raw[object["det"]@missing] <- NA
   p_raw <- array(p_raw, c(nrow(p_raw) / M, M, nsamp))
   p_raw <- aperm(p_raw, c(2,1,3))
 
@@ -176,7 +179,7 @@ setMethod("getP", "ubmsFitMultinomPois", function(object, draws=NULL, ...){
   samples <- get_samples(object, draws)
   resp <- object@response
   praw <- t(sim_p(object, samples))
-  praw <- array(praw, c(resp@max_obs, get_n_sites(resp), length(samples)))
+  praw <- array(praw, c(resp@max_obs, nrow(resp@y), length(samples)))
   aperm(praw, c(2,1,3))
 })
 
