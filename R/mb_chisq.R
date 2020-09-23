@@ -89,7 +89,7 @@ split_response_by_T <- function(resp){
 }
 
 split_psi_by_T <- function(psi, resp){
-  M <- get_n_sites(resp)
+  M <- nrow(resp@y)
   T <- resp@max_primary
   stopifnot(length(psi) == M*T)
   lapply(1:T, function(i){
@@ -98,7 +98,7 @@ split_psi_by_T <- function(psi, resp){
 }
 
 split_p_by_T <- function(p, resp){
-  M <- get_n_sites(resp)
+  M <- nrow(resp@y)
   T <- resp@max_primary
   J <- resp@max_obs
   R <- M*T*J
