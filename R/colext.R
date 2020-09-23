@@ -150,7 +150,7 @@ setMethod("turnover", "ubmsFitColext", function(object, draws, re.form=NULL, ...
 })
 
 sim_turnover <- function(object, samples, re.form){
-  M <- get_n_sites(object@response)
+  M <- nrow(object@response@y)
   T <- object@response@max_primary
   nsamp <- length(samples)
 
