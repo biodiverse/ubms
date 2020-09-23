@@ -2,7 +2,7 @@ context("stan_colext function and methods")
 
 #Simulate dataset
 set.seed(123)
-M <- 150; T <- 3; J <- 3
+M <- 50; T <- 3; J <- 3
 z <- matrix(NA, M, T)
 
 z[,1] <- rbinom(M, 1, 0.3)
@@ -56,12 +56,12 @@ test_that("stan_pcount output structure is correct",{
 test_that("stan_colext produces accurate results",{
   #similar to truth
   beta <- c(log(0.3/0.7), 0, log(0.6/0.4), 0, log(0.25/0.75), 0)
-  expect_equal(as.vector(coef(fit)), beta, tol=0.2)
+  expect_equal(as.vector(coef(fit)), beta, tol=0.5)
   #similar to unmarked
   expect_equivalent(as.vector(coef(fit)), coef(fit_unm), tol=0.07)
   #similar to previous known values
-  expect_equal(as.vector(coef(fit)), c(-0.84321,-0.038997,0.587029,
-                                       0.1401878,-1.061324,0.0281296), tol=1e-4)
+  expect_equal(as.vector(coef(fit)), c(-1.00958,-0.2058173,0.294888,0.069364,
+                                       -0.692046,0.13280), tol=1e-4)
 })
 
 test_that("stan_colext handles NA values",{
@@ -71,7 +71,7 @@ test_that("stan_colext handles NA values",{
 test_that("ubmsFitColext gof method works",{
   set.seed(123)
   g <- gof(fit, draws=10, quiet=TRUE)
-  expect_equal(g@estimate, 16.8974, tol=1e-4)
+  expect_equal(g@estimate, 23.09533, tol=1e-4)
   gof_plot_method <- methods::getMethod("plot", "ubmsGOF")
   pdf(NULL)
   pg <- gof_plot_method(g)
@@ -89,15 +89,15 @@ test_that("ubmsFitColext predict method works",{
   pr <- predict(fit_na, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(numSites(umf2), 4))
-  expect_equivalent(pr[1,1], 0.335, tol=0.01)
+  expect_equivalent(pr[1,1], 0.273, tol=0.01)
   pr <- predict(fit_na, "det")
   expect_equal(dim(pr), c(numSites(umf)*obsNum(umf),4))
-  expect_equivalent(pr[1,1], 0.5106, tol=0.01)
+  expect_equivalent(pr[1,1], 0.5405, tol=0.01)
   #with newdata
   nd <- data.frame(x2=c(0,1))
   pr <- predict(fit_na, "state", newdata=nd)
   expect_equal(dim(pr), c(2,4))
-  expect_equivalent(pr[1,1], 0.3052, tol=0.01)
+  expect_equivalent(pr[1,1], 0.2836, tol=0.01)
 })
 
 test_that("ubmsFitColext sim_z method works",{
@@ -106,7 +106,7 @@ test_that("ubmsFitColext sim_z method works",{
   zz <- sim_z(fit, samples, re.form=NULL)
   expect_is(zz, "matrix")
   expect_equal(dim(zz), c(length(samples), numSites(umf)*umf@numPrimary))
-  expect_equal(mean(zz), 0.5549, tol=1e-4)
+  expect_equal(mean(zz), 0.51666, tol=1e-4)
   expect_equal(max(zz), 1)
 
   set.seed(123)
@@ -175,7 +175,7 @@ test_that("projected function and sim_state works with ubmsFitColext",{
   samples <- get_samples(fit, 3)
   pro <- sim_projected(fit, samples, NULL)
   expect_equal(dim(pro), c(3, numSites(umf)*umf@numPrimary))
-  expect_equal(mean(pro), 0.557, tol=0.01)
+  expect_equal(mean(pro), 0.4903, tol=0.01)
   set.seed(123)
   expect_equivalent(projected(fit, 3), pro)
 
@@ -194,7 +194,7 @@ test_that("turnover function works with ubmsFitColext",{
   samples <- get_samples(fit, 3)
   turn <- sim_turnover(fit, samples, NULL)
   expect_equal(dim(turn), c(3, numSites(umf)*(umf@numPrimary-1)))
-  expect_equal(mean(turn), 0.4817, tol=0.01)
+  expect_equal(mean(turn), 0.5207, tol=0.01)
   set.seed(123)
   expect_equivalent(turnover(fit, 3), turn)
 
