@@ -105,15 +105,15 @@ test_that("ubmsFitMultinomPois predict method works",{
   pr <- predict(fit_double_na, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(10, 4))
-  expect_equivalent(pr[1,1], 8.2588, tol=0.01)
+  expect_equivalent(pr[1,1], 8.2588, tol=0.5)
   pr <- predict(fit_double_na, "det")
   expect_equal(dim(pr), c(10*obsNum(umf_double),4))
-  expect_equivalent(pr[1,1], 0.5894, tol=0.01)
+  expect_equivalent(pr[1,1], 0.5894, tol=0.05)
   #with newdata
   nd <- data.frame(x=c(0,1))
   pr <- predict(fit_double_na, "state", newdata=nd)
   expect_equal(dim(pr), c(2,4))
-  expect_equivalent(pr[1,1], 7.9431, tol=0.01)
+  expect_equivalent(pr[1,1], 7.9431, tol=0.5)
 })
 
 test_that("ubmsFitMultinomPois sim_z method works",{

@@ -94,15 +94,15 @@ test_that("ubmsFitColext predict method works",{
   pr <- predict(fit_na, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(10, 4))
-  expect_equivalent(pr[1,1], 0.9303, tol=0.01)
+  expect_equivalent(pr[1,1], 0.9303, tol=0.05)
   pr <- predict(fit_na, "det")
   expect_equal(dim(pr), c(90,4))
-  expect_equivalent(pr[1,1], 0.4212, tol=0.01)
+  expect_equivalent(pr[1,1], 0.4212, tol=0.05)
   #with newdata
   nd <- data.frame(x2=c(0,1))
   pr <- predict(fit_na, "state", newdata=nd)
   expect_equal(dim(pr), c(2,4))
-  expect_equivalent(pr[1,1], 0.5667, tol=0.01)
+  expect_equivalent(pr[1,1], 0.5667, tol=0.05)
 })
 
 test_that("ubmsFitColext sim_z method works",{

@@ -81,15 +81,15 @@ test_that("ubmsFitPcount predict method works",{
   pr <- predict(fit_na, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(10, 4))
-  expect_equivalent(pr[1,1], 1.2287, tol=0.01)
+  expect_equivalent(pr[1,1], 1.2287, tol=0.05)
   pr <- predict(fit_na, "det")
   expect_equal(dim(pr), c(10*obsNum(umf2),4))
-  expect_equivalent(pr[1,1], 0.4634, tol=0.01)
+  expect_equivalent(pr[1,1], 0.4634, tol=0.05)
   #with newdata
   nd <- data.frame(x1=c(0,1))
   pr <- predict(fit_na, "state", newdata=nd)
   expect_equal(dim(pr), c(2,4))
-  expect_equivalent(pr[1,1], 2.0251, tol=0.01)
+  expect_equivalent(pr[1,1], 2.0251, tol=0.05)
 })
 
 test_that("ubmsFitPcount sim_z method works",{
