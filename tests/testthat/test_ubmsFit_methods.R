@@ -74,3 +74,17 @@ test_that("traceplot method works for ubmsFit",{
   tr <- traceplot(fit, pars="beta_state")
   expect_is(tr, "gg")
 })
+
+test_that("predicting map works for ubmsFit",{
+  r <- raster::raster(matrix(rnorm(30), ncol=5, nrow=6))
+  names(r) <- "x1"
+  r2 <- r
+  names(r2) <- "x2"
+  rs <- raster::stack(r, r2)
+  pr_rast <- predict(fit, "state", newdata=r, re.form=NA)
+  expect_is(pr_rast, "RasterBrick")
+  expect_equal(length(pr_rast), 30*4)
+  pr_rast2 <- predict(fit, "state", newdata=rs, re.form=NA)
+  expect_is(pr_rast2, "RasterBrick")
+  expect_equal(length(pr_rast2), 30*4)
+})

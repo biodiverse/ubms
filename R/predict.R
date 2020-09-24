@@ -39,7 +39,7 @@ setMethod("predict", "ubmsFit",
           function(object, submodel, newdata=NULL, transform=TRUE,
                    re.form=NULL, level=0.95, ...){
 
-  if(inherits(newdata, c("raster", "RasterStack"))){
+  if(inherits(newdata, c("RasterLayer", "RasterStack"))){
     return(predict_raster(object, submodel, newdata, transform, re.form, level))
   }
 
