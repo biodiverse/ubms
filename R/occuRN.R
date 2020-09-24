@@ -78,8 +78,10 @@ setMethod("sim_z", "ubmsFitOccuRN", function(object, samples, re.form, ...){
 
   r_post <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
                    samples=samples, re.form=re.form))
+  r_post[object["det"]@missing] <- NA
   lam_post <- t(sim_lp(object, submodel="state", transform=TRUE, newdata=NULL,
                      samples=samples, re.form=re.form))
+  lam_post[object["state"]@missing] <- NA
 
   M <- nrow(lam_post)
   J <- nrow(r_post) / M
@@ -89,7 +91,7 @@ setMethod("sim_z", "ubmsFitOccuRN", function(object, samples, re.form, ...){
 
   y <- getY(object@data)
   K <- object@response@K
-  Kmin <- get_Kmin(object@response)[,1]
+  Kmin <- apply(y, 1, function(x) ifelse(all(is.na(x)), NA, max(x, na.rm=TRUE)))
 
   t(simz_occuRN(y, lam_post, r_post, K, Kmin, 0:K))
 })
@@ -103,6 +105,7 @@ setMethod("sim_y", "ubmsFitOccuRN", function(object, samples, re.form, z=NULL, .
   z <- process_z(object, samples, re.form, z)
   r <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
                 samples=samples, re.form=re.form))
+  r[object["det"]@missing] <- NA
   N <- z[rep(1:nrow(z), each=J),]
   p <- as.vector(1 - (1-r)^N)
 

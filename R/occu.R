@@ -65,8 +65,10 @@ setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
 
   p_post <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
                      samples=samples, re.form=re.form))
+  p_post[object["det"]@missing] <- NA
   psi_post <- t(sim_lp(object, submodel="state", transform=TRUE, newdata=NULL,
                        samples=samples, re.form=re.form))
+  psi_post[object["state"]@missing] <- NA
 
   M <- nrow(psi_post)
   J <- nrow(p_post) / M

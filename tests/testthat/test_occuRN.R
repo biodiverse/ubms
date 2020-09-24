@@ -1,27 +1,27 @@
-context("stan_occu function and methods")
+context("stan_occuRN function and methods")
 
 #Simulate dataset
-set.seed(567)
+set.seed(123)
 dat_occ <- data.frame(x1=rnorm(500))
 dat_p <- data.frame(x2=rnorm(500*5))
 
 y <- matrix(NA, 500, 5)
-z <- rep(NA, 500)
-b <- c(0.4, -0.5, 0, 0.5)
+N <- rep(NA, 500)
 
-#re_fac <- factor(sample(letters[1:26], 500, replace=T))
-#dat_occ$group <- re_fac
-#re <- rnorm(26, 0, 1.2)
-#re_idx <- as.numeric(re_fac)
+b <- c(0.4, -0.5, 0.3, 0.5)
 
 idx <- 1
 for (i in 1:500){
-  z[i] <- rbinom(1,1, plogis(b[1] + b[2]*dat_occ$x1[i]))# + re[re_idx[i]]))
+  N[i] <- rpois(1, exp(b[1]+b[2]*dat_occ$x1[i]))
   for (j in 1:5){
-    y[i,j] <- z[i]*rbinom(1,1, plogis(b[3] + b[4]*dat_p$x2[idx]))
+    r <- plogis(b[3] + b[4]*dat_p$x2[idx])
+    p <- 1 - (1-r)^N[i]
+    y[i,j] <- rbinom(1, 1, p)
     idx <- idx + 1
   }
 }
+
+library(ubms)
 
 umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
 
@@ -29,44 +29,43 @@ umf2 <- umf
 umf2@y[1,] <- NA
 umf2@y[2,1] <- NA
 
-fit <- suppressWarnings(stan_occu(~x2~x1, umf[1:10,], chains=2,
-                                  iter=100, refresh=0))
+fit <- suppressWarnings(stan_occuRN(~x2~x1, umf[1:10,], K=15,
+                                    chains=2, iter=100, refresh=0))
 
+fit_na <- suppressWarnings(stan_occuRN(~x2~x1, umf2[1:10,], K=15,
+                                       chains=2, iter=100, refresh=0))
 
-fit_na <- suppressWarnings(stan_occu(~x2~x1, umf2[1:10,], chains=2,
-                                     iter=100, refresh=0))
-
-test_that("stan_occu output structure is correct",{
+test_that("stan_occuRN output structure is correct",{
+  expect_is(fit, "ubmsFitOccuRN")
   expect_is(fit, "ubmsFitOccu")
   expect_equal(nsamples(fit), 100)
 })
 
-test_that("stan_occu produces accurate results",{
-  skip_on_travis()
+test_that("stan_occuRN produces accurate results",{
   skip_on_cran()
+  skip_on_travis()
   skip_on_covr()
   set.seed(123)
-  fit_long <- suppressWarnings(stan_occu(~x2~x1, umf[1:100,], chains=3,
-                                  iter=300, refresh=0))
-  fit_unm <- occu(~x2~x1, umf[1:100,])
+  fit_long <- suppressWarnings(stan_occuRN(~x2~x1, umf[1:200,], K=15, chains=2,
+                                           iter=200, refresh=0))
+  fit_unm <- occuRN(~x2~x1, umf, K=15)
   #similar to truth
-  expect_equal(as.vector(coef(fit_long)), b, tol=0.3)
+  expect_equal(as.vector(coef(fit_long)), b, tol=0.2)
   #similar to unmarked
-  expect_equivalent(as.vector(coef(fit_long)), coef(fit_unm), tol=0.05)
+  expect_equivalent(as.vector(coef(fit_long)), coef(fit_unm), tol=0.1)
   #similar to previous known values
-  expect_equal(as.vector(coef(fit_long)), c(0.66842,-0.71230,0.04183,0.45068), tol=1e-4)
+  expect_equal(as.vector(coef(fit_long)),
+               c(0.4838,-0.6449,0.2749,0.5012), tol=1e-4)
 })
 
-test_that("stan_occu handles NA values",{
-  expect_equal(as.vector(coef(fit)), as.vector(coef(fit_na)), tol=0.3)
+test_that("stan_occuRN handles NA values",{
+  expect_equal(as.vector(coef(fit)), as.vector(coef(fit_na)), tol=0.2)
 })
 
-test_that("ubmsFitOccu gof method works",{
+test_that("ubmsFitOccuRN gof method works",{
   set.seed(123)
   g <- gof(fit, draws=5, quiet=TRUE)
-  expect_equal(g@estimate, 30, tol=0.5)
-  out <- capture.output(g)
-  expect_equal(out[1], "MacKenzie-Bailey Chi-square ")
+  expect_equal(g@estimate,39.23, tol=1e-2)
   gof_plot_method <- methods::getMethod("plot", "ubmsGOF")
   pdf(NULL)
   pg <- gof_plot_method(g)
@@ -74,64 +73,63 @@ test_that("ubmsFitOccu gof method works",{
   expect_is(pg, "gg")
 })
 
-test_that("ubmsFitOccu gof method works with missing values",{
+test_that("ubmsFitOccuRN gof method works with missing values",{
   set.seed(123)
   g <- gof(fit_na, draws=5, quiet=TRUE)
   expect_is(g, "ubmsGOF")
 })
 
-test_that("stan_occu predict method works",{
+test_that("ubmsFitOccuRN predict method works",{
   pr <- predict(fit_na, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(10, 4))
-  expect_equivalent(pr[1,1], 0.7206, tol=0.05)
+  expect_equivalent(pr[1,1], 1.761, tol=0.05)
   pr <- predict(fit_na, "det")
-  expect_equal(dim(pr), c(50,4))
-  expect_equivalent(pr[1,1], 0.6728, tol=0.05)
+  expect_equal(dim(pr), c(10*obsNum(umf2),4))
+  expect_equivalent(pr[1,1], 0.3637, tol=0.05)
   #with newdata
   nd <- data.frame(x1=c(0,1))
   pr <- predict(fit_na, "state", newdata=nd)
   expect_equal(dim(pr), c(2,4))
-  expect_equivalent(pr[1,1], 0.8063, tol=0.05)
+  expect_equivalent(pr[1,1], 1.663, tol=0.05)
 })
 
-test_that("stan_occu sim_z method works",{
+test_that("ubmsFitOccuRN sim_z method works",{
   set.seed(123)
   samples <- get_samples(fit, 5)
   zz <- sim_z(fit, samples, re.form=NULL)
   expect_is(zz, "matrix")
   expect_equal(dim(zz), c(length(samples), 10))
-  expect_equal(unique(as.vector(zz)), c(1,0))
-  expect_equal(mean(zz), 0.9, tol=0.01)
+  expect_equal(mean(zz), 1.6, tol=1e-2)
+  expect_equal(colMeans(zz), N[1:10], tol=0.5)
 
   set.seed(123)
   pz <- posterior_predict(fit, "z", draws=5)
   expect_equivalent(zz, pz)
 })
 
-test_that("stan_occu sim_y method works",{
+test_that("ubmsFitOccuRN sim_y method works",{
   set.seed(123)
   samples <- get_samples(fit, 5)
   yy <- sim_y(fit, samples, re.form=NULL)
   expect_is(yy, "matrix")
-  expect_equal(dim(yy), c(length(samples), 50))
-  expect_equal(max(yy), 1)
+  expect_equal(dim(yy), c(length(samples), 10*obsNum(umf)))
   set.seed(123)
   py <- posterior_predict(fit, "y", draws=5)
   expect_equivalent(yy, py)
 })
 
-test_that("Posterior sim methods for ubmsFitOccu work with NAs",{
+test_that("Posterior sim methods for ubmsFitOccuRN work with NAs",{
   zna <- posterior_predict(fit_na, "z", draws=3)
   expect_equal(dim(zna), c(3,10))
   expect_true(all(is.na(zna[,1])))
   yna <- posterior_predict(fit_na, "y", draws=3)
-  expect_equal(dim(yna), c(3,50))
+  expect_equal(dim(yna), c(3, 10*obsNum(umf2)))
   expect_equal(sum(is.na(yna[1,])), 6)
   expect_equal(sum(is.na(yna[2,])), 6)
 })
 
-test_that("Posterior linear pred methods work for ubmsFitOccu",{
+test_that("Posterior linear pred methods work for ubmsFitOccuRN",{
   set.seed(123)
   samples <- get_samples(fit, 3)
   lp1 <- sim_lp(fit, "state", transform=TRUE, samples=samples,
@@ -141,20 +139,20 @@ test_that("Posterior linear pred methods work for ubmsFitOccu",{
   pl <- posterior_linpred(fit, draws=3, submodel="state")
 })
 
-test_that("Fitted/residual methods work with ubmsFitOccu",{
+test_that("Fitted/residual methods work with ubmsFitOccuRN",{
   ubms_fitted <- methods::getMethod("fitted", "ubmsFit")
   ubms_residuals <- methods::getMethod("residuals", "ubmsFit")
   ubms_plot <- methods::getMethod("plot", "ubmsFit")
 
   ft <- ubms_fitted(fit, "state", draws=5)
   ft2 <- ubms_fitted(fit, "det", draws=5)
-  expect_equal(dim(ft), c(5,10))
-  expect_equal(dim(ft2), c(5,50))
+  expect_equal(dim(ft), c(5, 10))
+  expect_equal(dim(ft2), c(5, 10*obsNum(umf)))
 
   res <- ubms_residuals(fit, "state", draws=5)
   res2 <- ubms_residuals(fit, "det", draws=5)
-  expect_equal(dim(res), c(5,10))
-  expect_equal(dim(res2), c(5,50))
+  expect_equal(dim(res), c(5, 10))
+  expect_equal(dim(res2), c(5, 10*obsNum(umf)))
 
   pdf(NULL)
   rp <- plot_residuals(fit, "state")
