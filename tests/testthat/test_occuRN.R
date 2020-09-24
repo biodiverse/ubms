@@ -83,7 +83,7 @@ test_that("ubmsFitOccuRN predict method works",{
   pr <- predict(fit_na, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(10, 4))
-  expect_equivalent(pr[1,1], 1.761, tol=0.05)
+  expect_equivalent(pr[1,1], 1.761, tol=0.3)
   pr <- predict(fit_na, "det")
   expect_equal(dim(pr), c(10*obsNum(umf2),4))
   expect_equivalent(pr[1,1], 0.3637, tol=0.05)
@@ -91,7 +91,7 @@ test_that("ubmsFitOccuRN predict method works",{
   nd <- data.frame(x1=c(0,1))
   pr <- predict(fit_na, "state", newdata=nd)
   expect_equal(dim(pr), c(2,4))
-  expect_equivalent(pr[1,1], 1.663, tol=0.05)
+  expect_equivalent(pr[1,1], 1.663, tol=0.3)
 })
 
 test_that("ubmsFitOccuRN sim_z method works",{
