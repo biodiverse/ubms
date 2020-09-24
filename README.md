@@ -2,7 +2,7 @@
 
 [![Build
 Status](https://travis-ci.org/kenkellner/ubms.svg?branch=master)](https://travis-ci.org/kenkellner/ubms)
-[![codecov](https://codecov.io/gh/kenkellner/ubms/branch/master/graph/badge.svg)](https://codecov.io/gh/kenkellner/ubms)
+[![codecov](https://codecov.io/gh/kenkellner/ubms/graph/badge.svg)](https://codecov.io/gh/kenkellner/ubms)
 
 In-development `R` package for fitting Bayesian hierarchical models of
 animal occurrence and abundance. The package has a formula-based
