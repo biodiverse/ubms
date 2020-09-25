@@ -151,6 +151,7 @@ b_names <- function(submodel){
     if (length(nms_i) == 1) {
       z_nms <- c(z_nms, paste0(nms_i, ":", levels(group$flist[[nm]])))
     } else {
+      #When there is a random slope for a factor variable
       z_nms <- c(z_nms, c(t(sapply(paste0(nms_i), paste0, ":",
                                    levels(group$flist[[nm]])))))
     }

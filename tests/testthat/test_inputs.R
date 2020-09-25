@@ -75,6 +75,11 @@ test_that("get_stan_data pulls necessary info from submodel",{
   expect_equivalent(dat[7:10], get_sparse_Z(Z_matrix(submod)))
 })
 
+test_that("get_stan_data pulls empty list from scalar submodel",{
+  ss <- ubmsSubmodelScalar("Fake", "fake", "plogis")
+  expect_equal(get_stan_data(ss), list())
+})
+
 test_that("get_sparse_Z collapses Z into sparse parts",{
 
   Z1 <- matrix(0, nrow=0, ncol=0)

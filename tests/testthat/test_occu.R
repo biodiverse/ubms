@@ -72,6 +72,10 @@ test_that("ubmsFitOccu gof method works",{
   pg <- gof_plot_method(g)
   dev.off()
   expect_is(pg, "gg")
+  #Check progress bar works
+  out_pb <- capture.output(gof(fit, draws=5))
+  final_chars <- substr(out_pb[1], nchar(out_pb[1])-3, nchar(out_pb[1]))
+  expect_equal(final_chars, "100%")
 })
 
 test_that("ubmsFitOccu gof method works with missing values",{

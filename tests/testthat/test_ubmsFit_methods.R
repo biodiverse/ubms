@@ -10,6 +10,9 @@ umf <- unmarkedFrameOccu(y=matrix(c(1,0,0,1,1,0,0,1,0), nrow=3),
 fit <- suppressWarnings(stan_occu(~x3~x1+(1|x2), umf,
                                   chains=2, iter=40, refresh=0))
 
+fit_coef <- suppressWarnings(stan_occu(~x2~x1, umf, chains=2,
+                                  iter=40, refresh=0))
+
 test_that("fit is a ubmsFit object",{
   expect_is(fit, "ubmsFit")
 })
@@ -37,6 +40,12 @@ test_that("coef method works for ubmsFit",{
   expect_is(co, "numeric")
   expect_equal(as.numeric(co), c(summary(fit, "state")$mean,
                                  summary(fit, "det")$mean))
+
+  #When equal # of params in each submodel
+  co <- coef(fit_coef)
+  expect_is(co, "numeric")
+  expect_equal(as.numeric(co), c(summary(fit_coef, "state")$mean,
+                                 summary(fit_coef, "det")$mean))
 })
 
 test_that("summary method works for ubmsFit",{
@@ -46,6 +55,10 @@ test_that("summary method works for ubmsFit",{
   expect_equal(colnames(sum_fit), c("mean","se_mean","sd","2.5%","25%",
                                     "50%","75%","97.5%","n_eff","Rhat"))
   expect_true(all(sapply(sum_fit, inherits, "numeric")))
+})
+
+test_that("getY method works for ubmsFit",{
+  expect_equal(fit@data@y, getY(fit))
 })
 
 test_that("loo method works for ubmsFit",{

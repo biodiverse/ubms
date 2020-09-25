@@ -105,3 +105,18 @@ test_that("get_row_reps calculates correct replication factor",{
   expect_error(get_row_reps(sl["det"], resp3))
   expect_error(get_row_reps(sl["state"], resp3))
 })
+
+test_that("ubmsSubmodelScalar is returned unchanged by update_missing",{
+  sub_scalar <- ubmsSubmodelScalar("Fake", "fake", "plogis")
+  sl_scalar <- ubmsSubmodelList(state, det, sub_scalar)
+  um <- update_missing(sl_scalar, resp2)
+  expect_equivalent(um@submodels$fake, sub_scalar)
+})
+
+test_that("Placeholder submodel is returned unchanged by update_missing",{
+  sub_place <- placeholderSubmodel("fake")
+  expect_true(is_placeholder(sub_place))
+  sl_place <- ubmsSubmodelList(state, det, sub_place)
+  um <- update_missing(sl_place, resp2)
+  expect_equivalent(um@submodels$fake, sub_place)
+})

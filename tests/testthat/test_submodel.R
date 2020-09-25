@@ -27,6 +27,22 @@ test_that("ubmsSubmodelTransition errors if NAs in yearlySiteCovs",{
                             "plogis"), NA)
 })
 
+test_that("ubmsSubmodelScalar built correctly",{
+  ss <- ubmsSubmodelScalar("Fake", "fake", "plogis")
+  expect_is(ss, "ubmsSubmodelScalar")
+  expect_equal(ss@data, data.frame(X1=1))
+  expect_equal(ss@formula, ~1)
+  expect_equivalent(ss@missing, c(FALSE))
+})
+
+test_that("placeholderSubmodel creates blank submodel",{
+  ps <- placeholderSubmodel("fake")
+  expect_is(ps, "ubmsSubmodel")
+  expect_equal(ps@data, data.frame())
+  expect_equal(ps@formula, ~1)
+  expect_equal(ps@link, "identity")
+})
+
 test_that("drop_final_year removes final year of yearly site covs",{
   M <- 5; T <- 3
   test_df <- data.frame(x1=rnorm(M*T),
@@ -222,6 +238,14 @@ test_that("b names are correct",{
   sm <- ubmsSubmodel("Det", "det", covs, ~(1|x2) + (1|x3), "plogis")
   expect_equal(b_names(sm),
                c(paste("(Intercept)", c("x2:a","x2:b","x2:c","x3:d","x3:e"))))
+
+  #Test when there is a random slope for a factor
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1+(x1+x3||x2), "plogis")
+  expect_equal(b_names(sm),
+                   c(paste("(Intercept)", c("x2:a", "x2:b", "x2:c")),
+                   paste("x1", c("x2:a", "x2:b", "x2:c")),
+                   c("x3d x2:a", "x3e x2:a", "x3d x2:b", "x3e x2:b",
+                     "x3d x2:c", "x3e x2:c")))
 })
 
 test_that("sigma names are correct", {

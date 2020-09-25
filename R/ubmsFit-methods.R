@@ -26,12 +26,12 @@ NULL
 #' @importFrom unmarked coef
 #' @export
 setMethod("coef", "ubmsFit", function(object, ...){
-  unlist(sapply(submodel_types(object), function(x){
+  unlist(lapply(submodel_types(object), function(x){
     s <- summary(object, x)
     out <- s$mean
     names(out) <- paste0(object[x]@type,"[",rownames(s),"]")
     out
-  }, USE.NAMES=FALSE))
+  }))
 })
 
 

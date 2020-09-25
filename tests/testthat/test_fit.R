@@ -38,6 +38,13 @@ test_that("fit_class generates class from model name",{
   expect_equal(fit_class("occu"), "ubmsFitOccu")
 })
 
+test_that("remove_placeholders removes placeholder submodels from list",{
+  ps <- placeholderSubmodel("fake")
+  list_ps <- ubmsSubmodelList(sm, dm, ps)
+  list_remove <- remove_placeholders(list_ps)
+  expect_equal(list_remove, sl)
+})
+
 test_that("get_loo generates loo object from stanfit",{
   loo_obj <- suppressWarnings(get_loo(sf))
   expect_true(inherits(loo_obj, "psis_loo"))
