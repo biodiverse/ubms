@@ -66,14 +66,44 @@ test_that("stan_distsamp output structure is correct",{
 })
 
 test_that("stan_distsamp produces accurate results",{
-  #skip_on_cran()
-  #skip_on_travis()
-  #skip_on_covr()
-  #set.seed(123)
+  skip_on_cran()
+  skip_on_travis()
+  skip_on_covr()
+
+  #Line transect
+  set.seed(123)
+  stan_mod <- suppressWarnings(stan_distsamp(~1~1, ltUMF_big,
+                                             chains=2, iter=200, refresh=0))
+  um_mod <- distsamp(~1~1, ltUMF_big)
+  expect_equivalent(coef(stan_mod), coef(um_mod), tol=0.05)
+
+  stan_mod <- suppressWarnings(stan_distsamp(~1~1, ltUMF_big, keyfun="exp",
+                                             chains=2, iter=200, refresh=0))
+  um_mod <- distsamp(~1~1, ltUMF_big, keyfun="exp")
+  expect_equivalent(coef(stan_mod), coef(um_mod), tol=0.05)
+
+  stan_mod <- suppressWarnings(stan_distsamp(~1~1, ltUMF_big, output="abund",
+                            chains=2, iter=200, refresh=0))
+  um_mod <- distsamp(~1~1, ltUMF_big, output="abund")
+  expect_equivalent(coef(stan_mod), coef(um_mod), tol=0.05)
+
+  #Point
+  set.seed(123)
+  stan_mod <- suppressWarnings(stan_distsamp(~1~1, ptUMF, chains=2,
+                                             iter=200, refresh=0))
+  um_mod <- distsamp(~1~1, ptUMF)
+  expect_equivalent(coef(stan_mod), coef(um_mod), tol=0.05)
+
+  stan_mod <- suppressWarnings(stan_distsamp(~1~1, ptUMF_big, keyfun="exp",
+                                             chains=2, iter=200, refresh=0))
+  expect_equivalent(coef(stan_mod), c(4.97957, 2.063640), tol=0.05)
+  #unmarked model fails here
+
+  #Need hazard tests here at some point, maybe when I can speed it up
 })
 
 test_that("stan_distsamp handles NA values",{
-  #expect_error(stan_distsamp(~1~1, ltUMF_na))
+  expect_error(stan_distsamp(~1~1, ltUMF_na))
 })
 
 test_that("ubmsFitDistsamp gof method works",{
@@ -219,11 +249,36 @@ test_that("hist function works for ubmsFitDistsamp",{
   point_hist <- lapply(point_mods[1:2], ubms_hist, draws=3)
   expect_true(all(sapply(point_hist, inherits, "gg")))
 
+  fit_line_pcov <- suppressWarnings(stan_distsamp(~habitat~1, ltUMF, chains=2,
+                                    iter=200, refresh=0))
+  expect_warning(hwarn <- ubms_hist(fit_line_pcov))
+  expect_is(hwarn, "gg")
+
+
   pdf(NULL)
   line_hist[[1]]
   line_hist[[2]]
   line_hist[[3]]
   point_hist[[1]]
   point_hist[[2]]
+  hwarn
   dev.off()
+})
+
+test_that("ubmsResponseDistsamp methods work",{
+
+  resp <- fit_line_hn@response
+  expect_equal(get_K(resp), max(rowSums(fit_line_hn@data@y)) + 50)
+  expect_equal(get_K(resp, 40), 40)
+  expect_error(get_K(resp, 10))
+
+  resp2 <- resp
+  resp2@y[1,] <- NA
+  expect_equal(length(get_Kmin(resp2)), nrow(resp2@y)-1)
+
+  resp3 <- resp
+  resp3@units_in <- "km"
+  resp3@units_out <- "kmsq"
+  expect_equal(mean(get_area_adjust(resp)), 16, tol=1e-3)
+  expect_equal(mean(get_area_adjust(resp3)), 16e4, tol=1)
 })

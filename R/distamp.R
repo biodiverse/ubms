@@ -100,6 +100,26 @@ ubmsResponseDistsamp <- function(umf, y_dist, z_dist, output, units_out, K=NULL)
   out
 }
 
+#NA handling not currently fully implemented; just used to send error
+#' @include missing.R
+setMethod("find_missing", "ubmsResponseDistsamp", function(object, submodels, ...){
+  sub_mm <- submodels@submodels
+  #Don't include transition parameters when finding missing values
+  sub_mm <- sub_mm[!sapply(sub_mm, inherits, "ubmsSubmodelTransition")]
+  #Don't include placeholder parmeters either
+  sub_mm <- sub_mm[!sapply(sub_mm, is_placeholder)]
+  sub_mm <- lapply(sub_mm, expand_model_matrix, object)
+  comb <- cbind(as_vector(object), do.call("cbind", sub_mm))
+  miss <- apply(comb, 1, function(x) any(is.na(x)))
+  if(any(miss)){
+    stop("Missing values are not allowed in y or covariates", call.=FALSE)
+  }
+  return(miss)
+  #miss <- matrix(miss, nrow=nrow(t(object)))
+  #remove_sites <- apply(miss, 2, function(x) any(x))
+  #rep(remove_sites, each=object@max_obs)
+})
+
 #' @include inputs.R
 setMethod("get_auxiliary_data", "ubmsResponseDistsamp", function(object, ...){
   out <- list(aux1=c(ifelse(object@survey=="point", 1, 0), 0), #Hack b/c stan won't handle 1-element vector
@@ -111,7 +131,7 @@ setMethod("get_auxiliary_data", "ubmsResponseDistsamp", function(object, ...){
 #Builds the values in the denominator of the detection part of the likelihood
 get_conv_const <- function(resp){
   db <- resp@dist_breaks
-  M <- get_n_sites(resp)
+  M <- nrow(resp@y)
 
   if(resp@survey=="line"){
     w <- diff(db)
@@ -135,14 +155,14 @@ get_area <- function(resp){
     a <- t(sapply(resp@tlength, function(x) x*w))
   } else {
     a <- diff(pi*db^2)
-    M <- get_n_sites(resp)
+    M <- nrow(resp@y)
     a <- matrix(rep(a, M), nrow=M, byrow=TRUE)
   }
   a
 }
 
 get_area_adjust <- function(resp){
-  if(resp@output == "abund") return(rep(1, get_n_sites(resp)))
+  if(resp@output == "abund") return(rep(1, nrow(resp@y)))
   area <- get_area(resp)
   switch(resp@survey,
     line = A <- rowSums(area) * 2,
