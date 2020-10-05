@@ -26,6 +26,7 @@ README:
 	rm README.html
 
 vignettes:
+	Rscript -e "knitr::knit('vignettes/random-effects.Rmd.orig', output='vignettes/random-effects.Rmd')"
 	Rscript -e "devtools::build_vignettes()"
 
 clean-install:

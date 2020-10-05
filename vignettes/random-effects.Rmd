@@ -1,0 +1,300 @@
+---
+title: 'Random effects in ubms'
+author: Ken Kellner
+bibliography: references.bib
+link-citations: yes
+output: 
+  rmarkdown::html_vignette:
+    fig_width: 5
+    fig_height: 3.5
+    number_sections: true
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Random effects in ubms}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+
+
+# Introduction
+
+## Random effects in `ubms`
+
+The `ubms` package fits models of wildlife occurrence and abundance in [Stan](https://mc-stan.org/) [@Carpenter_2017], in a similar fashion to the `unmarked` package [@Fiske_2011].
+One of the advantages of `ubms` is that it is possible to include random effects in your models, using the same syntax as [lme4](https://cran.r-project.org/web/packages/lme4/index.html) [@Bates_2015].
+For example, if you have a `group` site covariate, you can fit a model with random intercepts by `group` by including `+ (1|group)` in your parameter formula.
+Random slopes, or a combination of random slopes and intercepts, are also possible.
+To illustrate the use of random effects of `ubms`, this vignette fits a model to multi-season occupancy data using a "stacked" approach.
+
+## "Stacked" Models
+
+Suppose you have a dataset of repeated detections/non-detections or counts that are collected over several primary periods (i.e., seasons).
+The logical model choice for such data is a multi-season model, such as the dynamic occupancy model [CITE] or some form of Dail-Madsen model for count data [CITE].
+These models estimate transition probabilities such as colonization and extinction rates between seasons.
+
+However, in some cases you might not want to fit a dynamic model.
+There are several potential reasons for this: (1) You don't have enough data (Dail-Madsen type models are particularly data hungry); (2) You aren't interested in the transition probabilities; or (3) The dynamic model type you need isn't available in theory or in your software package of choice.
+
+An alternative approach is to fit multiple years of data into a single-season model using the "stacked" approach.
+Essentially, you treat unique site-year combinations as sites.
+For a helpful discussion on the topic, see [this](https://groups.google.com/forum/#!topic/unmarked/OHkk98y09Zo) thread on the `unmarked` forums.
+
+Ideally you want to control for the pseudoreplication this creates in some form.
+In `unmarked` you are limited to approaches such as including a dummy variable for site and/or year.
+In `ubms` you can instead include, for example, random site intercepts to account for this pseudoreplication.
+
+# Fitting a stacked model with `ubms`
+
+## Read in the input data
+
+We will use the `crossbill` dataset to illustrate a stacked occupancy model with a site-level random effect.
+The `crossbill` dataset comes packaged with `ubms` via `unmarked`:
+
+
+```r
+library(ubms)
+data(crossbill)
+```
+
+The `crossbill` dataset is a `data.frame` with many columns.
+It contains 9 years of detection/non-detection data for the European crossbill (*Loxia
+curvirostra*) in Switzerland [@Schmid_2004].
+
+
+```r
+dim(crossbill)
+```
+
+```
+## [1] 267  58
+```
+
+```r
+names(crossbill)
+```
+
+```
+##  [1] "id"      "ele"     "forest"  "surveys" "det991"  "det992"  "det993" 
+##  [8] "det001"  "det002"  "det003"  "det011"  "det012"  "det013"  "det021" 
+## [15] "det022"  "det023"  "det031"  "det032"  "det033"  "det041"  "det042" 
+## [22] "det043"  "det051"  "det052"  "det053"  "det061"  "det062"  "det063" 
+## [29] "det071"  "det072"  "det073"  "date991" "date992" "date993" "date001"
+## [36] "date002" "date003" "date011" "date012" "date013" "date021" "date022"
+## [43] "date023" "date031" "date032" "date033" "date041" "date042" "date043"
+## [50] "date051" "date052" "date053" "date061" "date062" "date063" "date071"
+## [57] "date072" "date073"
+```
+
+Check `?crossbill` for details about each column.
+The first three columns `id`, `ele`, and `forest` are site covariates.
+
+The following 27 columns beginning with `det` are the binary detection/non-detection data; 9 years with 3 observations per year.
+The final 27 columns beginning with `date` are the Julian dates for each observation.
+
+## Convert the input data to stacked format
+
+We will use the first 3 years of `crossbill` data (instead of all 9), simply to keep the analysis run time down.
+Converting the `crossbill` data to stacked format is a bit complex.
+The dataset contains 267 unique sites; thus after stacking we should end up with a response variable and covariates that contain `267 * 3 = 801` "sites" (actually site-years).
+We will order this new dataset so that the first 267 rows are the sites in year 1, the 2nd 267 rows are the sites in year 2, and so on.
+
+Handling the site-level covariates (which do not change between years) is the easiest task. 
+We simply replicate the set of site covariates (which contains one row for each of the original 267 sites) one time per season, and stack each replicate on top of each other vertically with `rbind`.
+
+
+```r
+site_covs <- crossbill[,c("id", "ele", "forest")]
+sc_stack <- rbind(site_covs, site_covs, site_covs)
+```
+
+We also want to add a factor column called `site` to the stacked site covariates that identifies the original site number of each row.
+We will use this later as our grouping factor for the random effect
+
+
+```r
+sc_stack$site <- factor(rep(1:nrow(site_covs), 3))
+head(sc_stack)
+```
+
+```
+##   id  ele forest site
+## 1  1  450      3    1
+## 2  2  450     21    2
+## 3  3 1050     32    3
+## 4  4  950      9    4
+## 5  5 1150     35    5
+## 6  6  550      2    6
+```
+
+Stacking the response variable and the observation covariates is harder.
+Our dataset is in a "wide" format where each row is a site and each observation is a column, with columns 1-3 corresponding to year 1, 4-6 to year 2, and so on.
+Here is a function that splits a "wide" dataset like this into pieces and stacks them on top of each other.
+
+
+```r
+wide_to_stacked <- function(input_df, nyears, surveys_per_year){
+  inds <- split(1:(nyears*surveys_per_year), rep(1:nyears, each=surveys_per_year))
+  split_df <- lapply(1:nyears, function(i){
+                      out <- input_df[,inds[[i]]]
+                      out$site <- 1:nrow(input_df)
+                      out$year <- i
+                      names(out)[1:3] <- paste0("obs",1:3)
+                      out
+              })
+  stack_df <- do.call("rbind", split_df)
+  stack_df$site <- as.factor(stack_df$site)
+  stack_df$year <- as.factor(stack_df$year)
+  stack_df
+}
+```
+
+This function can be used to convert both the detection/non-detection data and observation covariates to the stacked format.
+First, we isolate the detection/non-detection data in `crossbill`:
+
+
+```r
+y_wide <- crossbill[, grep("det", names(crossbill), value=TRUE)]
+```
+
+Next we convert it to stacked format, specifying that we want only the first 3 years, and that each year has 3 observations/surveys:
+
+
+```r
+y_stack <- wide_to_stacked(y_wide, nyears=3, surveys_per_year=3)
+dim(y_stack)
+```
+
+```
+## [1] 801   5
+```
+
+```r
+head(y_stack)
+```
+
+```
+##   obs1 obs2 obs3 site year
+## 1    0    0    0    1    1
+## 2    0    0    0    2    1
+## 3   NA   NA   NA    3    1
+## 4    0    0    0    4    1
+## 5    0    0    0    5    1
+## 6   NA   NA   NA    6    1
+```
+
+Finally, we do the same with the `date` observation covariate.
+
+
+```r
+date_wide <- crossbill[,grep("date", names(crossbill), value=TRUE)]
+date_stack <- wide_to_stacked(date_wide, 3, 3)
+dim(date_stack)
+```
+
+```
+## [1] 801   5
+```
+
+With our stacked datasets constructed, we build our `unmarkedFrame`:
+
+
+```r
+umf_stack <- unmarkedFrameOccu(y=y_stack[,1:3], siteCovs=sc_stack,
+                         obsCovs=list(date=date_stack[,1:3]))
+head(umf_stack)
+```
+
+```
+## Data frame representation of unmarkedFrame object.
+##    y.1 y.2 y.3 id  ele forest site date.1 date.2 date.3
+## 1    0   0   0  1  450      3    1     34     59     65
+## 2    0   0   0  2  450     21    2     17     33     65
+## 3   NA  NA  NA  3 1050     32    3     NA     NA     NA
+## 4    0   0   0  4  950      9    4     29     59     65
+## 5    0   0   0  5 1150     35    5     24     45     65
+## 6   NA  NA  NA  6  550      2    6     NA     NA     NA
+## 7    0   0   0  7  750      6    7     26     54     74
+## 8    0   0   0  8  650     60    8     23     43     71
+## 9    0   0   0  9  550      5    9     21     36     56
+## 10   0   0   0 10  550     13   10     37     62     75
+```
+
+## Fit the Stacked Model
+
+We'll now fit a model with fixed effects of elevation and forest cover (`ele` and `forest`) on occupancy and a `date` effect on detection.
+In addition, we will include random intercepts by `site`, since in stacking the data we have pseudoreplication by site.
+To review, random effects are specified using the approach used in with the `lme4` package.
+For example, a random intercept for each level of the covariate `site` is specified with the formula component `(1|site)`.
+Including random effects in a model in `ubms` usually significantly increases the run time.
+
+
+```r
+fit_stack <- stan_occu(~scale(date) ~scale(ele) + scale(forest) + (1|site), 
+                       data=umf_stack, chains=3, iter=500)
+fit_stack
+```
+
+
+```
+## 
+## Call:
+## stan_occu(formula = ~scale(date) ~ scale(ele) + scale(forest) + 
+##     (1 | site), data = umf_stack, chains = 3, iter = 500, refresh = 0)
+## 
+## Occupancy (logit-scale):
+##                Estimate    SD   2.5% 97.5% n_eff  Rhat
+## (Intercept)       -1.62 0.237 -2.138 -1.18 112.5 1.010
+## scale(ele)         1.17 0.237  0.746  1.65 189.1 0.998
+## scale(forest)      1.53 0.270  1.080  2.13  52.2 1.007
+## sigma [1|site]     1.97 0.378  1.371  2.81  33.5 1.010
+## 
+## Detection (logit-scale):
+##             Estimate     SD   2.5% 97.5% n_eff Rhat
+## (Intercept)    0.177 0.1049 -0.023 0.394   501    1
+## scale(date)    0.337 0.0935  0.154 0.516  1328    1
+## 
+## LOOIC: 1473.155
+```
+
+We get warnings; these should be fixed by increasing the iterations.
+In addition to fixed effect estimates, we now have an estimate for the site-level variance (`sigma [1|site]`) in our summary table.
+
+## Accessing the random intercepts
+
+In order to get the actual random intercept values, we use the `ranef` function.
+Note that this function behaves like the `lme4` version, not like the `unmarked` version.
+A further caution is that when using an effects parameterization, `ranef` always returns the complete random intercept/slope term for a group (i.e., the mean + random effect, not just the random part).
+
+
+```r
+ran <- ranef(fit_stack, submodel="state")
+head(ran$site[[1]])
+```
+
+```
+##          1          2          3          4          5          6 
+## -1.9149623 -2.0127713 -0.2941755  0.1155416  0.3387905 -1.8547888
+```
+
+You can also generate summary statistics for each random intercept:
+
+
+```r
+ran <- ranef(fit_stack, submodel="state", summary=TRUE)
+head(ran$site[[1]])
+```
+
+```
+##     Estimate       SD      2.5%     97.5%
+## 1 -1.9149623 2.040042 -6.250911 1.7524062
+## 2 -2.0127713 1.675006 -5.555441 0.9047885
+## 3 -0.2941755 1.423299 -3.224786 2.6999613
+## 4  0.1155416 1.324165 -2.459340 2.5714592
+## 5  0.3387905 1.282113 -1.969159 3.2183435
+## 6 -1.8547888 1.860384 -5.609624 1.5336648
+```
+
+# References
+
+<div id="refs"></div>
