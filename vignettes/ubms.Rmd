@@ -1,5 +1,5 @@
 ---
-title: "Overview of <b>ubms</b>"
+title: "Overview of ubms"
 subtitle: "<b>U</b>nmarked <b>B</b>ayesian <b>M</b>odels with <b>S</b>tan"
 author: Ken Kellner
 bibliography: references.bib
