@@ -17,7 +17,7 @@
 
 name_to_modelcode <- function(name){
   list(model_code=switch(name, occu={0}, occuRN={1}, pcount={2}, colext={3},
-                         distsamp={4}, multinomPois={5}))
+                         distsamp={4}, multinomPois={5}, occuTTD={6}))
 }
 
 get_pars <- function(submodels){
@@ -58,7 +58,7 @@ setMethod("get_stan_data", "ubmsResponse", function(object, ...){
 
 dist_code <- function(dist){
   switch(dist, binomial = {0}, P = {1}, NB = {2}, double = {0}, removal = {1},
-         halfnorm={0}, exp={1}, hazard={2}
+         halfnorm={0}, exp={1}, hazard={2}, weibull={3}
   )
 }
 

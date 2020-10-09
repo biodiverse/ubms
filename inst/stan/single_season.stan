@@ -6,6 +6,7 @@ functions{
 #include /include/functions_keyfuns.stan
 #include /include/functions_distsamp.stan
 #include /include/functions_multinomPois.stan
+#include /include/functions_occuTTD.stan
 
 }
 
@@ -53,6 +54,9 @@ if(model_code == 0){
                                 beta_scale, aux1[1], y_dist, aux3);
 } else if(model_code == 5){
   log_lik = get_loglik_multinomPois(y, M, si, lp_state, lp_det, y_dist);
+} else if(model_code == 6){
+  log_lik = get_loglik_occuTTD(aux2, M, si, lp_state, lp_det, beta_shape,
+                               aux1, y_dist);
 }
 
 }

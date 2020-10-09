@@ -53,6 +53,7 @@ Collate:
     'occuRN.R'
     'mb_chisq.R'
     'multinomPois.R'
+    'occuTTD.R'
     'pcount.R'
     'plot_marginal.R'
     'predict.R'
