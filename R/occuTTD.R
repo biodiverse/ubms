@@ -80,7 +80,7 @@ setClass("ubmsResponseOccuTTD", contains="ubmsResponse",
 
 ubmsResponseOccuTTD <- function(umf, ttdDist){
   out <- ubmsResponse(getY(umf), ttdDist, "binomial", umf@numPrimary,
-                      ceiling(max(getY(umf))))
+                      ceiling(max(getY(umf), na.rm=TRUE)))
   out <- as(out, "ubmsResponseOccuTTD")
   out@surveyLength <- umf@surveyLength
   out
@@ -112,10 +112,48 @@ setMethod("get_stan_data", "ubmsResponseOccuTTD", function(object, ...){
   out
 })
 
-#Goodness-of-fit---------------------------------------------------------------
 
-#' @include gof.R
+#Get detection probability-----------------------------------------------------
+
+#' @importFrom unmarked getP
+setMethod("getP", "ubmsFitOccuTTD", function(object, draws=NULL, ...){
+  samples <- get_samples(object, draws)
+  resp <- object@response
+  praw <- t(sim_p(object, samples))
+  praw <- array(praw, c(resp@max_obs, nrow(resp@y), length(samples)))
+  aperm(praw, c(2,1,3))
+})
+
+setMethod("sim_p", "ubmsFitOccuTTD", function(object, samples, ...){
+  resp <- object@response
+  tdist <- resp@y_dist
+  tmax <- as.vector(t(resp@surveyLength))
+  lam <- sim_lp(object, "det", transform=TRUE, newdata=NULL,
+                samples=samples, re.form=NULL)
+  lam[,object["det"]@missing] <- NA
+
+  if(tdist == "exp"){
+    out <- sapply(1:length(samples), function(i){
+      stats::pexp(tmax, lam[i,])
+    })
+  } else if(tdist == "weibull"){
+    shape <- t(sim_lp(object, "shape", transform=TRUE, newdata=NULL,
+                    samples=samples, re.form=NULL))
+    out <- sapply(1:length(samples), function(i){
+      stats::pweibull(tmax, shape[i], 1/lam[i,])
+    })
+  }
+
+  t(out)
+})
+
 
 #Methods to simulate posterior predictive distributions------------------------
 
 #' @include posterior_predict.R
+
+
+#Goodness-of-fit---------------------------------------------------------------
+
+#' @include gof.R
+
