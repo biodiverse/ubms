@@ -72,11 +72,11 @@ test_that("stan_multinomPois produces accurate results",{
   expect_equivalent(as.vector(coef(fit_double_long)), coef(um_double), tol=0.05)
   #similar to previous known values
   expect_equal(as.vector(coef(fit_double_long)),
-               c(2.2283,0.1148,0.1789,-0.5666), tol=1e-4)
+               c(2.2283,0.1148,0.1789,-0.5666), tol=1e-2)
 
   #Removal
   expect_equivalent(as.vector(coef(fit_rem_long)), coef(um_rem), tol=0.05)
-  expect_equal(as.vector(coef(fit_rem_long)), c(0.1097,0.1759,0.26456), tol=1e-4)
+  expect_equal(as.vector(coef(fit_rem_long)), c(0.1097,0.1759,0.26456), tol=1e-2)
 })
 
 test_that("stan_multinomPois handles NA values",{
@@ -87,7 +87,7 @@ test_that("stan_multinomPois handles NA values",{
 test_that("ubmsFitMultinomPois gof method works",{ ##here
   set.seed(123)
   g <- gof(fit_double, draws=5, quiet=TRUE)
-  expect_equal(g@estimate, 20.394, tol=0.1)
+  expect_equal(g@estimate/100, 20.394/100, tol=0.05)
   gof_plot_method <- methods::getMethod("plot", "ubmsGOF")
   pdf(NULL)
   pg <- gof_plot_method(g)
