@@ -148,7 +148,33 @@ setMethod("sim_p", "ubmsFitOccuTTD", function(object, samples, ...){
 })
 
 
+#Method for fitted values------------------------------------------------------
+
+#' @include fitted.R
+setMethod("sim_fitted", "ubmsFitOccuTTD",
+          function(object, submodel, samples, ...){
+  if(identical(submodel,"det")){
+    lam <- sim_lp(object, submodel, transform=TRUE, newdata=NULL,
+                 samples=samples, re.form=NULL)
+    z <- sim_z(object, samples, re.form=NULL)
+    J <- object@response@max_obs
+    z <- z[, rep(1:ncol(z), each=J)]
+    lam[z==0] <- NA
+    return(1/lam)
+  }
+
+  callNextMethod(object, submodel, samples, ...)
+})
+
 #Methods to simulate posterior predictive distributions------------------------
+
+setMethod("knownZ", "ubmsFitOccuTTD", function(object, ...){
+  if(object@response@max_obs > 1){
+    warning("Posteriors for y/z may be biased when there are multiple observations per site", call.=FALSE)
+  }
+  ybin <- ifelse(object@data@y < object@data@surveyLength,1,0)
+  apply(ybin, 1, function(x) sum(x, na.rm=T)>0)
+})
 
 #' @include posterior_predict.R
 
