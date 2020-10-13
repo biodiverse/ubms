@@ -51,7 +51,9 @@ setGeneric("gof", function(object, draws=NULL, ...){
 
 
 # Generic function for goodness-of-fit test------------------------------------
-sim_gof <- function(object, draws, func, name, quiet=FALSE, ...){
+setGeneric("sim_gof", function(object, ...) standardGeneric("sim_gof"))
+
+setMethod("sim_gof", "ubmsFit", function(object, draws, func, name, quiet=FALSE, ...){
   samples <- get_samples(object, draws)
   draws <- length(samples)
 
@@ -77,7 +79,7 @@ sim_gof <- function(object, draws, func, name, quiet=FALSE, ...){
   }
   if(!quiet) close(pb)
   ubmsGOF(name, data.frame(obs=stat_obs, sim=stat_sim))
-}
+})
 
 # N-mixture Chi-square test for abundance models-------------------------------
 

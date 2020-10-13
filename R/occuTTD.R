@@ -26,6 +26,28 @@
 #'
 #' @examples
 #' \dontrun{
+#' #Simulate data
+#' N <- 500; J <- 1
+#' scovs <- data.frame(elev=c(scale(runif(N, 0,100))),
+#'                     forest=runif(N,0,1),
+#'                     wind=runif(N,0,1))
+#' beta_psi <- c(-0.69, 0.71, -0.5)
+#' psi <- plogis(cbind(1, scovs$elev, scovs$forest) \%*\% beta_psi)
+#' z <- rbinom(N, 1, psi)
+#'
+#' Tmax <- 10 #Same survey length for all observations
+#' beta_lam <- c(-2, -0.2, 0.7)
+#' rate <- exp(cbind(1, scovs$elev, scovs$wind) \%*\% beta_lam)
+#' ttd <- rexp(N, rate)
+#' ttd[z==0] <- Tmax #Censor at unoccupied sites
+#' ttd[ttd>Tmax] <- Tmax #Censor when ttd was greater than survey length
+#'
+#' #Build unmarkedFrame
+#' umf <- unmarkedFrameOccuTTD(y=ttd, surveyLength=Tmax, siteCovs=scovs)
+#'
+#' #Fit model
+#' (fit <- stan_occuTTD(psiformula=~elev+forest, detformula=~elev+wind,
+#'                      data=umf, chains=3, iter=300))
 #' }
 #'
 #' @references Garrard, G.E., Bekessy, S.A., McCarthy, M.A. and Wintle, B.A. 2008.
@@ -177,9 +199,30 @@ setMethod("knownZ", "ubmsFitOccuTTD", function(object, ...){
 })
 
 #' @include posterior_predict.R
+setMethod("sim_y", "ubmsFitOccuTTD", function(object, samples, re.form, z=NULL, ...){
+  nsamp <- length(samples)
+  M <- nrow(object@response@y)
+  J <- object@response@max_obs
+  T <- object@response@max_primary
+  tmax <- matrix(rep(object@response@surveyLength, nsamp), nrow=nsamp, byrow=T)
 
+  z <- process_z(object, samples, re.form, z)
+  z <- t(z[rep(1:nrow(z), each=J),,drop=FALSE])
+  lam <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
+                samples=samples, re.form=re.form))
+  lam[object@response@missing] <- NA
+
+  y_sim <- suppressWarnings(rexp(M*J*T*nsamp, as.vector(lam)))
+  y_sim[is.nan(y_sim)] <- NA
+  y_sim <- matrix(y_sim, nrow=nsamp, ncol=M*J*T, byrow=TRUE)
+  y_sim[z==0&!is.na(y_sim)] <- tmax[z==0&!is.na(y_sim)]
+  y_sim[!is.na(y_sim) & y_sim>tmax] <- tmax[!is.na(y_sim) & y_sim>tmax]
+  y_sim
+})
 
 #Goodness-of-fit---------------------------------------------------------------
 
 #' @include gof.R
-
+setMethod("sim_gof", "ubmsFitOccuTTD", function(object, ...){
+  stop("No goodness-of-fit test for this model type available", call.=FALSE)
+})
