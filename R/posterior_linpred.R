@@ -75,5 +75,8 @@ setMethod("sim_state", "ubmsFit", function(object, samples, ...){
 setGeneric("sim_p", function(object, samples, ...) standardGeneric("sim_p"))
 
 setMethod("sim_p", "ubmsFit", function(object, samples, ...){
-  sim_lp(object, "det", transform=TRUE, newdata=NULL, samples=samples, re.form=NULL)
+  out <- sim_lp(object, "det", transform=TRUE, newdata=NULL,
+                samples=samples, re.form=NULL)
+  out[,object["det"]@missing] <- NA
+  out
 })

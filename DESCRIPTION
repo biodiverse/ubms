@@ -1,6 +1,6 @@
 Package: ubms
-Version: 0.1.8.9008
-Date: 2020-10-05
+Version: 0.1.9
+Date: 2020-10-13
 Title: Fit Unmarked Bayesian Models using Stan
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))
@@ -53,6 +53,7 @@ Collate:
     'occuRN.R'
     'mb_chisq.R'
     'multinomPois.R'
+    'occuTTD.R'
     'pcount.R'
     'plot_marginal.R'
     'predict.R'

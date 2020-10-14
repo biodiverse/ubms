@@ -52,9 +52,9 @@ test_that("stan_occu produces accurate results",{
   #similar to truth
   expect_equal(as.vector(coef(fit_long)), b, tol=0.3)
   #similar to unmarked
-  expect_equivalent(as.vector(coef(fit_long)), coef(fit_unm), tol=0.05)
+  expect_equivalent(as.vector(coef(fit_long))/10, coef(fit_unm)/10, tol=0.01)
   #similar to previous known values
-  expect_equal(as.vector(coef(fit_long)), c(0.66842,-0.71230,0.04183,0.45068), tol=1e-4)
+  expect_equal(as.vector(coef(fit_long)), c(0.66842,-0.71230,0.04183,0.45068), tol=0.05)
 })
 
 test_that("stan_occu handles NA values",{
@@ -106,7 +106,7 @@ test_that("stan_occu sim_z method works",{
   expect_is(zz, "matrix")
   expect_equal(dim(zz), c(length(samples), 10))
   expect_equal(unique(as.vector(zz)), c(1,0))
-  expect_equal(mean(zz), 0.9, tol=0.01)
+  expect_equal(mean(zz), 0.9, tol=0.05)
 
   set.seed(123)
   pz <- posterior_predict(fit, "z", draws=5)

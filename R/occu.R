@@ -60,12 +60,16 @@ setMethod("gof", "ubmsFitOccu", function(object, draws=NULL, quiet=FALSE, ...){
 
 #Methods to simulate posterior predictive distributions------------------------
 
+setGeneric("knownZ", function(object, ...) standardGeneric("knownZ"))
+
+setMethod("knownZ", "ubmsFitOccu", function(object, ...){
+  apply(object@data@y, 1, function(x) sum(x, na.rm=T)>0)
+})
+
 #' @include posterior_predict.R
 setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
 
-  p_post <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
-                     samples=samples, re.form=re.form))
-  p_post[object["det"]@missing] <- NA
+  p_post <- t(sim_p(object, samples))
   psi_post <- t(sim_lp(object, submodel="state", transform=TRUE, newdata=NULL,
                        samples=samples, re.form=re.form))
   psi_post[object["state"]@missing] <- NA
@@ -79,11 +83,9 @@ setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
 
   z_post <- matrix(NA, M, nsamp)
 
-  knownZ <- apply(object@data@y, 1, function(x) sum(x, na.rm=T)>0)
-
-  z_post[knownZ,] <- 1
-
-  unkZ <- which(!knownZ)
+  known_z <- knownZ(object)
+  z_post[known_z,] <- 1
+  unkZ <- which(!known_z)
 
   q_post <- 1 - p_post
 

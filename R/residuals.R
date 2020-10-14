@@ -128,6 +128,7 @@ plot_pearson_residuals <- function(x, res, xlab, name){
               data.frame(x = x[i,], y= res[i,], ind=i)
             })
   pl_dat <- do.call("rbind", pl_dat)
+  pl_dat <- pl_dat[stats::complete.cases(pl_dat),]
 
   ggplot(data=pl_dat, aes_string(x="x", y="y")) +
     geom_hline(aes(yintercept=0), linetype=2) +
@@ -143,6 +144,7 @@ plot_binned_residuals <- function(x, res, xlab, name, nbins){
   pl_dat <- lapply(1:nrow(res), function(i){
                   get_binned_residuals(x[i,], res[i,], i, nbins)})
   pl_dat <- do.call("rbind", pl_dat)
+  pl_dat <- pl_dat[stats::complete.cases(pl_dat),]
 
   ggplot(data=pl_dat, aes_string(x="x_bar", y="y_bar")) +
     geom_ribbon(aes_string(ymin="y_lo", ymax="y_hi"), alpha=0.1) +
