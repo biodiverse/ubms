@@ -1,6 +1,6 @@
 Package: ubms
-Version: 0.1.8.9008
-Date: 2020-10-05
+Version: 0.1.9
+Date: 2020-10-13
 Title: Fit Unmarked Bayesian Models using Stan
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))

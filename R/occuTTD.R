@@ -212,7 +212,7 @@ setMethod("sim_y", "ubmsFitOccuTTD", function(object, samples, re.form, z=NULL, 
                 samples=samples, re.form=re.form))
   lam[object@response@missing] <- NA
 
-  y_sim <- suppressWarnings(rexp(M*J*T*nsamp, as.vector(lam)))
+  y_sim <- suppressWarnings(stats::rexp(M*J*T*nsamp, as.vector(lam)))
   y_sim[is.nan(y_sim)] <- NA
   y_sim <- matrix(y_sim, nrow=nsamp, ncol=M*J*T, byrow=TRUE)
   y_sim[z==0&!is.na(y_sim)] <- tmax[z==0&!is.na(y_sim)]

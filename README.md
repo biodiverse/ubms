@@ -10,9 +10,9 @@ interface compatible with
 [unmarked](https://cran.r-project.org/web/packages/unmarked/index.html),
 but the model is fit using MCMC with [Stan](https://mc-stan.org/)
 instead of using maximum likelihood. Right now there are Stan versions
-of unmarked functions `occu`, `occuRN`, `colext`, `pcount`, `distsamp`,
-and `multinomPois`. These functions follow the `stan_` prefix naming
-format established by
+of unmarked functions `occu`, `occuRN`, `colext`, `occuTTD`, `pcount`,
+`distsamp`, and `multinomPois`. These functions follow the `stan_`
+prefix naming format established by
 [rstanarm](https://cran.r-project.org/web/packages/rstanarm/index.html).
 For example, the Stan version of the `unmarked` function `occu` is
 `stan_occu`.
@@ -82,17 +82,17 @@ options(mc.cores=3) #number of parallel cores to use
     ##     refresh = 0)
     ## 
     ## Occupancy (logit-scale):
-    ##                 Estimate    SD   2.5%  97.5% n_eff  Rhat
-    ## (Intercept)        0.325 0.308 -0.265  0.952   693 1.004
-    ## x1                -0.465 0.115 -0.702 -0.244  6011 0.999
-    ## sigma [1|group]    1.400 0.286  0.947  2.049  1987 1.000
+    ##                 Estimate    SD   2.5%  97.5% n_eff Rhat
+    ## (Intercept)        0.319 0.297 -0.284  0.884   997    1
+    ## x1                -0.464 0.120 -0.693 -0.238  4935    1
+    ## sigma [1|group]    1.393 0.282  0.951  2.036  2135    1
     ## 
     ## Detection (logit-scale):
     ##             Estimate     SD  2.5% 97.5% n_eff  Rhat
-    ## (Intercept)    0.383 0.0615 0.263 0.506  6596 0.999
-    ## x2             0.587 0.0615 0.467 0.710  5890 0.999
+    ## (Intercept)    0.381 0.0572 0.271 0.492  6047 0.999
+    ## x2             0.587 0.0616 0.464 0.709  5318 1.000
     ## 
-    ## LOOIC: 2267.452
+    ## LOOIC: 2267.542
 
 Examine residuals for occupancy and detection submodels (following
 [Wright et al. 2019](https://doi.org/10.1002/ecy.2703)). Each panel
