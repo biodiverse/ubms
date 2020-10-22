@@ -80,3 +80,14 @@ setMethod("sim_p", "ubmsFit", function(object, samples, ...){
   out[,object["det"]@missing] <- NA
   out
 })
+
+# Version of unmarked's getP method--------------------------------------------
+
+#' @importFrom unmarked getP
+setMethod("getP", "ubmsFit", function(object, draws=NULL, ...){
+  samples <- get_samples(object, draws)
+  resp <- object@response
+  praw <- t(sim_p(object, samples))
+  praw <- array(praw, c(resp@max_obs, nrow(resp@y), length(samples)))
+  aperm(praw, c(2,1,3))
+})

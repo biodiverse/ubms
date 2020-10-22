@@ -101,3 +101,8 @@ test_that("predicting map works for ubmsFit",{
   expect_is(pr_rast2, "RasterBrick")
   expect_equal(length(pr_rast2), 30*4)
 })
+
+test_that("getP method works for ubmsFit",{
+  gp <- getP(fit)
+  expect_equal(dim(gp), c(3,3,40))
+})

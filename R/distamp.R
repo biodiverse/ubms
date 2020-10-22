@@ -255,17 +255,7 @@ get_p_for_multinom <- function(object, samples){
 
 #Get detection probability-----------------------------------------------------
 
-#' @importFrom unmarked getP
-setMethod("getP", "ubmsFitDistsamp", function(object, draws=NULL, ...){
-  samples <- get_samples(object, draws)
-  resp <- object@response
-  praw <- t(sim_p(object, samples))
-  praw <- array(praw, c(resp@max_obs, get_n_sites(resp), length(samples)))
-  aperm(praw, c(2,1,3))
-})
-
 #' @include posterior_linpred.R
-
 setMethod("sim_p", "ubmsFitDistsamp", function(object, samples, ...){
   resp <- object@response
   resp@output <- "abund" #Don't adjust for area

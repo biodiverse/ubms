@@ -137,15 +137,7 @@ setMethod("get_stan_data", "ubmsResponseOccuTTD", function(object, ...){
 
 #Get detection probability-----------------------------------------------------
 
-#' @importFrom unmarked getP
-setMethod("getP", "ubmsFitOccuTTD", function(object, draws=NULL, ...){
-  samples <- get_samples(object, draws)
-  resp <- object@response
-  praw <- t(sim_p(object, samples))
-  praw <- array(praw, c(resp@max_obs, nrow(resp@y), length(samples)))
-  aperm(praw, c(2,1,3))
-})
-
+#' @include posterior_linpred.R
 setMethod("sim_p", "ubmsFitOccuTTD", function(object, samples, ...){
   resp <- object@response
   tdist <- resp@y_dist
