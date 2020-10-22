@@ -15,3 +15,6 @@ src/RcppExports.cpp
 ^doc$
 ^Meta$
 LICENSE$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
