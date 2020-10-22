@@ -298,8 +298,7 @@ fit_top
 
 ### MCMC diagnostics
 
-Again looking at the summary of `fit_top`, it appears all chains have adequately converged based on $\hat{R}$ values.
-Ideally, you want all $\hat{R} > 1.05$.
+Again looking at the summary of `fit_top`, we conclude MCMC chains have converged if all $\hat{R} > 1.05$.
 To visualize convergence, look at the traceplots:
 
 ```{r}
@@ -339,7 +338,8 @@ The proportion of draws for which the simulated statistic is larger than the act
 plot(fit_top_gof)
 ```
 
-Our model appears to have adequate fit based on this posterior predictive check.
+Our model does not appear to fit well based on this posterior predictive check.
+The first step to addressing this would be to run the model for more iterations to make sure that isn't the reason.
 
 You can use the `posterior_predict` function to simulate new datasets, which you can use to calculate your own fit statistic.
 The following command generates 100 simulated datasets.
