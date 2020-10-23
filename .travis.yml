@@ -16,6 +16,8 @@ addons:
     packages:
       - devscripts
       - libv8-dev
+      - libharfbuzz-dev
+      - libfribidi-dev
     sources:
       - ubuntu-toolchain-r-test
 
