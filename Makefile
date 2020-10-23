@@ -29,6 +29,10 @@ vignettes:
 	Rscript -e "knitr::knit('vignettes/random-effects.Rmd.orig', output='vignettes/random-effects.Rmd')"
 	Rscript -e "devtools::build_vignettes()"
 
+site:
+	Rscript -e "pkgdown::build_site()"
+	firefox docs/index.html
+
 clean-install:
 	R CMD INSTALL --preclean .
 

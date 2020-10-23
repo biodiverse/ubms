@@ -1,0 +1,5 @@
+body { font-family: 'helvetica', sans-serif; }
+a:link { color:#17547f; text-decoration: none;}
+a:visited { color:#17547f; text-decoration: none;}
+a:hover { color:#17547f; text-decoration: underline;}
+h1 { color:#990000; font-weight:bold }

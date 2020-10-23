@@ -4,12 +4,12 @@
 Status](https://travis-ci.org/kenkellner/ubms.svg?branch=master)](https://travis-ci.org/kenkellner/ubms)
 [![codecov](https://codecov.io/gh/kenkellner/ubms/graph/badge.svg)](https://codecov.io/gh/kenkellner/ubms)
 
-In-development `R` package for fitting Bayesian hierarchical models of
+`ubms` is an `R` package for fitting Bayesian hierarchical models of
 animal occurrence and abundance. The package has a formula-based
 interface compatible with
 [unmarked](https://cran.r-project.org/web/packages/unmarked/index.html),
 but the model is fit using MCMC with [Stan](https://mc-stan.org/)
-instead of using maximum likelihood. Right now there are Stan versions
+instead of using maximum likelihood. Currently there are Stan versions
 of unmarked functions `occu`, `occuRN`, `colext`, `occuTTD`, `pcount`,
 `distsamp`, and `multinomPois`. These functions follow the `stan_`
 prefix naming format established by
@@ -31,7 +31,31 @@ Disadvantages compared to `unmarked`:
 2.  Not all model types are supported
 3.  Potential for convergence issues
 
-### Example
+## Installation
+
+`ubms` is not yet on CRAN. The latest development version can be
+installed from Github:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("kenkellner/ubms")
+```
+
+If you are on Windows, you can download and install a pre-compiled
+binary package of the latest release:
+
+``` r
+# Install dependencies
+install.packages(c("unmarked", "ggplot2", "gridExtra", "lme4", "loo",
+                   "Matrix", "Rcpp", "rstan", "rstantools"))
+
+# Download and install ubms
+download.file("https://github.com/kenkellner/ubms/releases/download/v0.1.9/ubms_0.1.9.zip",
+              destfile="ubms_0.1.9.zip")
+install.packages("ubms_0.1.9.zip", repos=NULL)
+```
+
+## Example
 
 Simulate occupancy data including a random effect on occupancy:
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/multinomPois.R
 \name{stan_multinomPois}
 \alias{stan_multinomPois}
-\title{Multinomial-Poisson Mixture Model}
+\title{Fit the Multinomial-Poisson Mixture Model}
 \usage{
 stan_multinomPois(formula, data, ...)
 }
