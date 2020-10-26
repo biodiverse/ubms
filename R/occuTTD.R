@@ -32,12 +32,12 @@
 #'                     forest=runif(N,0,1),
 #'                     wind=runif(N,0,1))
 #' beta_psi <- c(-0.69, 0.71, -0.5)
-#' psi <- plogis(cbind(1, scovs$elev, scovs$forest) \%*\% beta_psi)
+#' psi <- plogis(cbind(1, scovs$elev, scovs$forest) %*% beta_psi)
 #' z <- rbinom(N, 1, psi)
 #'
 #' Tmax <- 10 #Same survey length for all observations
 #' beta_lam <- c(-2, -0.2, 0.7)
-#' rate <- exp(cbind(1, scovs$elev, scovs$wind) \%*\% beta_lam)
+#' rate <- exp(cbind(1, scovs$elev, scovs$wind) %*% beta_lam)
 #' ttd <- rexp(N, rate)
 #' ttd[z==0] <- Tmax #Censor at unoccupied sites
 #' ttd[ttd>Tmax] <- Tmax #Censor when ttd was greater than survey length

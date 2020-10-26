@@ -1,4 +1,4 @@
-#' Multinomial-Poisson Mixture Model
+#' Fit the Multinomial-Poisson Mixture Model
 #'
 #' This function fits the multinomial-Poisson mixture model, useful for
 #' data collected via survey methods such as removal or double observer sampling.

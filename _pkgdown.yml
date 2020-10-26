@@ -1,0 +1,34 @@
+authors:
+  Ken Kellner:
+    href: https://kenkellner.com
+
+reference:
+  - title: Modeling functions
+    contents:
+      - starts_with("stan_")
+
+  - title: Model diagnostics
+    contents:
+      - fitted,ubmsFit-method
+      - gof
+      - plot_residuals
+      - residuals,ubmsFit-method
+      - traceplot,ubmsFit-method
+
+  - title: Model selection
+    contents:
+      - fitList
+      - loo,ubmsFit-method
+      - modSel,ubmsFitList-method
+      - waic,ubmsFit-method
+  
+  - title: Inference
+    contents:
+      - extract,ubmsFit-method
+      - plot_marginal
+      - posterior_linpred
+      - posterior_predict
+      - predict
+      - projected
+      - ranef
+      - turnover

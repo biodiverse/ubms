@@ -18,7 +18,7 @@ Imports:
     rstan (>= 2.18.1),
     rstantools (>= 2.0.0),
     stats
-Suggests: covr, devtools, knitr, raster, rmarkdown, roxygen2, testthat
+Suggests: covr, devtools, knitr, pkgdown, raster, rmarkdown, roxygen2, testthat
 VignetteBuilder: knitr
 Description: Fits hierarchical models of animal abundance and occurrence using the 'rstan' package, which provides the R interface to the Stan C++ library for Bayesian estimation. Provides a formula-based interface for specifying models similar to package 'unmarked', while also allowing for estimation of random effects.
 License: GPL (>=3)

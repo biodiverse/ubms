@@ -9,7 +9,6 @@
 #'
 #' @param object,x A fitted model of class \code{ubmsFit}
 #' @param submodel,i A submodel, e.g. \code{"det"} for the detection model
-#' @param cores Number of parallel cores to use in calculation
 #' @param y Currently ignored
 #' @param ... Currently ignored
 #'
@@ -118,7 +117,17 @@ setMethod("getY", "ubmsFit", function(object){
   object@data@y
 })
 
-#' @rdname ubmsFit-methods
+
+#' Leave-one-out Cross Validation
+#'
+#' @param x A \code{ubmsFit} model
+#' @param ... Currently ignored
+#' @param cores Number of cores to use for calculation
+#'
+#' @return A named list of class \code{loo} with estimates of
+#'  the expected log predictive density and other parameters used
+#'  for model comparison. See \code{?loo::loo} for more information.
+#'
 #' @importFrom loo loo
 #' @export
 setMethod("loo", "ubmsFit", function(x, ..., cores=getOption("mc.cores", 1)){
@@ -128,7 +137,15 @@ setMethod("loo", "ubmsFit", function(x, ..., cores=getOption("mc.cores", 1)){
 })
 
 
-#' @rdname ubmsFit-methods
+#' Widely Applicable Information Criterion (WAIC)
+#'
+#' @param x A \code{ubmsFit} model
+#' @param ... Currently ignored
+#'
+#' @return An object of class \code{waic} containing an estimate of WAIC and
+#'  other parameters useful for model comparison. See \code{?loo::waic} for
+#'  more information.
+#'
 #' @importFrom loo waic
 #' @export
 setMethod("waic", "ubmsFit", function(x, ...){

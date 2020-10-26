@@ -9,8 +9,6 @@
 \alias{nsamples,ubmsFit-method}
 \alias{summary,ubmsFit-method}
 \alias{getY,ubmsFit-method}
-\alias{loo,ubmsFit-method}
-\alias{waic,ubmsFit-method}
 \title{Methods for ubmsFit objects
 These methods are similar to methods defined for objects of class \code{lm},
 \code{merMod}, \code{stanreg}. The most important methods are documented
@@ -30,10 +28,6 @@ section below.}
 \S4method{summary}{ubmsFit}(object, submodel, ...)
 
 \S4method{getY}{ubmsFit}(object)
-
-\S4method{loo}{ubmsFit}(x, ..., cores = getOption("mc.cores", 1))
-
-\S4method{waic}{ubmsFit}(x, ...)
 }
 \arguments{
 \item{object, x}{A fitted model of class \code{ubmsFit}}
@@ -43,8 +37,6 @@ section below.}
 \item{y}{Currently ignored}
 
 \item{submodel, i}{A submodel, e.g. \code{"det"} for the detection model}
-
-\item{cores}{Number of parallel cores to use in calculation}
 }
 \description{
 Methods for ubmsFit objects
