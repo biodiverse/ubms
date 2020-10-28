@@ -49,10 +49,10 @@ You can download `ubms`, report issues, or help with development on [Github](htt
 
 There are several advantages to using `ubms` over `unmarked`.
 First, it is possible to include random effects in `ubms` models, which is not currently possible in `unmarked`.
-These are specified using the familiar syntax of [lme4](https://cran.r-project.org/web/packages/lme4/index.html) [@Bates_2015].
+These are specified using the familiar syntax of [lme4](https://cran.r-project.org/package=lme4) [@Bates_2015].
 Second, `ubms` generates posterior distributions for model parameters, including latent occupancy and abundance parameters.
 These can be useful for post-hoc analyses and diagnostics.
-Finally, fitting models with Stan gives you access to the large ecosystem of Stan-related tools, such as [LOO](https://cran.r-project.org/web/packages/loo/index.html) (leave-one-out-cross validation; [@Vehtari_2017]).
+Finally, fitting models with Stan gives you access to the large ecosystem of Stan-related tools, such as [LOO](https://cran.r-project.org/package=loo) (leave-one-out-cross validation; [@Vehtari_2017]).
 
 Another alternative to `ubms` would be to fit models in an existing modeling language such as [BUGS](http://www.openbugs.net/), [JAGS](http://mcmc-jags.sourceforge.net/), or directly in Stan.
 `ubms` abstracts away the complex process of defining and writing custom models in these languages which need to be updated each time you make changes to your model.
@@ -147,7 +147,7 @@ The `occu` function requires as input a double formula (for detection and occupa
 
 Next, we fit the same model in `ubms`.
 The equivalent to `occu` in `ubms` is `stan_occu`.
-Functions in `ubms` generally use this `stan_` prefix, based on the approach used in package [rstanarm](https://cran.r-project.org/web/packages/rstanarm/index.html) for GLMs.
+Functions in `ubms` generally use this `stan_` prefix, based on the approach used in package [rstanarm](https://cran.r-project.org/package=rstanarm) for GLMs.
 We need to provide the same arguments to `stan_occu`.
 In addition, we will specify that we want 3 MCMC chains (`chains=3`), with 300 iterations per chain (`iter=300`) of which the first half will be warmup iterations.
 It is beyond the scope of this vignette to discuss the appropriate number or length of chains; see [the Stan user's guide](https://mc-stan.org/docs/2_24/stan-users-guide/index.html) for more details.

@@ -24,7 +24,7 @@ knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 ## Random effects in `ubms`
 
 The `ubms` package fits models of wildlife occurrence and abundance in [Stan](https://mc-stan.org/) [@Carpenter_2017], in a similar fashion to the `unmarked` package [@Fiske_2011].
-One of the advantages of `ubms` is that it is possible to include random effects in your models, using the same syntax as [lme4](https://cran.r-project.org/web/packages/lme4/index.html) [@Bates_2015].
+One of the advantages of `ubms` is that it is possible to include random effects in your models, using the same syntax as [lme4](https://cran.r-project.org/package=lme4) [@Bates_2015].
 For example, if you have a `group` site covariate, you can fit a model with random intercepts by `group` by including `+ (1|group)` in your parameter formula.
 Random slopes, or a combination of random slopes and intercepts, are also possible.
 To illustrate the use of random effects of `ubms`, this vignette fits a model to multi-season occupancy data using a "stacked" approach.
@@ -32,7 +32,7 @@ To illustrate the use of random effects of `ubms`, this vignette fits a model to
 ## "Stacked" Models
 
 Suppose you have a dataset of repeated detections/non-detections or counts that are collected over several primary periods (i.e., seasons).
-The logical model choice for such data is a multi-season model, such as the dynamic occupancy model [CITE] or some form of Dail-Madsen model for count data [CITE].
+The logical model choice for such data is a multi-season model, such as the dynamic occupancy model [@MacKenzie_2003] or some form of Dail-Madsen model for count data [@Dail_2011].
 These models estimate transition probabilities such as colonization and extinction rates between seasons.
 
 However, in some cases you might not want to fit a dynamic model.
