@@ -27,6 +27,8 @@ README:
 
 vignettes:
 	Rscript -e "knitr::knit('vignettes/random-effects.Rmd.orig', output='vignettes/random-effects.Rmd')"
+	Rscript -e "knitr::knit('vignettes/JAGS-comparison.Rmd.orig', output='vignettes/JAGS-comparison.Rmd')"
+	mv *_plot-1.png vignettes
 	Rscript -e "devtools::build_vignettes()"
 
 site:

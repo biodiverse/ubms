@@ -22,7 +22,7 @@ vignette: >
 ## Random effects in `ubms`
 
 The `ubms` package fits models of wildlife occurrence and abundance in [Stan](https://mc-stan.org/) [@Carpenter_2017], in a similar fashion to the `unmarked` package [@Fiske_2011].
-One of the advantages of `ubms` is that it is possible to include random effects in your models, using the same syntax as [lme4](https://cran.r-project.org/web/packages/lme4/index.html) [@Bates_2015].
+One of the advantages of `ubms` is that it is possible to include random effects in your models, using the same syntax as [lme4](https://cran.r-project.org/package=lme4) [@Bates_2015].
 For example, if you have a `group` site covariate, you can fit a model with random intercepts by `group` by including `+ (1|group)` in your parameter formula.
 Random slopes, or a combination of random slopes and intercepts, are also possible.
 To illustrate the use of random effects of `ubms`, this vignette fits a model to multi-season occupancy data using a "stacked" approach.
@@ -30,7 +30,7 @@ To illustrate the use of random effects of `ubms`, this vignette fits a model to
 ## "Stacked" Models
 
 Suppose you have a dataset of repeated detections/non-detections or counts that are collected over several primary periods (i.e., seasons).
-The logical model choice for such data is a multi-season model, such as the dynamic occupancy model [CITE] or some form of Dail-Madsen model for count data [CITE].
+The logical model choice for such data is a multi-season model, such as the dynamic occupancy model [@MacKenzie_2003] or some form of Dail-Madsen model for count data [@Dail_2011].
 These models estimate transition probabilities such as colonization and extinction rates between seasons.
 
 However, in some cases you might not want to fit a dynamic model.
@@ -243,18 +243,18 @@ fit_stack
 ##     (1 | site), data = umf_stack, chains = 3, iter = 500, refresh = 0)
 ## 
 ## Occupancy (logit-scale):
-##                Estimate    SD   2.5% 97.5% n_eff  Rhat
-## (Intercept)       -1.62 0.237 -2.138 -1.18 112.5 1.010
-## scale(ele)         1.17 0.237  0.746  1.65 189.1 0.998
-## scale(forest)      1.53 0.270  1.080  2.13  52.2 1.007
-## sigma [1|site]     1.97 0.378  1.371  2.81  33.5 1.010
+##                Estimate    SD   2.5% 97.5% n_eff Rhat
+## (Intercept)       -1.63 0.235 -2.102 -1.20  85.6 1.02
+## scale(ele)         1.16 0.220  0.758  1.65 111.3 1.01
+## scale(forest)      1.53 0.246  1.101  2.09  60.4 1.03
+## sigma [1|site]     1.97 0.362  1.374  2.76  28.4 1.06
 ## 
 ## Detection (logit-scale):
-##             Estimate     SD   2.5% 97.5% n_eff Rhat
-## (Intercept)    0.177 0.1049 -0.023 0.394   501    1
-## scale(date)    0.337 0.0935  0.154 0.516  1328    1
+##             Estimate     SD    2.5% 97.5% n_eff  Rhat
+## (Intercept)    0.183 0.0995 -0.0314 0.374  1130 0.999
+## scale(date)    0.340 0.0899  0.1655 0.514  1292 0.998
 ## 
-## LOOIC: 1473.155
+## LOOIC: 1473.951
 ```
 
 We get warnings; these should be fixed by increasing the iterations.
@@ -273,8 +273,8 @@ head(ran$site[[1]])
 ```
 
 ```
-##          1          2          3          4          5          6 
-## -1.9149623 -2.0127713 -0.2941755  0.1155416  0.3387905 -1.8547888
+##           1           2           3           4           5           6 
+## -1.93382397 -2.10782522 -0.31390999  0.03895832  0.45724757 -1.82846268
 ```
 
 You can also generate summary statistics for each random intercept:
@@ -286,13 +286,13 @@ head(ran$site[[1]])
 ```
 
 ```
-##     Estimate       SD      2.5%     97.5%
-## 1 -1.9149623 2.040042 -6.250911 1.7524062
-## 2 -2.0127713 1.675006 -5.555441 0.9047885
-## 3 -0.2941755 1.423299 -3.224786 2.6999613
-## 4  0.1155416 1.324165 -2.459340 2.5714592
-## 5  0.3387905 1.282113 -1.969159 3.2183435
-## 6 -1.8547888 1.860384 -5.609624 1.5336648
+##      Estimate       SD      2.5%     97.5%
+## 1 -1.93382397 1.820092 -5.626869 1.3647438
+## 2 -2.10782522 1.706727 -5.934809 0.7410469
+## 3 -0.31390999 1.297007 -2.892707 2.0906638
+## 4  0.03895832 1.264823 -2.493098 2.4604959
+## 5  0.45724757 1.314813 -1.841664 3.5370574
+## 6 -1.82846268 1.967480 -5.413676 1.5156615
 ```
 
 # References
