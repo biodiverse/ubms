@@ -42,7 +42,7 @@ test_that("stan_occu output structure is correct",{
 })
 
 test_that("stan_occu produces accurate results",{
-  skip_on_travis()
+  skip_on_ci()
   skip_on_cran()
   skip_on_covr()
   set.seed(123)

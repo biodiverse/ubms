@@ -53,7 +53,7 @@ test_that("stan_pcount output structure is correct",{
 
 test_that("stan_colext produces accurate results",{
   skip_on_cran()
-  skip_on_travis()
+  skip_on_ci()
   skip_on_covr()
   set.seed(123)
   fit_long <- suppressWarnings(stan_colext(~x2,~x4,~1,~1, umf,

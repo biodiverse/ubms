@@ -43,7 +43,7 @@ test_that("stan_occuRN output structure is correct",{
 
 test_that("stan_occuRN produces accurate results",{
   skip_on_cran()
-  skip_on_travis()
+  skip_on_ci()
   skip_on_covr()
   set.seed(123)
   fit_long <- suppressWarnings(stan_occuRN(~x2~x1, umf[1:200,], K=15, chains=2,

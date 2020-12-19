@@ -55,7 +55,7 @@ test_that("stan_multinomPois output structure is correct",{
 
 test_that("stan_multinomPois produces accurate results",{
   skip_on_cran()
-  skip_on_travis()
+  skip_on_ci()
   skip_on_covr()
   set.seed(123)
   fit_double_long <- suppressWarnings(stan_multinomPois(~observer-1 ~x, umf_double,

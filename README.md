@@ -1,8 +1,12 @@
 # ubms: Unmarked Bayesian Models with Stan
 
-[![Build
-Status](https://travis-ci.org/kenkellner/ubms.svg?branch=master)](https://travis-ci.org/kenkellner/ubms)
-[![codecov](https://codecov.io/gh/kenkellner/ubms/graph/badge.svg)](https://codecov.io/gh/kenkellner/ubms)
+<!-- badges: start -->
+
+[![R build
+status](https://github.com/kenkellner/ubms/workflows/R-CMD-check/badge.svg)](https://github.com/kenkellner/ubms/actions)
+[![Codecov test
+coverage](https://codecov.io/gh/kenkellner/ubms/branch/master/graph/badge.svg)](https://codecov.io/gh/kenkellner/ubms?branch=master)
+<!-- badges: end -->
 
 `ubms` is an `R` package for fitting Bayesian hierarchical models of
 animal occurrence and abundance. The package has a formula-based
