@@ -1,6 +1,6 @@
 Package: ubms
-Version: 0.1.9.9000
-Date: 2020-12-19
+Version: 0.2.0
+Date: 2020-12-22
 Title: Bayesian Models for Data from Unmarked Animals using Stan
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))
@@ -20,9 +20,9 @@ Imports:
     stats
 Suggests: covr, devtools, knitr, pkgdown, raster, rmarkdown, roxygen2, testthat
 VignetteBuilder: knitr
-Description: Fits hierarchical models of animal abundance and occurrence using the 'rstan' package, which provides the R interface to the Stan C++ library for Bayesian estimation. Provides a formula-based interface for specifying models similar to package 'unmarked', while also allowing for estimation of random effects.
+Description: Fit Bayesian hierarchical models of animal abundance and occurrence via the 'rstan' package, the R interface to the 'Stan' C++ library. Supported models include single-season occupancy, dynamic occupancy, and N-mixture abundance models. Covariates on model parameters are specificed using a formula-based interface similar to package 'unmarked', while also allowing for estimation of random slope and intercept terms.
 License: GPL (>=3)
-URL: https://github.com/kenkellner/ubms
+URL: https://kenkellner.com/ubms/
 BugReports: https://github.com/kenkellner/ubms/issues
 Encoding: UTF-8
 RoxygenNote: 7.1.1

@@ -54,7 +54,7 @@ Second, `ubms` generates posterior distributions for model parameters, including
 These can be useful for post-hoc analyses and diagnostics.
 Finally, fitting models with Stan gives you access to the large ecosystem of Stan-related tools, such as [LOO](https://cran.r-project.org/package=loo) (leave-one-out-cross validation; [@Vehtari_2017]).
 
-Another alternative to `ubms` would be to fit models in an existing modeling language such as [BUGS](http://www.openbugs.net/), [JAGS](http://mcmc-jags.sourceforge.net/), or directly in Stan.
+Another alternative to `ubms` would be to fit models in an existing modeling language such as BUGS, [JAGS](http://mcmc-jags.sourceforge.net/), or directly in Stan.
 `ubms` abstracts away the complex process of defining and writing custom models in these languages which need to be updated each time you make changes to your model.
 It also provides many useful helper functions (e.g. `predict`) which would otherwise require custom code.
 Finally, because of Stan's efficient sampler [@Hoffman_2014] and because the underlying likelihoods in `ubms` are marginalized, `ubms` will often fit models much faster than equivalent models in BUGS or JAGS [@Yackulic_2020].
