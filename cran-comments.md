@@ -1,7 +1,8 @@
 ## Test environments
 
 * Local: Ubuntu 18.04 (R-release and R-devel), Windows (R-release)
-* Github actions CI: Ubuntu 20.04 R-release, Ubuntu 20.04 R-devel, Windows R-release, MacOSX R-release
+* Github actions CI: Ubuntu 20.04 R-release, Ubuntu 20.04 R-devel, Windows R-release, MacOS R-release
+* Win-builder (R-devel)
 
 ## R CMD check results (R-devel on Ubuntu 18.04)
 
