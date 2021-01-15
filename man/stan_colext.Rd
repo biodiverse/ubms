@@ -36,7 +36,7 @@ This function fits the dynamic occupancy model of
 MacKenzie et al. (2003).
 }
 \examples{
-\dontrun{
+\donttest{
 data(frogs)
 umf <- formatMult(masspcru)
 umf@y[umf@y > 1] <- 1 #convert counts to presence/absence

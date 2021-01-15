@@ -203,18 +203,13 @@ ubmsSubmodelList <- function(...){
   new("ubmsSubmodelList", submodels=submodels)
 }
 
-#' Methods for ubmsSubmodelList objects
-#'
-#' Basic methods for ubmsSubmodelList objects
-#'
-#' @name ubmsSubmodelList-methods
+#' Extract a ubmsSubmodel From a ubmsSubmodelList Object
 #'
 #' @param x Object of class \code{ubmsSubmodelList}
 #' @param i The name of a submodel
 #'
-NULL
-
-#' @rdname ubmsSubmodelList-methods
+#' @return An object of class \code{ubmsSubmodel}.
+#'
 #' @export
 setMethod("[", c("ubmsSubmodelList", "character", "missing", "missing"),
   function(x, i){

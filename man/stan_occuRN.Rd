@@ -28,7 +28,7 @@ probability of detection of the species to the number of individuals
 available for detection at each site.
 }
 \examples{
-\dontrun{
+\donttest{
 data(birds)
 woodthrushUMF <- unmarkedFrameOccu(woodthrush.bin)
 #Add a site covariate

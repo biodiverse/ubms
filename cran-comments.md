@@ -1,8 +1,18 @@
+## Responses to Previous CRAN Comments
+
+* Fixed mis-spelled word (specified) in DESCRIPTION
+* Added references to the DESCRIPTION
+* Added \value section to all exported methods (this required
+  splitting up the .Rd files, so the original problematic 
+  .Rd files no longer exist)
+* Changed all \dontrun{} to \donttest{} as the examples all take 
+  more than 5 sec to run depending on computing power
+
 ## Test environments
 
 * Local: Ubuntu 18.04 (R-release and R-devel), Windows (R-release)
-* Github actions CI: Ubuntu 20.04 R-release, Ubuntu 20.04 R-devel, Windows R-release, MacOS R-release
-* Win-builder (R-devel)
+* Github actions CI: Ubuntu 20.04 R-release, Ubuntu 20.04 R-devel, 
+  Windows R-release, MacOS R-release
 
 ## R CMD check results (R-devel on Ubuntu 18.04)
 

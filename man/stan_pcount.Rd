@@ -29,7 +29,7 @@ This function fits the single season N-mixture model of
 Royle et al. (2004).
 }
 \examples{
-\dontrun{
+\donttest{
 data(mallard)
 mallardUMF <- unmarkedFramePCount(mallard.y, siteCovs=mallard.site)
 

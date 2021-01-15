@@ -54,7 +54,7 @@ Values of `dist.breaks` in the `unmarkedFrameDS` should be as small
 }
 
 \examples{
-\dontrun{
+\donttest{
 data(issj)
 #Note use of km instead of m for distance breaks
 jayUMF <- unmarkedFrameDS(y=as.matrix(issj[,1:3]),

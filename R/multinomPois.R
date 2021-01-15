@@ -12,7 +12,7 @@
 #' @return \code{ubmsFitMultinomPois} object describing the model fit.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(ovendata)
 #' ovenFrame <- unmarkedFrameMPois(ovendata.list$data,
 #'                                 siteCovs=ovendata.list$covariates,

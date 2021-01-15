@@ -50,7 +50,7 @@ Fit time-to-detection occupancy models of Garrard et al.
 or Weibull distribution.
 }
 \examples{
-\dontrun{
+\donttest{
 #Simulate data
 N <- 500; J <- 1
 scovs <- data.frame(elev=c(scale(runif(N, 0,100))),

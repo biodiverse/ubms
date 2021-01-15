@@ -23,7 +23,7 @@ This function fits the single season occupancy model of
 MacKenzie et al. (2002).
 }
 \examples{
-\dontrun{
+\donttest{
 data(frogs)
 pferUMF <- unmarkedFrameOccu(pfer.bin)
 

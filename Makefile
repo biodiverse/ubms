@@ -7,6 +7,7 @@ install:
 
 build:
 	Rscript -e "Rcpp::compileAttributes()"
+	make document
 	cd ..; R CMD build $(NAME)
 
 check:

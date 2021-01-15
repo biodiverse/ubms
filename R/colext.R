@@ -15,7 +15,7 @@
 #' @return \code{ubmsFitColext} object describing the model fit.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(frogs)
 #' umf <- formatMult(masspcru)
 #' umf@y[umf@y > 1] <- 1 #convert counts to presence/absence

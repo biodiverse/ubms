@@ -25,7 +25,7 @@
 #' @return \code{ubmsFitOccuTTD} object describing the model fit.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' #Simulate data
 #' N <- 500; J <- 1
 #' scovs <- data.frame(elev=c(scale(runif(N, 0,100))),

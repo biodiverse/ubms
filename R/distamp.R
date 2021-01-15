@@ -30,7 +30,7 @@
 #'  good estimates of the hazard-rate shape and scale parameters.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(issj)
 #' #Note use of km instead of m for distance breaks
 #' jayUMF <- unmarkedFrameDS(y=as.matrix(issj[,1:3]),

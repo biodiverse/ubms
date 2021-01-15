@@ -11,6 +11,9 @@
 
 \item{...}{Arguments passed to \code{rstan::traceplot}}
 }
+\value{
+A \code{ggplot} object.
+}
 \description{
 Draws traceplots for chains from a \code{ubmsFit} object
 }

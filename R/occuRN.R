@@ -16,7 +16,7 @@
 #' @return \code{ubmsFitOccuRN} object describing the model fit.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(birds)
 #' woodthrushUMF <- unmarkedFrameOccu(woodthrush.bin)
 #' #Add a site covariate

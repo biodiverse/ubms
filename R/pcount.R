@@ -16,7 +16,7 @@
 #' @return \code{ubmsFitPcount} object describing the model fit.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(mallard)
 #' mallardUMF <- unmarkedFramePCount(mallard.y, siteCovs=mallard.site)
 #'

@@ -1,27 +1,10 @@
-#' Methods for ubmsFit objects
-
-#' These methods are similar to methods defined for objects of class \code{lm},
-#' \code{merMod}, \code{stanreg}. The most important methods are documented
-#' separately. Links to those pages are provided in the \strong{See Also}
-#' section below.
+#' Extract Coefficient Values From a ubmsFit Model
 #'
-#' @name ubmsFit-methods
-#'
-#' @param object,x A fitted model of class \code{ubmsFit}
-#' @param submodel,i A submodel, e.g. \code{"det"} for the detection model
-#' @param y Currently ignored
+#' @param object A \code{ubmsFit} model
 #' @param ... Currently ignored
 #'
-#' @seealso
-#' \itemize{
-#'  \item The \code{\link{posterior_predict}} for drawing from the posterior
-#'    distribution of the observed outcome or unobserved latent state
-#' }
+#' @return A vector of coefficient values for all submodels.
 #'
-#' @include fit.R
-NULL
-
-#' @rdname ubmsFit-methods
 #' @importFrom unmarked coef
 #' @export
 setMethod("coef", "ubmsFit", function(object, ...){
@@ -34,7 +17,14 @@ setMethod("coef", "ubmsFit", function(object, ...){
 })
 
 
-#' @rdname ubmsFit-methods
+#' Plot Residuals For All Submodels in a ubmsFit Model
+#'
+#' @param x A \code{ubmsFit} model
+#' @param y Currently ignored
+#' @param ... Currently ignored
+#'
+#' @return A plot object of class \code{gtable} with one panel per submodel.
+#'
 #' @importFrom gridExtra grid.arrange
 #' @export
 setMethod("plot", "ubmsFit", function(x, ...){
@@ -43,7 +33,13 @@ setMethod("plot", "ubmsFit", function(x, ...){
 })
 
 
-#' @rdname ubmsFit-methods
+#' Extract a Submodel from a ubmsFit Model
+#'
+#' @param x A \code{ubmsFit} model
+#' @param i The name of a submodel to extract
+#'
+#' @return An object of class \code{ubmsSubmodel}.
+#'
 #' @export
 setMethod("[", c("ubmsFit", "character", "missing", "missing"),
   function(x, i){
@@ -51,7 +47,12 @@ setMethod("[", c("ubmsFit", "character", "missing", "missing"),
 })
 
 
-#' @rdname ubmsFit-methods
+#' Get Parameter Names From a ubmsFit Model
+#'
+#' @param x A \code{ubmsFit} model
+#'
+#' @return A character vector of parameter names.
+#'
 #' @export
 setMethod("names", "ubmsFit", function(x){
   out <- names(x@stanfit)
@@ -59,7 +60,13 @@ setMethod("names", "ubmsFit", function(x){
 })
 
 
-#' @rdname ubmsFit-methods
+#' Get number of Posterior Samples Stored in a ubmsFit Model
+#'
+#' @param object A \code{ubmsFit} model
+#' @param ... Currently ignored
+#'
+#' @return An integer representing the number of posterior samples
+#'
 #' @importFrom rstantools nsamples
 #' @export
 setMethod("nsamples", "ubmsFit", function(object, ...){
@@ -92,7 +99,15 @@ get_link_name <- function(submodel){
         )
 }
 
-#' @rdname ubmsFit-methods
+#' Extract Summary Statistics from a ubmsFit Model
+#'
+#' @param object A \code{ubmsFit} model
+#' @param submodel Name of submodel to summarize
+#' @param ... Currently ignored
+#'
+#' @return An object of class \code{data.frame} containing summary statistics
+#'  for posterior distributions of parameters from the chosen submodel.
+#'
 #' @importFrom unmarked summary
 #' @export
 setMethod("summary", "ubmsFit", function(object, submodel, ...){
@@ -110,7 +125,12 @@ setMethod("summary", "ubmsFit", function(object, submodel, ...){
   out
 })
 
-#' @rdname ubmsFit-methods
+#' Extract y, the Response Variable, From a ubmsFit Model
+#'
+#' @param object A \code{ubmsFit} model
+#'
+#' @return A matrix containing the response variable \code{y}.
+#'
 #' @importFrom unmarked getY
 #' @export
 setMethod("getY", "ubmsFit", function(object){
@@ -184,7 +204,9 @@ setMethod("extract", "ubmsFit",
 #'
 #' @param object A \code{ubmsFit} object
 #' @param ... Arguments passed to \code{rstan::traceplot}
-
+#'
+#' @return A \code{ggplot} object.
+#'
 #' @importFrom rstan traceplot
 #' @export
 setMethod("traceplot", "ubmsFit", function(object, ...){

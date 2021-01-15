@@ -23,7 +23,7 @@ This function fits the multinomial-Poisson mixture model, useful for
 data collected via survey methods such as removal or double observer sampling.
 }
 \examples{
-\dontrun{
+\donttest{
 data(ovendata)
 ovenFrame <- unmarkedFrameMPois(ovendata.list$data,
                                 siteCovs=ovendata.list$covariates,

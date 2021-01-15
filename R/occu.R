@@ -12,7 +12,7 @@
 #' @return \code{ubmsFitOccu} object describing the model fit.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(frogs)
 #' pferUMF <- unmarkedFrameOccu(pfer.bin)
 #'
