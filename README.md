@@ -6,6 +6,8 @@
 status](https://github.com/kenkellner/ubms/workflows/R-CMD-check/badge.svg)](https://github.com/kenkellner/ubms/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/kenkellner/ubms/branch/master/graph/badge.svg)](https://codecov.io/gh/kenkellner/ubms?branch=master)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/ubms)](https://cran.r-project.org/web/packages/ubms/index.html)
 <!-- badges: end -->
 
 `ubms` is an `R` package for fitting Bayesian hierarchical models of
@@ -37,8 +39,15 @@ Disadvantages compared to `unmarked`:
 
 ## Installation
 
-`ubms` is not yet on CRAN. The latest development version can be
-installed from Github:
+`ubms` is on
+[CRAN](https://cran.r-project.org/web/packages/ubms/index.html):
+
+``` r
+install.packages("ubms")
+```
+
+Alternatively, the latest development version can be installed from
+Github:
 
 ``` r
 # install.packages("devtools")
@@ -54,9 +63,9 @@ install.packages(c("unmarked", "ggplot2", "gridExtra", "lme4", "loo",
                    "Matrix", "Rcpp", "rstan", "rstantools"))
 
 # Download and install ubms
-download.file("https://github.com/kenkellner/ubms/releases/download/v0.1.9/ubms_0.1.9.zip",
-              destfile="ubms_0.1.9.zip")
-install.packages("ubms_0.1.9.zip", repos=NULL)
+download.file("https://github.com/kenkellner/ubms/releases/download/v1.0.1/ubms_1.0.1.zip",
+              destfile="ubms_1.0.1.zip")
+install.packages("ubms_1.0.1.zip", repos=NULL)
 ```
 
 ## Example
