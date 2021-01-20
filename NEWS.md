@@ -1,3 +1,14 @@
+# ubms v1.0.2
+
+* Fix issues in `sim_z` C++ code that triggered clang-UBSAN errors
+* Adjust occuTTD test so it doesn't fail on Solaris
+
+# ubms v1.0.1
+
+* Added vignette comparing ubms and JAGS output
+* Added configuration for pkgdown site
+* Small adjustments to wording in DESCRIPTION and docs for CRAN submission
+
 # ubms v0.1.9
 
 * Add time-to-detection occupancy model (`stan_occuTTD`)

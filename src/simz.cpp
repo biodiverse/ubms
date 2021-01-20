@@ -5,8 +5,8 @@
 using namespace arma;
 
 // [[Rcpp::export]]
-arma::imat simz_pcount(arma::umat y, arma::mat lam_post, arma::cube p_post,
-                       unsigned K, arma::uvec Kmin, arma::uvec kvals){
+arma::imat simz_pcount(arma::mat y, arma::mat lam_post, arma::cube p_post,
+                       unsigned K, arma::ivec Kmin, arma::ivec kvals){
 
   int M = y.n_rows;
   int J = y.n_cols;
@@ -45,8 +45,8 @@ arma::imat simz_pcount(arma::umat y, arma::mat lam_post, arma::cube p_post,
 }
 
 // [[Rcpp::export]]
-arma::imat simz_occuRN(arma::umat y, arma::mat lam_post, arma::cube r_post,
-                       unsigned K, arma::uvec Kmin, arma::uvec kvals){
+arma::imat simz_occuRN(arma::mat y, arma::mat lam_post, arma::cube r_post,
+                       unsigned K, arma::ivec Kmin, arma::ivec kvals){
 
   int M = y.n_rows;
   int J = y.n_cols;
@@ -89,7 +89,7 @@ arma::imat simz_occuRN(arma::umat y, arma::mat lam_post, arma::cube r_post,
 }
 
 //This should be split out into its own file eventually
-double dmultinom(arma::urowvec x, arma::rowvec prob){
+double dmultinom(arma::rowvec x, arma::rowvec prob){
   double out;
   double logout;
   logout = lgamma(sum(x) + 1) + sum(x % log(prob) - lgamma(x + 1));
@@ -99,20 +99,20 @@ double dmultinom(arma::urowvec x, arma::rowvec prob){
 
 
 // [[Rcpp::export]]
-arma::imat simz_multinom(arma::umat y, arma::mat lam_post, arma::cube p_post,
-                         unsigned K, arma::uvec Kmin, arma::uvec kvals){
+arma::imat simz_multinom(arma::mat y, arma::mat lam_post, arma::cube p_post,
+                         unsigned K, arma::ivec Kmin, arma::ivec kvals){
 
   int M = y.n_rows;
   int J = y.n_cols;
   int nsamples = lam_post.n_cols;
 
   vec kprob(K+1);
-  umat yblank(M, 1);
-  umat yexpand = join_rows(y, yblank);
+  mat yblank = zeros(M, 1); //Fill this with zeros??? maybe just make this imat (same with y)?
+  mat yexpand = join_rows(y, yblank);
 
   double pp, bp;
 
-  umat not_observed(M, K+1);
+  mat not_observed(M, K+1);
 
   for (unsigned m=0; m < M; m++){
     for (unsigned k=Kmin(m); k < (K+1); k++){

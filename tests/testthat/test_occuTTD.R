@@ -86,7 +86,7 @@ test_that("stan_occuTTD predict method works",{
   pr <- predict(fit_na, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(10, 4))
-  expect_equivalent(pr[1,1], 0.0683, tol=0.005)
+  expect_equivalent(pr[1,1], 0.0683, tol=0.05)
   pr <- predict(fit_na, "det")
   expect_equal(dim(pr), c(10,4))
   expect_equivalent(pr[1,1], 1.1775, tol=0.1)

@@ -36,6 +36,10 @@ site:
 	Rscript -e "pkgdown::build_site()"
 	firefox docs/index.html
 
+clean:
+	rm -r src/*.o
+	rm -r src/*.so
+
 clean-install:
 	R CMD INSTALL --preclean .
 

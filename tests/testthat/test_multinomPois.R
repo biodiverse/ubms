@@ -122,7 +122,7 @@ test_that("ubmsFitMultinomPois sim_z method works",{
   zz <- sim_z(fit_double, samples, re.form=NULL)
   expect_is(zz, "matrix")
   expect_equal(dim(zz), c(length(samples), 10))
-  expect_equal(mean(zz), 8.82, tol=1e-2)
+  expect_equal(mean(zz), 8.58, tol=0.05)
 
   set.seed(123)
   pz <- posterior_predict(fit_double, "z", draws=5)

@@ -1,16 +1,11 @@
-## Responses to Previous CRAN Comments
+## Changes in version 1.0.2
 
-* Fixed mis-spelled word (specified) in DESCRIPTION
-* Added references to the DESCRIPTION
-* Added \value section to all exported methods (this required
-  splitting up the .Rd files, so the original problematic 
-  .Rd files no longer exist)
-* Changed all \dontrun{} to \donttest{} as the examples all take 
-  more than 5 sec to run depending on computing power
+* Fixed 1 test that failed only on Solaris
+* Fixed C++ code that was causing clang-UBSAN errors
 
 ## Test environments
 
-* Local: Ubuntu 18.04 (R-release and R-devel), Windows (R-release)
+* Local: Ubuntu 18.04 (R-release, R-devel with UBSAN), Windows (R-release)
 * Github actions CI: Ubuntu 20.04 R-release, Ubuntu 20.04 R-devel, 
   Windows R-release, MacOS R-release
 
@@ -18,14 +13,7 @@
 
 There were no ERRORs or WARNINGs. 
 
-There were 3 NOTEs:
-
-* checking CRAN incoming feasibility ... NOTE
-Maintainer: ‘Ken Kellner <contact@kenkellner.com>’
-
-New submission
-
-This is the first time I have submitted this package.
+There were 2 NOTEs:
 
 * checking installed package size ... NOTE
   installed size is 63.0Mb
