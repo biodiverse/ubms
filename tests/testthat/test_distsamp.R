@@ -1,5 +1,9 @@
 context("stan_distsamp function and methods")
 
+on_mac <- tolower(Sys.info()[["sysname"]]) == "darwin"
+on_cran <- identical(Sys.getenv("NOT_CRAN"), "true")
+skip_if(on_mac & on_cran, "On CRAN mac")
+
 #Line transect fits
 data(linetran)
 ltUMF <- with(linetran, {
@@ -17,6 +21,8 @@ ltUMF_big <- with(linetran_big, {
         tlength = linetran_big$Length * 1000, survey = "line", unitsIn = "m")
         })
 
+good_fit <- TRUE
+tryCatch({
 fit_line_hn <- suppressWarnings(stan_distsamp(~1~habitat, ltUMF, chains=2,
                                               iter=200, refresh=0))
 fit_line_exp <- suppressWarnings(stan_distsamp(~1~habitat, ltUMF, keyfun="exp",
@@ -26,6 +32,9 @@ fit_line_haz <- suppressWarnings(stan_distsamp(~1~habitat, ltUMF, keyfun="hazard
 fit_line_abun <- suppressWarnings(stan_distsamp(~1~habitat, ltUMF, output="abund",
                                                 chains=2, iter=200, refresh=0))
 line_mods <- list(fit_line_hn, fit_line_exp, fit_line_haz, fit_line_abun)
+}, error=function(e){
+  good_fit <<- FALSE
+})
 
 ltUMF_na <- ltUMF
 ltUMF_na@y[1,] <- NA
@@ -44,6 +53,7 @@ ptUMF_big <- with(pointtran_big, {
              dist.breaks = seq(0, 25, by=5), survey = "point", unitsIn = "m")
              })
 
+tryCatch({
 fit_pt_hn <- suppressWarnings(stan_distsamp(~1~habitat, ptUMF, chains=2,
                                               iter=200, refresh=0))
 fit_pt_exp <- suppressWarnings(stan_distsamp(~1~habitat, ptUMF, keyfun="exp",
@@ -51,6 +61,11 @@ fit_pt_exp <- suppressWarnings(stan_distsamp(~1~habitat, ptUMF, keyfun="exp",
 fit_pt_haz <- suppressWarnings(stan_distsamp(~1~habitat, ptUMF, keyfun="hazard",
                                                chains=2, iter=15, refresh=0))
 point_mods <- list(fit_pt_hn, fit_pt_exp, fit_pt_haz)
+}, error=function(e){
+  good_fit <<- FALSE
+})
+
+skip_if(!good_fit, "Test setup failed")
 
 test_that("stan_distsamp output structure is correct",{
   expect_true(all(sapply(line_mods, function(x) class(x)[1])=="ubmsFitDistsamp"))

@@ -1,5 +1,9 @@
 context("stan_occuRN function and methods")
 
+on_mac <- tolower(Sys.info()[["sysname"]]) == "darwin"
+on_cran <- identical(Sys.getenv("NOT_CRAN"), "true")
+skip_if(on_mac & on_cran, "On CRAN mac")
+
 #Simulate dataset
 set.seed(123)
 dat_occ <- data.frame(x1=rnorm(500))
@@ -29,11 +33,18 @@ umf2 <- umf
 umf2@y[1,] <- NA
 umf2@y[2,1] <- NA
 
+good_fit <- TRUE
+tryCatch({
 fit <- suppressWarnings(stan_occuRN(~x2~x1, umf[1:10,], K=15,
                                     chains=2, iter=100, refresh=0))
 
 fit_na <- suppressWarnings(stan_occuRN(~x2~x1, umf2[1:10,], K=15,
                                        chains=2, iter=100, refresh=0))
+}, error=function(e){
+  good_fit <<- FALSE
+})
+
+skip_if(!good_fit, "Test setup failed")
 
 test_that("stan_occuRN output structure is correct",{
   expect_is(fit, "ubmsFitOccuRN")

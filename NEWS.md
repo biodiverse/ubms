@@ -2,6 +2,7 @@
 
 * Fix issues in `sim_z` C++ code that triggered clang-UBSAN errors
 * Adjust occuTTD test so it doesn't fail on Solaris
+* Fix various issues with build on r-oldrel-macos-x86_64 
 
 # ubms v1.0.1
 

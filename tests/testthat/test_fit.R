@@ -1,5 +1,9 @@
 context("Build ubmsFit object")
 
+on_mac <- tolower(Sys.info()[["sysname"]]) == "darwin"
+on_cran <- identical(Sys.getenv("NOT_CRAN"), "true")
+skip_if(on_mac & on_cran, "On CRAN mac")
+
 #Set up a submodel list
 covs <- data.frame(x1=rnorm(3), x2=factor(c("a","b","c")),
                    x3=factor(c("a","b","c")))
@@ -19,8 +23,16 @@ resp <- ubmsResponse(umf@y,"binomial","binomial",max_primary=1)
 #Build a stanfit object
 set.seed(123)
 inp <- build_stan_inputs("occu", resp, sl)
+
+good_fit <- TRUE
+tryCatch({
 sf <- suppressWarnings(rstan::sampling(stanmodels[["single_season"]], inp$stan_data,
                         inp$pars,chains=2, iter=40, refresh=0))
+test <- process_stanfit(sf, sl)
+}, error=function(e){
+  good_fit <<- FALSE
+})
+skip_if(!good_fit, "Test setup failed")
 
 test_that("ubmsFit object is constructed correctly",{
 

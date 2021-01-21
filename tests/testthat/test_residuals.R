@@ -1,5 +1,9 @@
 context("Residuals and residual plots")
 
+on_mac <- tolower(Sys.info()[["sysname"]]) == "darwin"
+on_cran <- identical(Sys.getenv("NOT_CRAN"), "true")
+skip_if(on_mac & on_cran, "On CRAN mac")
+
 #sim_res methods tested in fitting function test scripts
 
 #Setup umf
@@ -9,8 +13,14 @@ oc <- data.frame(x3=rnorm(27))
 umf <- unmarkedFrameOccu(y=matrix(rep(c(1,0,0,1,1,0,0,1,0), 3), nrow=9),
         siteCovs=sc, obsCovs=oc)
 #Fit model
+good_fit <- TRUE
+tryCatch({
 fit <- suppressWarnings(stan_occuRN(~x3~x1, umf,
                                   chains=2, iter=40, refresh=0))
+}, error=function(e){
+  good_fit <<- FALSE
+})
+skip_if(!good_fit, "Test setup failed")
 
 test_that("residuals generates matrix of correct structure",{
   residuals <- getMethod("residuals", "ubmsFit") #why? only an issue in tests

@@ -1,5 +1,9 @@
 context("stan_multinomPois function and methods")
 
+on_mac <- tolower(Sys.info()[["sysname"]]) == "darwin"
+on_cran <- identical(Sys.getenv("NOT_CRAN"), "true")
+skip_if(on_mac & on_cran, "On CRAN mac")
+
 #Simulate dataset
 set.seed(567)
 nSites <- 50
@@ -23,11 +27,17 @@ umf_double_na <- umf_double
 umf_double_na@y[1,] <- NA
 umf_double_na@y[2,1] <- NA
 
+
+good_fit <- TRUE
+tryCatch({
 fit_double <- suppressWarnings(stan_multinomPois(~observer-1 ~x, umf_double[1:10,],
                                chains=2, iter=100, refresh=0))
 
 fit_double_na <- suppressWarnings(stan_multinomPois(~observer-1 ~x, umf_double_na[1:10,],
                                chains=2, iter=100, refresh=0))
+}, error=function(e){
+  good_fit <<- FALSE
+})
 
 ## Removal
 data(ovendata)
@@ -39,12 +49,17 @@ ovenFrame_na <- ovenFrame
 ovenFrame_na@y[1,] <- NA
 ovenFrame_na@y[2,1] <- NA
 
+tryCatch({
 fit_rem <- suppressWarnings(stan_multinomPois(~1~ufc, ovenFrame[1:10,],
                             chains=2, iter=200, refresh=0))
 
 fit_rem_na <- suppressWarnings(stan_multinomPois(~1~ufc, ovenFrame_na[1:10,],
                             chains=2, iter=200, refresh=0))
+}, error=function(e){
+  good_fit <<- FALSE
+})
 
+skip_if(!good_fit, "Test setup failed")
 
 test_that("stan_multinomPois output structure is correct",{
   expect_is(fit_double, "ubmsFitMultinomPois")

@@ -26,6 +26,7 @@ setMethod("coef", "ubmsFit", function(object, ...){
 #' @return A plot object of class \code{gtable} with one panel per submodel.
 #'
 #' @importFrom gridExtra grid.arrange
+#' @importFrom graphics plot
 #' @export
 setMethod("plot", "ubmsFit", function(x, ...){
   pl <- lapply(c("state","det"), function(s) plot_residuals(x, s, draws=6))

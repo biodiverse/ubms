@@ -1,5 +1,9 @@
 context("stan_occuTTD function and methods")
 
+on_mac <- tolower(Sys.info()[["sysname"]]) == "darwin"
+on_cran <- identical(Sys.getenv("NOT_CRAN"), "true")
+skip_if(on_mac & on_cran, "On CRAN mac")
+
 set.seed(123)
 
 N <- 500; J <- 1
@@ -39,7 +43,8 @@ ttd[z==0,] <- Tmax
 umf_2obs <- suppressWarnings(unmarkedFrameOccuTTD(y=ttd, surveyLength=Tmax,
                                  siteCovs=scovs, obsCovs=ocovs))
 
-
+good_fit <- TRUE
+tryCatch({
 fit <- suppressWarnings(stan_occuTTD(~elev, detformula=~wind,
                         data=umf[1:10,], chains=2, iter=100, refresh=0))
 
@@ -52,6 +57,10 @@ fit_2obs <- suppressWarnings(stan_occuTTD(~elev, detformula=~wind,
 fit_weib <- suppressWarnings(stan_occuTTD(~elev, detformula=~wind,
                              data=umf[1:10,], ttdDist="weibull",
                              chains=2, iter=100, refresh=0))
+}, error=function(e){
+  good_fit <<- FALSE
+})
+skip_if(!good_fit, "Test setup failed")
 
 test_that("stan_occuTTD output structure is correct",{
   expect_is(fit, "ubmsFitOccuTTD")

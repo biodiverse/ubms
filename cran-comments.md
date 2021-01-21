@@ -2,6 +2,8 @@
 
 * Fixed 1 test that failed only on Solaris
 * Fixed C++ code that was causing clang-UBSAN errors
+* Fix NOTE about plot method on r-oldrel-macos-x86_64
+* Attempt to fix failing tests on r-oldrel-macos-x86_64
 
 ## Test environments
 

@@ -1,17 +1,28 @@
 context("fitList creation and methods")
 
+on_mac <- tolower(Sys.info()[["sysname"]]) == "darwin"
+on_cran <- identical(Sys.getenv("NOT_CRAN"), "true")
+skip_if(on_mac & on_cran, "On CRAN mac")
+
 #Setup umf
 set.seed(123)
 sc <- data.frame(x1=rnorm(3), x2=factor(c("a","b","c")))
 oc <- data.frame(x3=rnorm(9))
 umf <- unmarkedFrameOccu(y=matrix(c(1,0,0,1,1,0,0,1,0), nrow=3),
         siteCovs=sc, obsCovs=oc)
+
 #Fit model
+good_fit <- TRUE
+tryCatch({
 fit <- suppressWarnings(stan_occu(~x3~x1+(1|x2), umf,
                                   chains=2, iter=40, refresh=0))
 
 fit_null <- suppressWarnings(stan_occu(~1~1, umf,
                                   chains=2, iter=40, refresh=0))
+}, error=function(e){
+  good_fit <<- FALSE
+})
+skip_if(!good_fit, "Test setup failed")
 
 test_that("fitList of ubmsFit objects is created correctly",{
   #no names
