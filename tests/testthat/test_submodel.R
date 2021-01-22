@@ -207,10 +207,10 @@ test_that("Missing values are handled when Z matrix is built", {
 })
 
 test_that("Generating Z matrix from newdata works", {
-  covs <- data.frame(x1=c(1,2,3),x2=c(NA,2,4),x3=c('a','a','b'))
+  covs <- data.frame(x1=c(1,2,3),x2=c(NA,2,4),x3=factor(c('a','a','b')))
   sm <- ubmsSubmodel("Det", "det", covs, ~(1|x3), "plogis")
   nd <- data.frame(x1=4, x3='b')
-  ref <- structure(1, .Dim = c(1L, 1L), .Dimnames = list("1", "b"))
+  ref <- structure(c(0, 1), .Dim = 1:2, .Dimnames = list("1", c("a", "b")))
   expect_equal(Z_matrix(sm, nd), ref)
 })
 

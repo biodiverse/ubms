@@ -58,14 +58,14 @@ test_that("sim_lp generates posterior correctly",{
   samp <- get_samples(fit, NULL)
   lp <- sim_lp(fit, "state", transform=FALSE, newdata=NULL,
                samp, re.form=NULL)
-  expect_is(lp, "array")
+  expect_is(lp, "matrix")
   expect_equal(dim(lp), c(40,3))
 
   #For a few iterations
   samp <- c(1,2,3)
   lp <- sim_lp(fit, "state", transform=FALSE, newdata=NULL,
                samp, re.form=NULL)
-  expect_is(lp, "array")
+  expect_is(lp, "matrix")
   expect_equal(dim(lp), c(3,3))
 })
 
