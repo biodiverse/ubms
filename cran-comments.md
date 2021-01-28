@@ -1,15 +1,18 @@
 ## Changes in version 1.0.2
 
-* Fixed 1 test that failed only on Solaris
-* Fixed C++ code that was causing clang-UBSAN errors
-* Fix NOTE about plot method on r-oldrel-macos-x86_64
-* Attempt to fix failing tests on r-oldrel-macos-x86_64
+This release hopefully fixes all outstanding issues in CRAN checks
+
+* Fixed 1 overly sensitive test that failed on Solaris
+* Fixed use of unsigned int in C++ code that was causing clang-UBSAN errors
+* Fix NOTE about plot method not in NAMESPACE on R-oldrel
+* Fixed two tests so they check if object is "matrix" instead of "array" (failed on R-oldrel)
+* Fixed test that wrongly assumed stringsAsFactors=FALSE (failed on R-oldrel)
 
 ## Test environments
 
 * Local: Ubuntu 18.04 (R-release, R-devel with UBSAN), Windows (R-release)
 * Github actions CI: Ubuntu 20.04 R-release, Ubuntu 20.04 R-devel, 
-  Windows R-release, MacOS R-release
+  Ubuntu 20.04 R-oldrel, Windows R-release, MacOS R-release
 
 ## R CMD check results (R-devel on Ubuntu 18.04)
 

@@ -29,3 +29,7 @@ plot_theme <- function(){
           strip.text=element_blank()
     )
 }
+
+between <- function(x, lower, upper){
+  x >= lower & x <= upper
+}
