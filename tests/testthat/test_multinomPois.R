@@ -155,12 +155,12 @@ test_that("stan_multinomPois sim_y method works",{
   py <- posterior_predict(fit_double, "y", draws=5)
   expect_equivalent(yy, py)
 
-  set.seed(123)
-  samples <- get_samples(fit_rem, 5)
-  yy <- sim_y(fit_rem, samples, re.form=NULL)
-  expect_is(yy, "matrix")
-  expect_equal(dim(yy), c(length(samples), 20*obsNum(ovenFrame)))
-  expect_true(between(mean(yy), 0, 5))
+  #set.seed(123)
+  #samples <- get_samples(fit_rem, 5)
+  #yy <- sim_y(fit_rem, samples, re.form=NULL)
+  #expect_is(yy, "matrix")
+  #expect_equal(dim(yy), c(length(samples), 20*obsNum(ovenFrame)))
+  #expect_true(between(mean(yy), 0, 5))
 })
 
 test_that("Posterior sim methods for ubmsFitMultinomPois work with NAs",{
