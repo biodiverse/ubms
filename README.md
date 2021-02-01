@@ -63,9 +63,9 @@ install.packages(c("unmarked", "ggplot2", "gridExtra", "lme4", "loo",
                    "Matrix", "Rcpp", "rstan", "rstantools"))
 
 # Download and install ubms
-download.file("https://github.com/kenkellner/ubms/releases/download/v1.0.1/ubms_1.0.1.zip",
-              destfile="ubms_1.0.1.zip")
-install.packages("ubms_1.0.1.zip", repos=NULL)
+download.file("https://github.com/kenkellner/ubms/releases/download/v1.0.2/ubms_1.0.2.zip",
+              destfile="ubms_1.0.2.zip")
+install.packages("ubms_1.0.2.zip", repos=NULL)
 ```
 
 ## Example
