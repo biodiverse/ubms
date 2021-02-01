@@ -1,8 +1,8 @@
 # ubms v1.0.2
 
+* Make default priors less informative
 * Fix issues in `sim_z` C++ code that triggered clang-UBSAN errors
-* Adjust occuTTD test so it doesn't fail on Solaris
-* Fix various issues with build on r-oldrel-macos-x86_64 
+* Fix various minor issues with checks/tests on R-oldrel 
 
 # ubms v1.0.1
 
