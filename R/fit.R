@@ -49,15 +49,17 @@ fit_class <- function(mod){
 #Fit stan model
 #' @include inputs.R
 fit_model <- function(name, response, submodels, ...){
-  model <- name_to_stanmodel(name)
+  model <- name_to_stanmodel(name, submodels)
   inp <- build_stan_inputs(name, response, submodels)
   fit <- sampling(stanmodels[[model]], data=inp$stan_data, pars=inp$pars, ...)
   process_stanfit(fit, submodels)
 }
 
-name_to_stanmodel <- function(name){
+name_to_stanmodel <- function(name, submodels){
+  has_spatial <- any(sapply(submodels@submodels,
+                            function(x) inherits(x, "ubmsSubmodelSpatial")))
+  if(has_spatial) return("spatial")
   if(name == "colext") return("colext")
-  #if(name == "distsamp") return("distsamp")
   return("single_season")
 }
 
@@ -66,55 +68,28 @@ process_stanfit <- function(object, submodels){
   if(object@mode == 2L || object@mode == 1L){
     stop("Fitting model failed", call.=FALSE)
   }
-  new_names <- stanfit_names(submodels@submodels)
+  new_names <- stanfit_names(submodels)
   object@sim$fnames_oi[1:length(new_names)] <- new_names
   object
 }
 
-#Functions for renaming parameters in stanfit output object
-stanfit_names <- function(submodels){
-  c(stanfit_beta_names(submodels),
-    stanfit_b_names(submodels),
-    stanfit_sigma_names(submodels))
-}
+setGeneric("stanfit_names", function(object, ...) standardGeneric("stanfit_names"))
 
-stanfit_beta_names <- function(submodels){
-  types <- names(submodels)
-  pars <- lapply(submodels, beta_names)
-  names(pars) <- NULL
-  for (i in 1:length(pars)){
-    pars[[i]] <- paste0("beta_",types[i],"[",pars[[i]],"]")
+setMethod("stanfit_names", "ubmsSubmodel", function(object, ...){
+  out <- paste0("beta_",object@type,'[',beta_names(object),']')
+  if(has_random(object)){
+    bn <- paste0("b_",object@type,"[",b_names(object),']')
+    sn <- paste0("sigma_",object@Type,"[",sigma_names(object),"]")
+    out <- c(out, bn, sn)
   }
-  unlist(pars)
-}
+  out
+})
 
-stanfit_b_names <- function(submodels){
-  types <- names(submodels)
-  pars <- lapply(submodels, b_names)
-  names(pars) <- NULL
-  for (i in 1:length(pars)){
-    if(all(is.na(pars[[i]]))){
-      pars[[i]] <- character(0)
-    } else {
-      pars[[i]] <- paste0("b_",types[i],"[",pars[[i]],"]")
-    }
-  }
-  unlist(pars)
-}
-
-stanfit_sigma_names <- function(submodels){
-  nm <- lapply(submodels, sigma_names)
-  types <- rep(names(nm), lapply(nm, length))
-  nm <- unlist(nm)
-  if(all(is.na(nm))) return(character(0))
-  nm <- nm[!is.na(nm)]
-  for (i in 1:length(nm)){
-    nm[i] <- gsub(" ", paste0("_",types[i]), nm[i], fixed=TRUE)
-  }
-  nm <- gsub("1|", "(Intercept) ", nm, fixed=TRUE)
-  names(nm) <- NULL
-  nm
-}
+setMethod("stanfit_names", "ubmsSubmodelList", function(object, ...){
+  out <- unlist(lapply(object@submodels, stanfit_names))
+  out <- unname(out)
+  out
+})
 
 get_loo <- function(stanfit, cores=getOption("mc.cores", 1)){
   loglik <- loo::extract_log_lik(stanfit, merge_chains=FALSE)

@@ -35,8 +35,17 @@ stan_occu <- function(formula, data, ...){
   forms <- split_formula(formula)
   umf <- process_umf(data)
 
+  if(has_spatial(forms)){
+    split_umf <- extract_missing_sites(umf)
+    umf <- split_umf$umf
+    state <- ubmsSubmodelSpatial("Occupancy", "state", siteCovs(umf), forms[[2]],
+                                 "plogis", split_umf$sites_augment, split_umf$data_aug)
+
+  } else {
+    state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), forms[[2]], "plogis")
+  }
+
   response <- ubmsResponse(getY(umf), "binomial", "binomial")
-  state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), forms[[2]], "plogis")
   det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]], "plogis")
   submodels <- ubmsSubmodelList(state, det)
 

@@ -3,14 +3,13 @@
   model_code <- name_to_modelcode(name)
   y_data <- get_stan_data(response)
 
+  pars <- get_pars(submodels)
   submodels <- unname(submodels@submodels)
   types <- sapply(submodels, function(x) x@type)
   submodel_data <- lapply(submodels, get_stan_data)
   submodel_data <- do.call("c", submodel_data)
 
   stan_data <- c(model_code, y_data, submodel_data)
-
-  pars <- get_pars(submodels)
 
   list(stan_data=stan_data, pars=pars)
 }
@@ -20,20 +19,25 @@ name_to_modelcode <- function(name){
                          distsamp={4}, multinomPois={5}, occuTTD={6}))
 }
 
-get_pars <- function(submodels){
+setGeneric("get_pars", function(object, ...) standardGeneric("get_pars"))
 
+setMethod("get_pars", "ubmsSubmodelList", function(object, ...){
   #Remove placeholder submodels - we don't want to save those parameters
+  submodels <- object@submodels
   submodels <- submodels[!sapply(submodels, is_placeholder)]
+  submodels <- unname(submodels)
+  out <- unlist(lapply(submodels, get_pars))
+  c(out, "log_lik")
+})
 
-  types <- sapply(submodels, function(x) x@type)
-  pars <- paste0("beta_", types)
-  for (i in submodels){
-    if(has_random(i)){
-      pars <- c(pars, b_par(i), sig_par(i))
-    }
+setMethod("get_pars", "ubmsSubmodel", function(object, ...){
+  out <- paste0("beta_", object@type)
+  if(has_random(object)){
+    out <- c(out, b_par(object), sig_par(object))
   }
-  c(pars, "log_lik")
-}
+  out
+})
+
 
 setGeneric("get_stan_data", function(object, ...){
              standardGeneric("get_stan_data")})
@@ -119,5 +123,5 @@ split_formula <- function(formula){
   if(length(formula) != 3) stop("Double right-hand side formula required")
   p1 <- as.formula(formula[[2]])
   p2 <- as.formula(paste0(formula[[1]], deparse(formula[[3]])))
-  list(p1, p2)
+  list(det=p1, state=p2)
 }
