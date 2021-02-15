@@ -113,6 +113,7 @@ extract_missing_sites <- function(umf){
 
 setGeneric("spatial_matrices", function(object, ...) standardGeneric("spatial_matrices"))
 
+#' @importFrom RSpectra eigs
 setMethod("spatial_matrices", "ubmsSubmodelSpatial", function(object, ...){
   message("Building RSR matrices")
   form <- object@spatial
@@ -135,8 +136,7 @@ setMethod("spatial_matrices", "ubmsSubmodelSpatial", function(object, ...){
   X <- model.matrix(nr, data)
   P <- diag(nrow(X)) - X %*% solve(crossprod(X), t(X))
   Op <- (nrow(A)/sum(A))*(P %*% (A %*% P))
-  eig <- eigen(Op)
-  K <- eig$vectors[,1:rsr_info$n_eig,drop=FALSE]
+  K <- RSpectra::eigs(Op, as.integer(rsr_info$n_eig))$vectors
   Q <- rsr_info$Q
   Qalpha <- as.matrix(t(K) %*% Q %*% K)
   stopifnot(ncol(K) == nrow(Qalpha))
