@@ -81,6 +81,13 @@ setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
   p_post <- t(sim_p(object, samples))
   psi_post <- t(sim_lp(object, submodel="state", transform=TRUE, newdata=NULL,
                        samples=samples, re.form=re.form))
+  known_z <- knownZ(object)
+  if(has_spatial(object["state"])){
+    warning("Output only includes sites that were sampled at least once", call.=FALSE)
+    sites_noaug <- !object["state"]@sites_aug
+    psi_post <- psi_post[sites_noaug,,drop=FALSE]
+    known_z <- known_z[sites_noaug]
+  }
   psi_post[object["state"]@missing] <- NA
 
   M <- nrow(psi_post)
@@ -92,7 +99,6 @@ setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
 
   z_post <- matrix(NA, M, nsamp)
 
-  known_z <- knownZ(object)
   z_post[known_z,] <- 1
   unkZ <- which(!known_z)
 
@@ -113,10 +119,6 @@ setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
 
 setMethod("sim_y", "ubmsFitOccu", function(object, samples, re.form, z=NULL, ...){
   nsamp <- length(samples)
-  M <- nrow(object@response@y)
-  J <- object@response@max_obs
-  T <- object@response@max_primary
-
   z <- process_z(object, samples, re.form, z)
   p <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
                 samples=samples, re.form=re.form))
@@ -124,6 +126,9 @@ setMethod("sim_y", "ubmsFitOccu", function(object, samples, re.form, z=NULL, ...
 
   zp <- z[rep(1:nrow(z), each=J),,drop=FALSE] * p
 
+  M <- nrow(z)
+  J <- object@response@max_obs
+  T <- object@response@max_primary
   y_sim <- suppressWarnings(rbinom(M*J*T*nsamp, 1, as.vector(zp)))
   matrix(y_sim, nrow=nsamp, ncol=M*J*T, byrow=TRUE)
 })

@@ -60,10 +60,12 @@ setMethod("sim_gof", "ubmsFit", function(object, draws, func, name, quiet=FALSE,
   state <- sim_state(object, samples)
   p <- sim_p(object, samples)
 
-  M <- ncol(t(object@response)) #Should fix get_n_sites method for this
+  #M <- ncol(t(object@response)) #Should fix get_n_sites method for this
+  M <- ncol(state)
   T <- object@response@max_primary
   R <- T * object@response@max_obs
-  ysim <- sim_y(object, samples, re.form=NULL)
+  ysim <- suppressMessages(sim_y(object, samples, re.form=NULL))
+  stopifnot(ncol(ysim) == M*R)
   ysim <- array(ysim, c(draws,R,M))
   ysim <- aperm(ysim, c(3,2,1))
 

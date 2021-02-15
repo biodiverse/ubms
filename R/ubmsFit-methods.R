@@ -126,7 +126,7 @@ setMethod("summary", "ubmsFit", function(object, submodel, ...){
   if(has_spatial(sm)){
     tau <- rstan::summary(object@stanfit, "tau")
     tau <- as.data.frame(tau$summary)
-    rownames(tau) <- "RSR[tau]"
+    rownames(tau) <- "RSR [tau]"
     out <- rbind(out, tau)
   }
   out

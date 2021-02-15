@@ -80,8 +80,12 @@ setMethod("sim_lp", "ubmsFit", function(object, submodel, transform, newdata,
 setGeneric("sim_state", function(object, ...) standardGeneric("sim_state"))
 
 setMethod("sim_state", "ubmsFit", function(object, samples, ...){
-  sim_lp(object, transform=TRUE, submodel="state", newdata=NULL,
-         samples, re.form=NULL)
+  out <- sim_lp(object, transform=TRUE, submodel="state", newdata=NULL,
+                samples, re.form=NULL)
+  if(has_spatial(object["state"])){
+    out <- out[,!object["state"]@sites_aug,drop=FALSE]
+  }
+  out
 })
 
 

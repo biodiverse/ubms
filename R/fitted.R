@@ -36,11 +36,14 @@ setMethod("sim_fitted", "ubmsFit", function(object, submodel, samples, ...){
   stopifnot(submodel %in% c("state", "det"))
   lp <- sim_lp(object, submodel, transform=TRUE, newdata=NULL, samples=samples,
                re.form=NULL)
+  if(has_spatial(object[submodel])){
+    lp <- lp[,!object[submodel]@sites_aug,drop=FALSE]
+  }
   if(submodel == "state") return(lp)
 
   #Detection, fitted values conditional on z = 1
   J <- object@response@max_obs
-  z <- sim_z(object, samples, re.form=NULL)
+  z <- suppressMessages(sim_z(object, samples, re.form=NULL))
   z <- z[, rep(1:ncol(z), each=J)]
   lp[z == 0] <- NA
   lp
