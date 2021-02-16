@@ -21,7 +21,7 @@ RSR <- function(x, y=NULL, threshold, moran_cut=NULL, plot_site=NULL){
   Q[Q==1] <- -1
   diag(Q) <- -apply(Q,1,sum)
 
-  list(A=A, Q=Q, n_eig=n_eig)
+  list(A=A, Q=Q, n_eig=n_eig, coords=coords)
 }
 
 plot_RSR <- function(coords, A, threshold, focal_site){
@@ -42,6 +42,23 @@ plot_RSR <- function(coords, A, threshold, focal_site){
     theme(legend.text=element_text(size=14),
           legend.title=element_blank()) +
     ggtitle(paste0("Threshold = ",threshold))
+}
+
+get_rsr_info <- function(object){
+  form <- object@spatial
+
+  final_rows <- nrow(object@data) + nrow(object@data_aug)
+  data <- rbind(object@data, object@data_aug)
+
+  fc <- as.character(form)[2]
+
+  parts <- attr(terms(form), "term.labels")
+
+  has_RSR <- sapply(parts, function(x) grepl("RSR(", x, fixed=TRUE))
+  stopifnot(sum(has_RSR) == 1)
+
+  func <- parts[has_RSR]
+  with(data, eval(parse(text=func)))
 }
 
 remove_RSR <- function(form){
@@ -121,15 +138,7 @@ setMethod("spatial_matrices", "ubmsSubmodelSpatial", function(object, ...){
   final_rows <- nrow(object@data) + nrow(object@data_aug)
   data <- rbind(object@data, object@data_aug)
 
-  fc <- as.character(form)[2]
-
-  parts <- attr(terms(form), "term.labels")
-
-  has_RSR <- sapply(parts, function(x) grepl("RSR(", x, fixed=TRUE))
-  stopifnot(sum(has_RSR) == 1)
-
-  func <- parts[has_RSR]
-  rsr_info <- with(data, eval(parse(text=func)))
+  rsr_info <- get_rsr_info(object)
 
   A <- rsr_info$A
   nr <- remove_RSR(form)
@@ -170,3 +179,50 @@ setMethod("stanfit_names", "ubmsSubmodelSpatial", function(object, ...){
   tn <- paste0("b_",object@type,"[theta[",1:rsr_info$n_eig,"]]")
   c(out, tn, "tau")
 })
+
+#' @importFrom ggplot2 geom_tile scale_fill_gradientn scale_x_continuous
+#' @importFrom ggplot2 scale_y_continuous scale_color_manual
+#' @importFrom grDevices terrain.colors
+#' @export
+plot_spatial <- function(object, param=c('state','eta'), sites=TRUE){
+  if(!inherits(object, "ubmsFit")){
+    stop("Requires ubmsFit object", call.=FALSE)
+  }
+  param <- match.arg(param)
+  sm <- object["state"]
+  if(!has_spatial(sm)){
+    stop("No spatial random effect in model", call.=FALSE)
+  }
+  coords <- get_rsr_info(sm)$coords
+  nms <- colnames(coords)
+  sampled <- !sm@sites_aug
+
+  if(param == "state"){
+    est_raw <- predict(object, "state")$Predicted
+    est <- c(est_raw[sampled], est_raw[!sampled])
+    if(inherits(object, "ubmsFitOccu")) param <- "psi"
+  } else{
+    b <- extract(fit_ubms, "b_state")$b_state
+    Kmat <- spatial_matrices(sm)$Kmat
+    est <- Kmat %*% colMeans(b)
+  }
+  plot_data <- cbind(as.data.frame(coords), est=est)
+
+  out <- ggplot(data=plot_data, aes_string(x=nms[1], y=nms[2])) +
+    geom_tile(aes_string(fill=est)) +
+    scale_fill_gradientn(colors=terrain.colors(10)) +
+    labs(fill=param) +
+    plot_theme() +
+    scale_x_continuous(expand=c(0,0)) + scale_y_continuous(expand=c(0,0))
+
+  if(sites){
+    coords_samp <- as.data.frame(coords)[1:nrow(sm@data),]
+    coords_samp$obs <- factor(get_Kmin(object@response))
+    out <- out + geom_point(data=coords_samp, aes_string(col="obs"),
+                            size=1, pch=19) +
+      scale_color_manual(values=c("gray","black")) +
+      labs(color="Detected")
+  }
+  out
+}
+
