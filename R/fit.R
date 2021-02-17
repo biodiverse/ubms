@@ -79,7 +79,7 @@ setMethod("stanfit_names", "ubmsSubmodel", function(object, ...){
   out <- paste0("beta_",object@type,'[',beta_names(object),']')
   if(has_random(object)){
     bn <- paste0("b_",object@type,"[",b_names(object),']')
-    sn <- paste0("sigma_",object@Type,"[",sigma_names(object),"]")
+    sn <- paste0("sigma_",object@type,"[",sigma_names(object),"]")
     out <- c(out, bn, sn)
   }
   out

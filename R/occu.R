@@ -124,11 +124,12 @@ setMethod("sim_y", "ubmsFitOccu", function(object, samples, re.form, z=NULL, ...
                 samples=samples, re.form=re.form))
   p[object@response@missing] <- NA
 
-  zp <- z[rep(1:nrow(z), each=J),,drop=FALSE] * p
-
   M <- nrow(z)
   J <- object@response@max_obs
   T <- object@response@max_primary
+
+  zp <- z[rep(1:nrow(z), each=J),,drop=FALSE] * p
+
   y_sim <- suppressWarnings(rbinom(M*J*T*nsamp, 1, as.vector(zp)))
   matrix(y_sim, nrow=nsamp, ncol=M*J*T, byrow=TRUE)
 })

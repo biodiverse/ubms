@@ -6,3 +6,4 @@ src/RcppExports.cpp
 doc
 Meta
 docs
+*.Rds
