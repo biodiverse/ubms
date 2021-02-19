@@ -1,8 +1,50 @@
+#' Get Information for a Restricted Spatial Regression Model
+#'
+#' A call to \code{RSR} in the formula for a state process adds an autocorrelated
+#' spatial random effect to the model in the form of a Restricted Spatial
+#' Regression (RSR). For examples of RSRs applied to ecological data, see
+#' Johnson et al. (2013) and Broms et al. (2014).
+#' The function can also be used outside a formula to visualize the spatial
+#' relationships between sites in your data and choose an appropriate
+#' distance threshold below which two sites will be considered neighbors, and
+#' thus potentially correlated, for the RSR model. For more details, see the example vignette:
+#' \code{vignette("spatial-models", package = "ubms")}
+#'
+#' @param x A vector of coordinates (should be projected)
+#' @param y An (optional) second vector of coordinates
+#' @param threshold The distance cutoff below which two sites will be
+#'  considered neighbors. Should be the same units as the coordinates.
+#' @param moran_cut The number of eigenvectors to use in the RSR. The possible
+#'  range of values is between 1 and the number of sites. Smaller numbers will
+#'  result in faster runtime and smoother map output, and vice-versa. If
+#'  not provided (the default), the number of eigenvectors will be set as
+#'  10\% of the number of sites which is usually appropriate.
+#' @param plot_site If a site number (as an integer) is supplied, the function
+#'  returns a plot showing that site and its neighbors under the current settings.
+#'  Useful for deciding what to set your threshold at.
+#'
+#' @return Either a list of spatial matrices used for the RSR (only useful
+#'  internally to ubms), or if \code{plot_site} is an integer, a \code{ggplot} object.
+#'
+#' @examples
+#' # Generate some coordinates
+#' x <- runif(100,0,10)
+#' y <- runif(100,0,10)
+#' # Show neighbors of site 10 when threshold is 3 units
+#' RSR(x, y, threshold=3, plot_site=10)
+#'
+#' @references Broms KM, Johnson DS, Altwegg R, Conquest LL. 2014. Spatial
+#'  occupancy models applied to atlas data show Southern Ground Hornbills strongly
+#'  depend on protected areas. Ecological Applications 24: 363-374.
+#'
+#' Johnson DS, Conn PB, Hooten MB, Ray JC, Pond BA. 2013. Spatial occupancy
+#'  models for large data sets. Ecology 94: 801-808.
+#'
 #' @importFrom ggplot2 scale_color_manual ggtitle
 #' @export
 RSR <- function(x, y=NULL, threshold, moran_cut=NULL, plot_site=NULL){
   coords <- cbind(x,y)
-  distmat <- as.matrix(dist(coords, upper=TRUE))
+  distmat <- as.matrix(stats::dist(coords, upper=TRUE))
   A = matrix(0, nrow(distmat), ncol(distmat))
   A[distmat <= threshold] <- 1
   diag(A) <- 0
@@ -52,7 +94,7 @@ get_rsr_info <- function(object){
 
   fc <- as.character(form)[2]
 
-  parts <- attr(terms(form), "term.labels")
+  parts <- attr(stats::terms(form), "term.labels")
 
   has_RSR <- sapply(parts, function(x) grepl("RSR(", x, fixed=TRUE))
   stopifnot(sum(has_RSR) == 1)
@@ -94,7 +136,7 @@ setMethod("has_spatial", "list", function(object, support=TRUE, ...){
 })
 
 setMethod("has_spatial", "ubmsSubmodel", function(object, ...){
-  .hasSlot(object, "spatial")
+  methods::.hasSlot(object, "spatial")
 })
 
 setClass("ubmsSubmodelSpatial", contains = "ubmsSubmodel",
@@ -119,7 +161,7 @@ extract_missing_sites <- function(umf){
     stop("Missing values not allowed in site covariates for unobserved sites", call.=FALSE)
   }
 
-  obs_augment <- rep(sites_augment, each=obsNum(umf))
+  obs_augment <- rep(sites_augment, each=unmarked::obsNum(umf))
   obs_cov_noaug <- obsCovs(umf)[!obs_augment,,drop=FALSE]
   y_noaug <- getY(umf)[!sites_augment,,drop=FALSE]
   umf@y <- y_noaug
@@ -171,7 +213,7 @@ setMethod("stanfit_names", "ubmsSubmodelSpatial", function(object, ...){
   final_rows <- nrow(object@data) + nrow(object@data_aug)
   data <- rbind(object@data, object@data_aug)
   fc <- as.character(form)[2]
-  parts <- attr(terms(form), "term.labels")
+  parts <- attr(stats::terms(form), "term.labels")
   has_RSR <- sapply(parts, function(x) grepl("RSR(", x, fixed=TRUE))
   stopifnot(sum(has_RSR) == 1)
   func <- parts[has_RSR]
@@ -180,6 +222,14 @@ setMethod("stanfit_names", "ubmsSubmodelSpatial", function(object, ...){
   c(out, tn, "tau")
 })
 
+#' Plot A Map of the State Parameter Based on a Spatial ubms Model
+#'
+#' @param object A \code{ubmsFit} model with a spatial random effect
+#' @param param The parameter to plot, either \code{"state"} for, e.g.,
+#'  mean occupancy or abundance, or \code{"eta"} for the random effect itself
+#' @param sites If \code{TRUE}, also plot the locations of sites that
+#'  were sampled on the map and if had a detection of the species
+#'
 #' @importFrom ggplot2 geom_tile scale_fill_gradientn scale_x_continuous
 #' @importFrom ggplot2 scale_y_continuous scale_color_manual
 #' @importFrom grDevices terrain.colors
@@ -202,7 +252,7 @@ plot_spatial <- function(object, param=c('state','eta'), sites=TRUE){
     est <- c(est_raw[sampled], est_raw[!sampled])
     if(inherits(object, "ubmsFitOccu")) param <- "psi"
   } else{
-    b <- extract(fit_ubms, "b_state")$b_state
+    b <- extract(object, "b_state")$b_state
     Kmat <- spatial_matrices(sm)$Kmat
     est <- Kmat %*% colMeans(b)
   }
