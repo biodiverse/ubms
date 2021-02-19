@@ -60,14 +60,13 @@ test_that("stan_occuRN produces accurate results",{
   set.seed(123)
   fit_long <- suppressWarnings(stan_occuRN(~x2~x1, umf[1:200,], K=15, chains=2,
                                            iter=200, refresh=0))
-  fit_unm <- occuRN(~x2~x1, umf, K=15)
+  fit_unm <- occuRN(~x2~x1, umf[1:200,], K=15)
   #similar to truth
-  expect_equal(as.vector(coef(fit_long)), b, tol=0.2)
+  expect_RMSE(coef(fit_long), b, 0.1)
   #similar to unmarked
-  expect_equivalent(as.vector(coef(fit_long)), coef(fit_unm), tol=0.1)
+  expect_RMSE(coef(fit_long), coef(fit_unm), 0.02)
   #similar to previous known values
-  expect_equal(as.vector(coef(fit_long)),
-               c(0.4838,-0.6449,0.2749,0.5012), tol=0.05)
+  expect_RMSE(coef(fit_long), c(0.4838,-0.6449,0.2749,0.5012), 0.05)
 })
 
 test_that("stan_occuRN handles NA values",{
@@ -77,7 +76,7 @@ test_that("stan_occuRN handles NA values",{
 test_that("ubmsFitOccuRN gof method works",{
   set.seed(123)
   g <- gof(fit, draws=5, quiet=TRUE)
-  expect_true(between(g@estimate, 30, 50))
+  expect_between(g@estimate, 30, 50)
   gof_plot_method <- methods::getMethod("plot", "ubmsGOF")
   pdf(NULL)
   pg <- gof_plot_method(g)
@@ -95,15 +94,15 @@ test_that("ubmsFitOccuRN predict method works",{
   pr <- predict(fit_na, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(10, 4))
-  expect_true(between(pr[1,1], 0.5, 3.5))
+  expect_between(pr[1,1], 0.5, 3.5)
   pr <- predict(fit_na, "det")
   expect_equal(dim(pr), c(10*obsNum(umf2),4))
-  expect_true(between(pr[1,1], 0, 1))
+  expect_between(pr[1,1], 0, 1)
   #with newdata
   nd <- data.frame(x1=c(0,1))
   pr <- predict(fit_na, "state", newdata=nd)
   expect_equal(dim(pr), c(2,4))
-  expect_true(between(pr[1,1], 0.5, 3.5))
+  expect_between(pr[1,1], 0.5, 3.5)
 })
 
 test_that("ubmsFitOccuRN sim_z method works",{
@@ -112,7 +111,7 @@ test_that("ubmsFitOccuRN sim_z method works",{
   zz <- sim_z(fit, samples, re.form=NULL)
   expect_is(zz, "matrix")
   expect_equal(dim(zz), c(length(samples), 10))
-  expect_true(between(mean(zz), 1, 3))
+  expect_between(mean(zz), 1, 3)
 
   set.seed(123)
   pz <- posterior_predict(fit, "z", draws=5)

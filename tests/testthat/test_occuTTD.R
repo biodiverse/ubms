@@ -77,11 +77,11 @@ test_that("stan_occuTTD produces accurate results",{
                                data=umf, chains=3, iter=300, refresh=0))
   fit_unm <- occuTTD(~elev, detformula=~wind, data=umf)
   #similar to truth
-  expect_equal(as.vector(coef(fit_long))/10, c(beta_psi, beta_lam)/10, tol=0.06)
+  expect_RMSE(coef(fit_long), c(beta_psi, beta_lam), 0.4)
   #similar to unmarked
-  expect_equivalent(as.vector(coef(fit_long))/10, coef(fit_unm)/10, tol=0.03)
+  expect_RMSE(coef(fit_long), coef(fit_unm), 0.05)
   #similar to previous known values
-  expect_equal(as.vector(coef(fit_long)), c(-0.811,0.7002,-1.6653,0.5581), tol=0.05)
+  expect_RMSE(coef(fit_long), c(-0.811,0.7002,-1.6653,0.5581), 0.05)
 })
 
 test_that("stan_occuTTD handles NA values",{
@@ -96,15 +96,15 @@ test_that("stan_occuTTD predict method works",{
   pr <- predict(fit_na, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(10, 4))
-  expect_true(between(pr[1,1], 0, 1))
+  expect_between(pr[1,1], 0, 1)
   pr <- predict(fit_na, "det")
   expect_equal(dim(pr), c(10,4))
-  expect_true(between(pr[1,1], 0, 10))
+  expect_between(pr[1,1], 0, 10)
   #with newdata
   nd <- data.frame(elev=c(0,1))
   pr <- predict(fit_na, "state", newdata=nd)
   expect_equal(dim(pr), c(2,4))
-  expect_true(between(pr[1,1], 0, 1))
+  expect_between(pr[1,1], 0, 1)
 })
 
 test_that("stan_occuTTD getP method works",{
@@ -124,7 +124,7 @@ test_that("stan_occuTTD sim_z method works",{
   expect_is(zz, "matrix")
   expect_equal(dim(zz), c(length(samples), 10))
   expect_equal(unique(as.vector(zz)), c(0,1))
-  expect_true(between(mean(zz), 0, 0.5))
+  expect_between(mean(zz), 0, 0.5)
 
   set.seed(123)
   pz <- posterior_predict(fit, "z", draws=5)

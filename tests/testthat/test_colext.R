@@ -72,22 +72,22 @@ test_that("stan_colext produces accurate results",{
   fit_unm <- colext(~x2,~x4,~1,~1, umf)
   #similar to truth
   beta <- c(log(0.3/0.7), 0, log(0.6/0.4), 0, log(0.25/0.75), 0)
-  expect_equivalent(coef(fit_long), beta, tol=0.2)
+  expect_RMSE(coef(fit_long), beta, 0.15)
   #similar to unmarked
-  expect_equivalent(coef(fit_long), coef(fit_unm), tol=0.05)
+  expect_RMSE(coef(fit_long), coef(fit_unm), 0.03)
   #similar to previous known values
-  expect_equal(as.vector(coef(fit_long)),
-        c(-0.86420,-0.0755,0.58441,0.13419,-1.04717,0.04023), tol=0.05)
+  known <- c(-0.86420,-0.0755,0.58441,0.13419,-1.04717,0.04023)
+  expect_RMSE(coef(fit_long), known, 0.02)
 })
 
 test_that("stan_colext handles NA values",{
-  expect_equal(as.vector(coef(fit)), as.vector(coef(fit_na)), tol=0.3)
+  expect_RMSE(coef(fit_na), coef(fit), 1.5)
 })
 
 test_that("ubmsFitColext gof method works",{
   set.seed(123)
   g <- gof(fit, draws=5, quiet=TRUE)
-  expect_true(between(g@estimate, 15, 35))
+  expect_between(g@estimate, 10, 50)
   gof_plot_method <- methods::getMethod("plot", "ubmsGOF")
   pdf(NULL)
   pg <- gof_plot_method(g)
@@ -105,15 +105,15 @@ test_that("ubmsFitColext predict method works",{
   pr <- predict(fit_na, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(10, 4))
-  expect_true(between(pr[1,1], 0, 1))
+  expect_between(pr[1,1], 0, 1)
   pr <- predict(fit_na, "det")
   expect_equal(dim(pr), c(90,4))
-  expect_true(between(pr[1,1], 0, 1))
+  expect_between(pr[1,1], 0, 1)
   #with newdata
   nd <- data.frame(x2=c(0,1))
   pr <- predict(fit_na, "state", newdata=nd)
   expect_equal(dim(pr), c(2,4))
-  expect_true(between(pr[1,1], 0, 1))
+  expect_between(pr[1,1], 0, 1)
 })
 
 test_that("ubmsFitColext sim_z method works",{
@@ -122,7 +122,7 @@ test_that("ubmsFitColext sim_z method works",{
   zz <- sim_z(fit, samples, re.form=NULL)
   expect_is(zz, "matrix")
   expect_equal(dim(zz), c(length(samples), 10*umf@numPrimary))
-  expect_true(between(mean(zz), 0.5, 1 ))
+  expect_between(mean(zz), 0.5, 1 )
   expect_equal(max(zz), 1)
 
   set.seed(123)
@@ -191,7 +191,7 @@ test_that("projected function and sim_state works with ubmsFitColext",{
   samples <- get_samples(fit, 3)
   pro <- sim_projected(fit, samples, NULL)
   expect_equal(dim(pro), c(3, 10*umf@numPrimary))
-  expect_true(between(mean(pro), 0.5, 1))
+  expect_between(mean(pro), 0.5, 1)
   set.seed(123)
   expect_equivalent(projected(fit, 3), pro)
 
@@ -210,7 +210,7 @@ test_that("turnover function works with ubmsFitColext",{
   samples <- get_samples(fit, 3)
   turn <- sim_turnover(fit, samples, NULL)
   expect_equal(dim(turn), c(3, 10*(umf@numPrimary-1)))
-  expect_true(between(mean(turn), 0, 0.5))
+  expect_between(mean(turn), 0, 0.5)
   set.seed(123)
   expect_equivalent(turnover(fit, 3), turn)
 
