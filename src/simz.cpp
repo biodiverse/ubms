@@ -28,7 +28,7 @@ arma::imat simz_pcount(arma::mat y, arma::mat lam_post, arma::cube p_post,
         pp = R::dpois(k, lam_post(m, i), 0);
         bp = 1.0;
         for (unsigned j=0; j < J; j++){
-          if(!is_finite(p_post(m,j,i))){
+          if(!is_finite(y(m,j))){
             continue;
           }
           bp *= R::dbinom(y(m,j), k, p_post(m,j,i), 0);
@@ -71,10 +71,10 @@ arma::imat simz_occuRN(arma::mat y, arma::mat lam_post, arma::cube r_post,
         pp = R::dpois(k, lam_post(m, i), 0);
         bp = 1.0;
         for (unsigned j=0; j < J; j++){
-          p = 1 - pow(q(m,j,i), k);
-          if(!is_finite(p)){
+          if(!is_finite(y(m,j))){
             continue;
           }
+          p = 1 - pow(q(m,j,i), k);
           bp *= R::dbinom(y(m,j), 1, p, 0);
         }
         kprob(k) = pp * bp;
