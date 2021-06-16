@@ -28,7 +28,7 @@ arma::imat simz_pcount(arma::mat y, arma::mat lam_post, arma::cube p_post,
         pp = R::dpois(k, lam_post(m, i), 0);
         bp = 1.0;
         for (unsigned j=0; j < J; j++){
-          if(!is_finite(y(m,j))){
+          if(!is_finite(y(m,j)) | !is_finite(p_post(m,j,i))){
             continue;
           }
           bp *= R::dbinom(y(m,j), k, p_post(m,j,i), 0);
@@ -36,6 +36,12 @@ arma::imat simz_pcount(arma::mat y, arma::mat lam_post, arma::cube p_post,
         kprob(k) = pp * bp;
       }
       kprob = kprob / sum(kprob);
+
+      uvec kfin = find_finite(kprob);
+      if(kfin.size() < kprob.size()){
+        Zpost(m,i) = NA_INTEGER;
+        continue;
+      }
       Zpost(m,i) = Rcpp::RcppArmadillo::sample(kvals, 1, false, kprob)(0);
     }
   }
