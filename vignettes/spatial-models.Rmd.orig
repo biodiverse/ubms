@@ -39,7 +39,7 @@ Several recent studies have shown that RSR provides better and faster inference 
 At least two specialized R packages ([`stocc`](https://cran.r-project.org/package=stocc) and [`Rcppocc`](https://github.com/AllanClark/Rcppocc)) are available for fitting ICAR and RSR occupancy models.
 
 It is now possible to fit RSRs in Stan with `ubms` as well, allowing those familiar with `unmarked`/`ubms` syntax and workflows to easily fit spatial models.
-Currently only single-season occupancy models are supported, but support will soon be extended to other single-season model types.
+Currently all single-season models in `ubms` are supported.
 In addition to fitting RSRs, `ubms` also provides tools for applying and visualizing fitted spatial models.
 For now these features are available in the dev version of `ubms`, which you can install with the following code:
 
