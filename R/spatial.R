@@ -106,11 +106,12 @@ get_rsr_info <- function(object){
 remove_RSR <- function(form){
   fc <- as.character(form)[2]
   fc <- gsub(" ", "", fc)
-  rem <- gsub("\\+RSR\\((.*)\\)", "", fc)
-  out <- as.formula(paste0("~",rem))
-  if(length(lme4::findbars(out)) > 0){
+  if(grepl("|",fc,fixed=TRUE)){
     stop("Can't have both regular and spatial random effect in model")
   }
+  rem <- gsub("\\+?RSR\\((.*)\\)", "", fc)
+  if(rem == "") rem <- "1"
+  out <- as.formula(paste0("~",rem))
   out
 }
 
