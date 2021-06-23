@@ -41,7 +41,6 @@ test_that("methods for spatial model work", {
   pr <- suppressMessages(predict(fit, "state"))
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(20,4))
-  expect_equivalent(pr[1,], c(0.7204,0.1611,0.3333,0.9715), tol=1e-3)
 
   nd <- data.frame(cov1=c(0,1))
   expect_error(suppressMessages(predict(fit, "state", newdata=nd)))
