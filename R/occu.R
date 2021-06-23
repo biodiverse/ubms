@@ -35,8 +35,17 @@ stan_occu <- function(formula, data, ...){
   forms <- split_formula(formula)
   umf <- process_umf(data)
 
+  if(has_spatial(forms)){
+    split_umf <- extract_missing_sites(umf)
+    umf <- split_umf$umf
+    state <- ubmsSubmodelSpatial("Occupancy", "state", siteCovs(umf), forms[[2]],
+                                 "plogis", split_umf$sites_augment, split_umf$data_aug)
+
+  } else {
+    state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), forms[[2]], "plogis")
+  }
+
   response <- ubmsResponse(getY(umf), "binomial", "binomial")
-  state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), forms[[2]], "plogis")
   det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]], "plogis")
   submodels <- ubmsSubmodelList(state, det)
 
@@ -72,6 +81,13 @@ setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
   p_post <- t(sim_p(object, samples))
   psi_post <- t(sim_lp(object, submodel="state", transform=TRUE, newdata=NULL,
                        samples=samples, re.form=re.form))
+  known_z <- knownZ(object)
+  if(has_spatial(object["state"])){
+    warning("Output only includes sites that were sampled at least once", call.=FALSE)
+    sites_noaug <- !object["state"]@sites_aug
+    psi_post <- psi_post[sites_noaug,,drop=FALSE]
+    known_z <- known_z[sites_noaug]
+  }
   psi_post[object["state"]@missing] <- NA
 
   M <- nrow(psi_post)
@@ -83,7 +99,6 @@ setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
 
   z_post <- matrix(NA, M, nsamp)
 
-  known_z <- knownZ(object)
   z_post[known_z,] <- 1
   unkZ <- which(!known_z)
 
@@ -104,14 +119,14 @@ setMethod("sim_z", "ubmsFitOccu", function(object, samples, re.form, ...){
 
 setMethod("sim_y", "ubmsFitOccu", function(object, samples, re.form, z=NULL, ...){
   nsamp <- length(samples)
-  M <- nrow(object@response@y)
-  J <- object@response@max_obs
-  T <- object@response@max_primary
-
   z <- process_z(object, samples, re.form, z)
   p <- t(sim_lp(object, submodel="det", transform=TRUE, newdata=NULL,
                 samples=samples, re.form=re.form))
   p[object@response@missing] <- NA
+
+  T <- object@response@max_primary
+  M <- nrow(z) / T
+  J <- object@response@max_obs
 
   zp <- z[rep(1:nrow(z), each=J),,drop=FALSE] * p
 

@@ -26,8 +26,6 @@ for (i in 1:500){
   }
 }
 
-library(ubms)
-
 umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
 
 umf2 <- umf
@@ -60,14 +58,13 @@ test_that("stan_occuRN produces accurate results",{
   set.seed(123)
   fit_long <- suppressWarnings(stan_occuRN(~x2~x1, umf[1:200,], K=15, chains=2,
                                            iter=200, refresh=0))
-  fit_unm <- occuRN(~x2~x1, umf, K=15)
+  fit_unm <- occuRN(~x2~x1, umf[1:200,], K=15)
   #similar to truth
-  expect_equal(as.vector(coef(fit_long)), b, tol=0.2)
+  expect_RMSE(coef(fit_long), b, 0.1)
   #similar to unmarked
-  expect_equivalent(as.vector(coef(fit_long)), coef(fit_unm), tol=0.1)
+  expect_RMSE(coef(fit_long), coef(fit_unm), 0.02)
   #similar to previous known values
-  expect_equal(as.vector(coef(fit_long)),
-               c(0.4838,-0.6449,0.2749,0.5012), tol=0.05)
+  expect_RMSE(coef(fit_long), c(0.4838,-0.6449,0.2749,0.5012), 0.05)
 })
 
 test_that("stan_occuRN handles NA values",{
@@ -77,7 +74,7 @@ test_that("stan_occuRN handles NA values",{
 test_that("ubmsFitOccuRN gof method works",{
   set.seed(123)
   g <- gof(fit, draws=5, quiet=TRUE)
-  expect_true(between(g@estimate, 30, 50))
+  expect_between(g@estimate, 30, 50)
   gof_plot_method <- methods::getMethod("plot", "ubmsGOF")
   pdf(NULL)
   pg <- gof_plot_method(g)
@@ -95,15 +92,15 @@ test_that("ubmsFitOccuRN predict method works",{
   pr <- predict(fit_na, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(10, 4))
-  expect_true(between(pr[1,1], 0.5, 3.5))
+  expect_between(pr[1,1], 0.5, 3.5)
   pr <- predict(fit_na, "det")
   expect_equal(dim(pr), c(10*obsNum(umf2),4))
-  expect_true(between(pr[1,1], 0, 1))
+  expect_between(pr[1,1], 0, 1)
   #with newdata
   nd <- data.frame(x1=c(0,1))
   pr <- predict(fit_na, "state", newdata=nd)
   expect_equal(dim(pr), c(2,4))
-  expect_true(between(pr[1,1], 0.5, 3.5))
+  expect_between(pr[1,1], 0.5, 3.5)
 })
 
 test_that("ubmsFitOccuRN sim_z method works",{
@@ -112,7 +109,7 @@ test_that("ubmsFitOccuRN sim_z method works",{
   zz <- sim_z(fit, samples, re.form=NULL)
   expect_is(zz, "matrix")
   expect_equal(dim(zz), c(length(samples), 10))
-  expect_true(between(mean(zz), 1, 3))
+  expect_between(mean(zz), 1, 3)
 
   set.seed(123)
   pz <- posterior_predict(fit, "z", draws=5)
@@ -176,4 +173,15 @@ test_that("Fitted/residual methods work with ubmsFitOccuRN",{
   expect_is(rp2, "gg")
   expect_is(rp3, "gtable")
   expect_is(mp, "gtable")
+})
+
+test_that("occuRN spatial works", {
+  skip_on_cran()
+  umf2 <- umf
+  umf2@siteCovs$x <- runif(numSites(umf2), 0, 10)
+  umf2@siteCovs$y <- runif(numSites(umf2), 0, 10)
+  fit_spat <- suppressMessages(suppressWarnings(stan_occuRN(~1~x1+RSR(x,y,1),
+                umf2[1:20,], K=15, chains=2, iter=50, refresh=0)))
+  expect_is(fit_spat@submodels@submodels$state, "ubmsSubmodelSpatial")
+  expect_equal(names(coef(fit_spat))[3], "state[RSR [tau]]")
 })

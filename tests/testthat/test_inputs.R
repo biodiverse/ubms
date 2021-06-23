@@ -25,10 +25,8 @@ test_that("parameter list for stan is generated correctly",{
   state <- ubmsSubmodel("Occ", "state", sc, ~x1+(1|group), "plogis")
   det <- ubmsSubmodel("Det", "det", sc, ~x1, "plogis")
   sl <- ubmsSubmodelList(state, det)
-  sl <- unname(sl@submodels)
-  pars <- get_pars(sl)
-  expect_equal(pars, c("beta_state", "beta_det", "b_state", "sigma_state",
-                       "log_lik"))
+  expect_equal(get_pars(det), "beta_det")
+  expect_equal(get_pars(state), c("beta_state", "b_state", "sigma_state"))
 })
 
 test_that("get_stan_data pulls necessary info from response object",{
@@ -111,11 +109,11 @@ test_that("get_nrandom returns number of levels of each grouping variable",{
 
 test_that("split_formula works",{
   inp <- ~1~1
-  expect_equal(split_formula(inp), list(~1, ~1))
+  expect_equal(split_formula(inp), list(det=~1, state=~1))
   inp <- ~x1~x2
-  expect_equal(split_formula(inp), list(~x1, ~x2))
+  expect_equal(split_formula(inp), list(det=~x1, state=~x2))
   inp <- ~x1+(1|x2)~x3
-  expect_equal(split_formula(inp), list(~x1+(1|x2), ~x3))
+  expect_equal(split_formula(inp), list(det=~x1+(1|x2), state=~x3))
   inp <- ~x1
   expect_error(split_formula(inp))
   inp <- y~x1

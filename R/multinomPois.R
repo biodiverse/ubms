@@ -29,8 +29,16 @@ stan_multinomPois <- function(formula, data, ...){
   umf <- process_umf(data)
   pifun_type <- get_pifun_type(umf)
 
+  if(has_spatial(forms)){
+    split_umf <- extract_missing_sites(umf)
+    umf <- split_umf$umf
+    state <- ubmsSubmodelSpatial("Abundance", "state", siteCovs(umf), forms[[2]],
+                                 "exp", split_umf$sites_augment, split_umf$data_aug)
+  } else {
+    state <- ubmsSubmodel("Abundance", "state", siteCovs(umf), forms[[2]], "exp")
+  }
+
   response <- ubmsResponseMultinomPois(getY(umf), pifun_type, "P")
-  state <- ubmsSubmodel("Abundance", "state", siteCovs(umf), forms[[2]], "exp")
   det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]], "plogis")
   submodels <- ubmsSubmodelList(state, det)
 

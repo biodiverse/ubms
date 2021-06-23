@@ -1,6 +1,6 @@
 Package: ubms
-Version: 1.0.2.9004
-Date: 2021-06-16
+Version: 1.0.2.9005
+Date: 2021-06-23
 Title: Bayesian Models for Data from Unmarked Animals using 'Stan'
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))
@@ -15,10 +15,11 @@ Imports:
     Matrix,
     methods,
     Rcpp (>= 0.12.0),
+    RSpectra,
     rstan (>= 2.18.1),
     rstantools (>= 2.0.0),
     stats
-Suggests: covr, devtools, knitr, pkgdown, raster, rmarkdown, roxygen2, testthat
+Suggests: covr, devtools, knitr, pkgdown, raster, rmarkdown, rlang, roxygen2, testthat
 VignetteBuilder: knitr
 Description: Fit Bayesian hierarchical models of animal abundance and occurrence
     via the 'rstan' package, the R interface to the 'Stan' C++ library.
@@ -66,7 +67,9 @@ Collate:
     'predict.R'
     'ranef.R'
     'residuals.R'
+    'spatial.R'
     'stanmodels.R'
+    'test-helpers.R'
     'ubms-package.R'
     'ubmsFit-methods.R'
     'ubmsFitList-methods.R'

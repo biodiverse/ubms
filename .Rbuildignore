@@ -20,4 +20,3 @@ LICENSE$
 ^pkgdown$
 ^\.github$
 cran-comments.md
-^.*\.Rds

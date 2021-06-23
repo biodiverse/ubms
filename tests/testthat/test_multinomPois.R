@@ -82,17 +82,16 @@ test_that("stan_multinomPois produces accurate results",{
   um_double <- multinomPois(~observer-1~x, umf_double)
 
   b <- c(log(lambda), 0, log(0.5/(1-0.5)), log(0.3/(1-0.3)))
-  #similar to truth
-  expect_equal(as.vector(coef(fit_double_long)), b, tol=0.3)
+  #similar to trutih
+  expect_RMSE(coef(fit_double_long), b, 0.2)
   #similar to unmarked
-  expect_equivalent(as.vector(coef(fit_double_long)), coef(um_double), tol=0.05)
+  expect_RMSE(coef(fit_double_long), coef(um_double), 0.01)
   #similar to previous known values
-  expect_equal(as.vector(coef(fit_double_long)),
-               c(2.2283,0.1148,0.1789,-0.5666), tol=1e-2)
+  expect_RMSE(coef(fit_double_long), c(2.2283,0.1148,0.1789,-0.5666), 0.01)
 
   #Removal
-  expect_equivalent(as.vector(coef(fit_rem_long)), coef(um_rem), tol=0.05)
-  expect_equal(as.vector(coef(fit_rem_long)), c(0.1097,0.1759,0.26456), tol=1e-2)
+  expect_RMSE(coef(fit_rem_long), coef(um_rem),  0.01)
+  expect_RMSE(coef(fit_rem_long), c(0.1097,0.1759,0.26456), 0.01)
 })
 
 test_that("stan_multinomPois handles NA values",{
@@ -103,7 +102,7 @@ test_that("stan_multinomPois handles NA values",{
 test_that("ubmsFitMultinomPois gof method works",{ ##here
   set.seed(123)
   g <- gof(fit_double, draws=5, quiet=TRUE)
-  expect_true(between(g@estimate, 15, 30))
+  expect_between(g@estimate, 10, 35)
   gof_plot_method <- methods::getMethod("plot", "ubmsGOF")
   pdf(NULL)
   pg <- gof_plot_method(g)
@@ -121,15 +120,15 @@ test_that("ubmsFitMultinomPois predict method works",{
   pr <- predict(fit_double_na, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(10, 4))
-  expect_true(between(pr[1,1], 5, 15))
+  expect_between(pr[1,1], 5, 15)
   pr <- predict(fit_double_na, "det")
   expect_equal(dim(pr), c(10*obsNum(umf_double),4))
-  expect_true(between(pr[1,1], 0, 1))
+  expect_between(pr[1,1], 0, 1)
   #with newdata
   nd <- data.frame(x=c(0,1))
   pr <- predict(fit_double_na, "state", newdata=nd)
   expect_equal(dim(pr), c(2,4))
-  expect_true(between(pr[1,1], 5, 15))
+  expect_between(pr[1,1], 5, 15)
 })
 
 test_that("ubmsFitMultinomPois sim_z method works",{
@@ -138,7 +137,7 @@ test_that("ubmsFitMultinomPois sim_z method works",{
   zz <- sim_z(fit_double, samples, re.form=NULL)
   expect_is(zz, "matrix")
   expect_equal(dim(zz), c(length(samples), 10))
-  expect_true(between(mean(zz), 5, 15))
+  expect_between(mean(zz), 5, 15)
 
   set.seed(123)
   pz <- posterior_predict(fit_double, "z", draws=5)
@@ -151,7 +150,7 @@ test_that("stan_multinomPois sim_y method works",{
   yy <- sim_y(fit_double, samples, re.form=NULL)
   expect_is(yy, "matrix")
   expect_equal(dim(yy), c(length(samples), 10*3))
-  expect_true(between(mean(yy), 1, 10))
+  expect_between(mean(yy), 1, 10)
   set.seed(123)
   py <- posterior_predict(fit_double, "y", draws=5)
   expect_equivalent(yy, py)
@@ -284,4 +283,16 @@ test_that("getP and sim_p for ubmsFitMultinomPois work",{
   expect_equal(dim(gp), c(20,4,3))
   gp <- getP(fit_rem_na, 3)
   expect_equal(dim(gp), c(10,4,3))
+})
+
+test_that("multinomPois spatial works", {
+  skip_on_cran()
+  umf2 <- umf_double
+  umf2@siteCovs$x1 <- umf2@siteCovs$x
+  umf2@siteCovs$x <- runif(numSites(umf2), 0, 10)
+  umf2@siteCovs$y <- runif(numSites(umf2), 0, 10)
+  fit_spat <- suppressMessages(suppressWarnings(stan_multinomPois(~1~x1+RSR(x,y,1),
+                umf2[1:20,], chains=2, iter=100, refresh=0)))
+  expect_is(fit_spat@submodels@submodels$state, "ubmsSubmodelSpatial")
+  expect_equal(names(coef(fit_spat))[3], "state[RSR [tau]]")
 })

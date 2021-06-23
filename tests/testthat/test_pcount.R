@@ -58,12 +58,11 @@ test_that("stan_pcount produces accurate results",{
                                            iter=300, refresh=0))
   fit_unm <- pcount(~x3~x1, umf, K=15)
   #similar to truth
-  expect_equal(as.vector(coef(fit_long)), beta, tol=0.2)
+  expect_RMSE(coef(fit_long), beta, 0.2)
   #similar to unmarked
-  expect_equivalent(as.vector(coef(fit_long)), coef(fit_unm), tol=0.05)
+  expect_RMSE(coef(fit_long), coef(fit_unm), 0.05)
   #similar to previous known values
-  expect_equal(as.vector(coef(fit_long)),
-               c(0.96637,0.54445,0.02651,-0.3631), tol=0.02)
+  expect_RMSE(coef(fit_long), c(0.96637,0.54445,0.02651,-0.3631), 0.05)
 })
 
 test_that("stan_pcount handles NA values",{
@@ -73,7 +72,7 @@ test_that("stan_pcount handles NA values",{
 test_that("ubmsFitPcount gof method works",{
   set.seed(123)
   g <- gof(fit, draws=5, quiet=TRUE)
-  expect_true(between(g@estimate, 30, 100))
+  expect_between(g@estimate, 30, 100)
   gof_plot_method <- methods::getMethod("plot", "ubmsGOF")
   pdf(NULL)
   pg <- gof_plot_method(g)
@@ -91,15 +90,15 @@ test_that("ubmsFitPcount predict method works",{
   pr <- predict(fit_na, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(10, 4))
-  expect_true(between(pr[1,1], 0, 15))
+  expect_between(pr[1,1], 0, 15)
   pr <- predict(fit_na, "det")
   expect_equal(dim(pr), c(10*obsNum(umf2),4))
-  expect_true(between(pr[1,1], 0, 1))
+  expect_between(pr[1,1], 0, 1)
   #with newdata
   nd <- data.frame(x1=c(0,1))
   pr <- predict(fit_na, "state", newdata=nd)
   expect_equal(dim(pr), c(2,4))
-  expect_true(between(pr[1,1], 0, 15))
+  expect_between(pr[1,1], 0, 15)
 })
 
 test_that("ubmsFitPcount sim_z method works",{
@@ -108,7 +107,7 @@ test_that("ubmsFitPcount sim_z method works",{
   zz <- sim_z(fit, samples, re.form=NULL)
   expect_is(zz, "matrix")
   expect_equal(dim(zz), c(length(samples), 10))
-  expect_true(between(mean(zz), 0, 10))
+  expect_between(mean(zz), 0, 10)
   set.seed(123)
   pz <- posterior_predict(fit, "z", draws=5)
   expect_equivalent(zz, pz)
@@ -171,4 +170,15 @@ test_that("Fitted/residual methods work with ubmsFitPcount",{
   expect_is(rp2, "gg")
   expect_is(rp3, "gtable")
   expect_is(mp, "gtable")
+})
+
+test_that("pcount spatial works", {
+  skip_on_cran()
+  umf2 <- umf
+  umf2@siteCovs$x <- runif(numSites(umf2), 0, 10)
+  umf2@siteCovs$y <- runif(numSites(umf2), 0, 10)
+  fit_spat <- suppressMessages(suppressWarnings(stan_pcount(~1~x1+RSR(x,y,1),
+                umf2[1:20,], K=15, chains=2, iter=100, refresh=0)))
+  expect_is(fit_spat@submodels@submodels$state, "ubmsSubmodelSpatial")
+  expect_equal(names(coef(fit_spat))[3], "state[RSR [tau]]")
 })

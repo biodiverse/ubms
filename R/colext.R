@@ -34,6 +34,9 @@ stan_colext <- function(psiformula = ~1, gammaformula = ~1, epsilonformula = ~1,
 
   umf <- process_umf(data)
 
+  has_spatial(list(psi=psiformula, gamma=gammaformula, eps=epsilonformula,
+                   p=pformula), support=FALSE)
+
   response <- ubmsResponse(getY(umf), "binomial", "binomial", umf@numPrimary)
   state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), psiformula, "plogis")
   col <- ubmsSubmodelTransition("Colonization", "col", yearlySiteCovs(umf),

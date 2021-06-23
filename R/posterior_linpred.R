@@ -40,6 +40,7 @@ setMethod("posterior_linpred", "ubmsFit",
 
 setGeneric("sim_lp", function(object, ...) standardGeneric("sim_lp"))
 
+
 setMethod("sim_lp", "ubmsFit", function(object, submodel, transform, newdata,
                                         samples, re.form, ...){
   sm <- object[submodel]
@@ -53,6 +54,20 @@ setMethod("sim_lp", "ubmsFit", function(object, submodel, transform, newdata,
     if(has_random(sm) & is.null(re.form)){
       b <- extract(object, b_par(sm))[[1]]
       lp <- lp + Z_matrix(sm, newdata) %*% t(b[samples,,drop=FALSE])
+    } else if(has_spatial(sm) & is.null(re.form)){
+      if(!is.null(newdata)){
+        stop("To use newdata with spatial model, must set re.form=NA", call.=FALSE)
+      }
+      newdata <- rbind(sm@data, sm@data_aug)
+      lp_raw <- model.matrix(sm, newdata) %*% t(beta[samples,,drop=FALSE])
+      theta <- extract(object, b_par(sm))[[1]]
+      Kmat <- spatial_matrices(sm)$Kmat
+      lp_raw <- lp_raw + Kmat %*% t(theta[samples,,drop=FALSE])
+      lp <- matrix(NA, nrow(lp_raw), ncol(lp_raw))
+      lp[!sm@sites_aug,] <- lp_raw[1:nrow(sm@data),,drop=FALSE]
+      if(sum(sm@sites_aug)>0){
+        lp[sm@sites_aug] <- lp_raw[(nrow(sm@data)+1):nrow(lp_raw),,drop=FALSE]
+      }
     }
   }
   if(transform) lp <- do.call(sm@link, list(lp))
@@ -65,8 +80,12 @@ setMethod("sim_lp", "ubmsFit", function(object, submodel, transform, newdata,
 setGeneric("sim_state", function(object, ...) standardGeneric("sim_state"))
 
 setMethod("sim_state", "ubmsFit", function(object, samples, ...){
-  sim_lp(object, transform=TRUE, submodel="state", newdata=NULL,
-         samples, re.form=NULL)
+  out <- sim_lp(object, transform=TRUE, submodel="state", newdata=NULL,
+                samples, re.form=NULL)
+  if(has_spatial(object["state"])){
+    out <- out[,!object["state"]@sites_aug,drop=FALSE]
+  }
+  out
 })
 
 

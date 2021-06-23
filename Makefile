@@ -26,10 +26,8 @@ README:
 	sleep 3
 	rm README.html
 
-vignettes:
-	Rscript -e "knitr::knit('vignettes/random-effects.Rmd.orig', output='vignettes/random-effects.Rmd')"
-	Rscript -e "knitr::knit('vignettes/JAGS-comparison.Rmd.orig', output='vignettes/JAGS-comparison.Rmd')"
-	mv *_plot-1.png vignettes
+vignettes: vignettes/random-effects.Rmd vignettes/JAGS-comparison.Rmd vignettes/spatial-models.Rmd
+	touch test.png; mv *.png vignettes; rm vignettes/test.png
 	Rscript -e "devtools::build_vignettes()"
 
 site:
@@ -47,3 +45,12 @@ coverage:
 	Rscript -e \
 		'Sys.setenv(NOT_CRAN="true"); covr::report(file="/tmp/ubms-report.html")'
 	firefox /tmp/ubms-report.html
+
+vignettes/random-effects.Rmd: vignettes/random-effects.Rmd.orig
+	Rscript -e "knitr::knit('vignettes/random-effects.Rmd.orig', output='vignettes/random-effects.Rmd')"
+
+vignettes/JAGS-comparison.Rmd: vignettes/JAGS-comparison.Rmd.orig
+	Rscript -e "knitr::knit('vignettes/JAGS-comparison.Rmd.orig', output='vignettes/JAGS-comparison.Rmd')"
+
+vignettes/spatial-models.Rmd: vignettes/spatial-models.Rmd.orig
+	Rscript -e "knitr::knit('vignettes/spatial-models.Rmd.orig', output='vignettes/spatial-models.Rmd')"
