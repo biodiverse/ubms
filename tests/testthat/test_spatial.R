@@ -1,7 +1,6 @@
 context("Spatial modeling functions")
 
 skip_on_cran()
-skip_on_ci()
 
 #Simulate dataset
 set.seed(567)
@@ -29,7 +28,7 @@ for (i in sample(1:500, 300, replace=FALSE)){
 umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
 
 fit <- suppressMessages(suppressWarnings(stan_occu(~1~cov1+RSR(x,y,1),
-                              data=umf, chains=2, iter=200, refresh=0)))
+                              data=umf[1:20,], chains=2, iter=200, refresh=0)))
 fit2 <- suppressWarnings(stan_occu(~1~1, data=umf[1:10,], chains=2, iter=200, refresh=0))
 
 test_that("spatial model output structure", {
@@ -41,8 +40,8 @@ test_that("spatial model output structure", {
 test_that("methods for spatial model work", {
   pr <- suppressMessages(predict(fit, "state"))
   expect_is(pr, "data.frame")
-  expect_equal(dim(pr), c(500,4))
-  expect_equivalent(pr[1,], c(0.51124, 0.0338,0.4471,0.5712), tol=1e-3)
+  expect_equal(dim(pr), c(20,4))
+  expect_equivalent(pr[1,], c(0.7204,0.1611,0.3333,0.9715), tol=1e-3)
 
   nd <- data.frame(cov1=c(0,1))
   expect_error(suppressMessages(predict(fit, "state", newdata=nd)))
@@ -50,18 +49,18 @@ test_that("methods for spatial model work", {
   expect_equal(dim(pr), c(2,4))
 
   ss <- suppressMessages(sim_state(fit, samples=1:2))
-  expect_equal(dim(ss), c(2,300))
+  expect_equal(dim(ss), c(2,13))
 
   expect_warning(ppred <- suppressMessages(posterior_predict(fit, "z", draws=2)))
-  expect_equal(dim(ppred), c(2, 300))
+  expect_equal(dim(ppred), c(2, 13))
 
   expect_warning(ppred <- suppressMessages(posterior_predict(fit, "y", draws=2)))
-  expect_equal(dim(ppred), c(2, 1500))
+  expect_equal(dim(ppred), c(2, 65))
 
   fitted <- getMethod("fitted", "ubmsFit") #why? only an issue in tests
   ft <- suppressMessages(fitted(fit, "state", draws=2))
   expect_is(ft, "matrix")
-  expect_equal(dim(ft), c(2, 300))
+  expect_equal(dim(ft), c(2, 13))
 })
 
 test_that("RSR() generates spatial matrices", {
@@ -156,9 +155,9 @@ test_that("spatial_matrices builds correct RSR matrices", {
   expect_is(mats, "list")
   n_eig <- get_rsr_info(sm)$n_eig
   expect_equal(dim(mats$Qalpha), c(n_eig, n_eig))
-  expect_equal(mats$Qalpha[1,1:3], c(3.0221,-0.8882,-0.1005), tol=1e-4)
-  expect_equal(dim(mats$Kmat), c(numSites(umf), n_eig))
-  expect_equal(mats$Kmat[1,1:3], c(0.0072, 0.0544,-0.0365), tol=1e-4)
+  expect_equal(mats$Qalpha[1,1:2], c(0.08389,0.44826), tol=1e-4)
+  expect_equal(dim(mats$Kmat), c(20, n_eig))
+  expect_equal(mats$Kmat[1,1:2], c(-0.0197,0.0250), tol=1e-4)
   expect_equal(mats$n_eigen, n_eig)
 })
 
@@ -171,17 +170,17 @@ test_that("get_stan_data for ubmsSubmodelSpatial includes spatial data", {
   sm <- fit@submodels@submodels$state
   dat <- suppressMessages(get_stan_data(sm))
   expect_is(dat, "list")
-  expect_equal(dat$n_random_state[1], 50)
+  expect_equal(dat$n_random_state[1], 2)
   expect_true(all(c("Kmat","Qalpha","n_eigen","n_aug_sites","X_aug") %in%
                   names(dat)))
-  expect_equal(nrow(dat$X_aug), 200)
+  expect_equal(nrow(dat$X_aug), 7)
 })
 
 test_that("stanfit_names returns correct names for ubmsSubmodelSpatial", {
   sm <- fit@submodels@submodels$state
   sname <- stanfit_names(sm)
-  expect_equal(length(sname), 53)
-  expect_equal(sname[53], "tau")
+  expect_equal(length(sname), 5)
+  expect_equal(sname[5], "tau")
 })
 
 test_that("plot_spatial returns ggplot", {

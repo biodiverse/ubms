@@ -217,3 +217,8 @@ test_that("turnover function works with ubmsFitColext",{
   turn_na <- sim_turnover(fit_na, samples, NULL)
   expect_equal(dim(turn), dim(turn_na))
 })
+
+test_that("attempt to fit spatial model fails", {
+  expect_error(stan_colext(~x2+RSR(x,y,1),~x4,~1,~1, umf[1:10,], chains=2,
+                           iter=100, refresh=0))
+})

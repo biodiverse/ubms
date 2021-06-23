@@ -284,3 +284,15 @@ test_that("getP and sim_p for ubmsFitMultinomPois work",{
   gp <- getP(fit_rem_na, 3)
   expect_equal(dim(gp), c(10,4,3))
 })
+
+test_that("multinomPois spatial works", {
+  skip_on_cran()
+  umf2 <- umf_double
+  umf2@siteCovs$x1 <- umf2@siteCovs$x
+  umf2@siteCovs$x <- runif(numSites(umf2), 0, 10)
+  umf2@siteCovs$y <- runif(numSites(umf2), 0, 10)
+  fit_spat <- suppressMessages(suppressWarnings(stan_multinomPois(~1~x1+RSR(x,y,1),
+                umf2[1:20,], chains=2, iter=100, refresh=0)))
+  expect_is(fit_spat@submodels@submodels$state, "ubmsSubmodelSpatial")
+  expect_equal(names(coef(fit_spat))[3], "state[RSR [tau]]")
+})

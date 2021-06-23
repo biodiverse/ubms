@@ -35,8 +35,16 @@ stan_occuRN <- function(formula, data, K=20, ...){
   forms <- split_formula(formula)
   umf <- process_umf(data)
 
+  if(has_spatial(forms)){
+    split_umf <- extract_missing_sites(umf)
+    umf <- split_umf$umf
+    state <- ubmsSubmodelSpatial("Abundance", "state", siteCovs(umf), forms[[2]],
+                                 "exp", split_umf$sites_augment, split_umf$data_aug)
+  } else {
+    state <- ubmsSubmodel("Abundance", "state", siteCovs(umf), forms[[2]], "exp")
+  }
+
   response <- ubmsResponse(getY(umf), y_dist="binomial", z_dist="P", K=K)
-  state <- ubmsSubmodel("Abundance", "state", siteCovs(umf), forms[[2]], "exp")
   det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]], "plogis")
   submodels <- ubmsSubmodelList(state, det)
 

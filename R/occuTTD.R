@@ -73,8 +73,17 @@ stan_occuTTD <- function(psiformula=~1, gammaformula=~1, epsilonformula=~1,
   ttdDist <- match.arg(ttdDist)
   linkPsi <- match.arg(linkPsi)
 
+  forms <- list(state=psiformula, det=detformula)
+  if(has_spatial(forms)){
+    split_umf <- extract_missing_sites(umf)
+    umf <- split_umf$umf
+    state <- ubmsSubmodelSpatial("Occupancy", "state", siteCovs(umf), psiformula,
+                                 "plogis", split_umf$sites_augment, split_umf$data_aug)
+  } else {
+    state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), psiformula, "plogis")
+  }
+
   response <- ubmsResponseOccuTTD(umf, ttdDist)
-  state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), psiformula, "plogis")
   det <- ubmsSubmodel("Detection", "det", obsCovs(umf), detformula, "exp")
 
   shape <- placeholderSubmodel("shape")

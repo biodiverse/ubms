@@ -59,8 +59,16 @@ stan_distsamp <- function(formula, data, keyfun=c("halfnorm", "exp", "hazard"),
   det_param <- switch(keyfun, halfnorm={"Scale"}, exp={"Rate"},
                       hazard={"Shape"})
 
+  if(has_spatial(forms)){
+    split_umf <- extract_missing_sites(umf)
+    umf <- split_umf$umf
+    state <- ubmsSubmodelSpatial(state_param, "state", siteCovs(umf), forms[[2]],
+                                 "exp", split_umf$sites_augment, split_umf$data_aug)
+  } else {
+    state <- ubmsSubmodel(state_param, "state", siteCovs(umf), forms[[2]], "exp")
+  }
+
   response <- ubmsResponseDistsamp(data, keyfun, "P", output, unitsOut)
-  state <- ubmsSubmodel(state_param, "state", siteCovs(umf), forms[[2]], "exp")
   det <- ubmsSubmodel(det_param, "det", siteCovs(umf), forms[[1]], "exp")
 
   scale <- placeholderSubmodel("scale")

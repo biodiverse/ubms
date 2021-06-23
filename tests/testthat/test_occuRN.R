@@ -26,8 +26,6 @@ for (i in 1:500){
   }
 }
 
-library(ubms)
-
 umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
 
 umf2 <- umf
@@ -175,4 +173,15 @@ test_that("Fitted/residual methods work with ubmsFitOccuRN",{
   expect_is(rp2, "gg")
   expect_is(rp3, "gtable")
   expect_is(mp, "gtable")
+})
+
+test_that("occuRN spatial works", {
+  skip_on_cran()
+  umf2 <- umf
+  umf2@siteCovs$x <- runif(numSites(umf2), 0, 10)
+  umf2@siteCovs$y <- runif(numSites(umf2), 0, 10)
+  fit_spat <- suppressMessages(suppressWarnings(stan_occuRN(~1~x1+RSR(x,y,1),
+                umf2[1:20,], K=15, chains=2, iter=50, refresh=0)))
+  expect_is(fit_spat@submodels@submodels$state, "ubmsSubmodelSpatial")
+  expect_equal(names(coef(fit_spat))[3], "state[RSR [tau]]")
 })

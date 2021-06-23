@@ -118,9 +118,6 @@ remove_RSR <- function(form){
 setGeneric("has_spatial", function(object, ...) standardGeneric("has_spatial"))
 
 setMethod("has_spatial", "list", function(object, support=TRUE, ...){
-  if(!support){
-    stop("This model type does not support spatial components", call.=FALSE)
-  }
   hs <- sapply(object, function(x){
     any(grepl("RSR(", as.character(x), fixed=TRUE))
   })
@@ -132,6 +129,9 @@ setMethod("has_spatial", "list", function(object, support=TRUE, ...){
   possible_mods <- c("state","psi")
   if(!names(hs) %in% possible_mods){
     stop("Can only put spatial components on state model", call.=FALSE)
+  }
+  if(!support){
+    stop("This model type does not support spatial components", call.=FALSE)
   }
   return(TRUE)
 })
@@ -167,7 +167,7 @@ extract_missing_sites <- function(umf){
   y_noaug <- getY(umf)[!sites_augment,,drop=FALSE]
   umf@y <- y_noaug
   siteCovs(umf) <- site_cov_noaug
-  obsCovs(umf) <- obs_cov_noaug
+  if(!is.null(obsCovs(umf))) obsCovs(umf) <- obs_cov_noaug
   list(umf=umf, data_aug=site_cov_aug, sites_augment=sites_augment)
 }
 

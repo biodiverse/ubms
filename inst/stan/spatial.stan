@@ -1,6 +1,12 @@
 functions{
 
 #include /include/functions_occu.stan
+#include /include/functions_occuRN.stan
+#include /include/functions_pcount.stan
+#include /include/functions_keyfuns.stan
+#include /include/functions_distsamp.stan
+#include /include/functions_multinomPois.stan
+#include /include/functions_occuTTD.stan
 
 // Source for this function:
 // Clark A, Altwegg R. 2019. Efficient Bayesian analysis of occupancy models
@@ -72,10 +78,7 @@ if(has_random_det){
                                     Zv_det, Zu_det, b_det);
 }
 
-if(model_code == 0){
-  log_lik = get_loglik_occu(y, M, J, si, lp_state, lp_det, Kmin[,1]);
-  //log_lik = get_loglik_occu_probit(y, M, J, si, lp_state, lp_det, Kmin[,1]);
-}
+#include /include/call_loglik_functions.stan
 
 }
 
@@ -86,7 +89,6 @@ model{
 
 tau ~ gamma(0.5, 0.005);
 b_state ~ theta_lpdf(tau, Qalpha, n_eigen);
-//b_state ~ multi_normal_prec(zeros, tau * Qalpha);
 
 target += sum(log_lik);
 

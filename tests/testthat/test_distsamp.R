@@ -298,3 +298,14 @@ test_that("ubmsResponseDistsamp methods work",{
   expect_equal(mean(get_area_adjust(resp)), 16, tol=1e-3)
   expect_equal(mean(get_area_adjust(resp3)), 16e4, tol=1)
 })
+
+test_that("distsamp spatial works", {
+  skip_on_cran()
+  umf2 <- ltUMF
+  umf2@siteCovs$x <- runif(numSites(umf2), 0, 10)
+  umf2@siteCovs$y <- runif(numSites(umf2), 0, 10)
+  fit_spat <- suppressMessages(suppressWarnings(stan_distsamp(~1~habitat+RSR(x,y,1),
+                                umf2, chains=2, iter=100, refresh=0)))
+  expect_is(fit_spat@submodels@submodels$state, "ubmsSubmodelSpatial")
+  expect_equal(names(coef(fit_spat))[3], "state[RSR [tau]]")
+})
