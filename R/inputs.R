@@ -121,7 +121,10 @@ get_nrandom <- function(formula, data){
 
 split_formula <- function(formula){
   if(length(formula) != 3) stop("Double right-hand side formula required")
-  p1 <- as.formula(formula[[2]])
-  p2 <- as.formula(paste0(formula[[1]], deparse(formula[[3]])))
+  char <- lapply(formula, function(x){
+            paste(deparse(x), collapse="")
+          })
+  p1 <- as.formula(char[[2]])
+  p2 <- as.formula(paste("~", char[[3]]))
   list(det=p1, state=p2)
 }

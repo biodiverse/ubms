@@ -114,6 +114,13 @@ test_that("split_formula works",{
   expect_equal(split_formula(inp), list(det=~x1, state=~x2))
   inp <- ~x1+(1|x2)~x3
   expect_equal(split_formula(inp), list(det=~x1+(1|x2), state=~x3))
+  inp <- ~1~verylong1 + verylong2 + verylong3 + verylong4 + verylong5 + verylong6 +
+    verylong7 + verylong8 + verylong9 + verylong10 +
+    (1|fake)
+  expect_silent(split_formula(inp))
+  expect_equal(split_formula(inp), list(det=~1, state=~verylong1 + verylong2 + verylong3 + verylong4 + verylong5 + verylong6 +
+    verylong7 + verylong8 + verylong9 + verylong10 +
+    (1|fake)))
   inp <- ~x1
   expect_error(split_formula(inp))
   inp <- y~x1
