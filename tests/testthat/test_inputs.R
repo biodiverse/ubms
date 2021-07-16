@@ -62,15 +62,16 @@ test_that("get_stan_data pulls necessary info from submodel",{
   dat <- get_stan_data(submod)
   expect_is(dat, "list")
   expect_equal(names(dat),
-               paste0(c("X","n_obs","n_fixed","n_group_vars", "has_random",
-                             "n_random", "Zdim", "Zw", "Zv", "Zu"),
+               paste0(c("X","offset", "n_obs","n_fixed","n_group_vars",
+                        "has_random","n_random", "Zdim", "Zw", "Zv", "Zu"),
                       "_", submod@type))
   expect_equivalent(dat[[1]], model.matrix(submod))
-  expect_equal(dat[[2]], nrow(model.matrix(submod)))
-  expect_equal(dat[[3]], ncol(model.matrix(submod)))
-  expect_equal(dat[[4]], get_group_vars(submod@formula))
-  expect_equal(dat[[5]], has_random(submod))
-  expect_equivalent(dat[7:10], get_sparse_Z(Z_matrix(submod)))
+  expect_equal(dat[[2]], model_offset(submod))
+  expect_equal(dat[[3]], nrow(model.matrix(submod)))
+  expect_equal(dat[[4]], ncol(model.matrix(submod)))
+  expect_equal(dat[[5]], get_group_vars(submod@formula))
+  expect_equal(dat[[6]], has_random(submod))
+  expect_equivalent(dat[8:11], get_sparse_Z(Z_matrix(submod)))
 })
 
 test_that("get_stan_data pulls empty list from scalar submodel",{

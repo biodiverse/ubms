@@ -84,6 +84,8 @@ int n_random_col[has_random_col ? n_group_vars_col : 1];
 int n_random_ext[has_random_ext ? n_group_vars_ext: 1];
 matrix[M*(T-1), n_fixed_col] X_col;
 matrix[M*(T-1), n_fixed_ext] X_ext;
+vector[M*(T-1)] offset_col;
+vector[M*(T-1)] offset_ext;
 
 int Zdim_col[5];
 vector[Zdim_col[3]] Zw_col;
