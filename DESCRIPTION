@@ -1,6 +1,6 @@
 Package: ubms
-Version: 1.0.2.9006
-Date: 2021-07-15
+Version: 1.0.2.9007
+Date: 2021-07-16
 Title: Bayesian Models for Data from Unmarked Animals using 'Stan'
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))

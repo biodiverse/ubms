@@ -49,7 +49,8 @@ setMethod("sim_lp", "ubmsFit", function(object, submodel, transform, newdata,
   if(inherits(sm, "ubmsSubmodelScalar")){
     lp <- matrix(beta, nrow=1)
   } else{
-    lp <- model.matrix(sm, newdata) %*% t(beta[samples,,drop=FALSE])
+    lp <- model.matrix(sm, newdata) %*% t(beta[samples,,drop=FALSE]) +
+      model_offset(sm, newdata)
 
     if(has_random(sm) & is.null(re.form)){
       b <- extract(object, b_par(sm))[[1]]
@@ -59,7 +60,8 @@ setMethod("sim_lp", "ubmsFit", function(object, submodel, transform, newdata,
         stop("To use newdata with spatial model, must set re.form=NA", call.=FALSE)
       }
       newdata <- rbind(sm@data, sm@data_aug)
-      lp_raw <- model.matrix(sm, newdata) %*% t(beta[samples,,drop=FALSE])
+      lp_raw <- model.matrix(sm, newdata) %*% t(beta[samples,,drop=FALSE]) +
+        model_offset(sm, newdata)
       theta <- extract(object, b_par(sm))[[1]]
       Kmat <- spatial_matrices(sm)$Kmat
       lp_raw <- lp_raw + Kmat %*% t(theta[samples,,drop=FALSE])

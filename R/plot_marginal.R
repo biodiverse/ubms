@@ -29,7 +29,7 @@ setMethod("plot_marginal", "ubmsFit", function(object, submodel, covariate=NULL,
   if(!is.null(covariate)){
     plots <- list(marginal_covariate_plot(object, submodel, covariate, level))
   } else {
-    vars <- all.vars(lme4::nobars(sm@formula))
+    vars <- all.vars(remove_offset(lme4::nobars(sm@formula)))
     if(length(vars) == 0) stop("No covariates in this submodel")
     plots <- lapply(vars, function(x){
                     marginal_covariate_plot(object, submodel, x, level)

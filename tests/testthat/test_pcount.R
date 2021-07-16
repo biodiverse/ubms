@@ -75,6 +75,10 @@ test_that("offsets work with stan_pcount",{
                                            iter=300, refresh=0))
   fit_unm <- pcount(~x3~x1+offset(log(area)), umf, K=15)
   expect_RMSE(coef(fit_long), coef(fit_unm), 0.05)
+
+  pr_stan <- predict(fit_long, "state")
+  pr_unm <- predict(fit_unm, "state")
+  expect_RMSE(pr_stan$Predicted, pr_unm$Predicted, 0.05)
 })
 
 
