@@ -65,6 +65,19 @@ test_that("stan_pcount produces accurate results",{
   expect_RMSE(coef(fit_long), c(0.96637,0.54445,0.02651,-0.3631), 0.05)
 })
 
+test_that("offsets work with stan_pcount",{
+  skip_on_cran()
+  skip_on_ci()
+  skip_on_covr()
+  set.seed(123)
+  umf@siteCovs$area <- runif(numSites(umf), 0, 1)
+  fit_long <- suppressWarnings(stan_pcount(~x3~x1+offset(log(area)), umf, K=15, chains=2,
+                                           iter=300, refresh=0))
+  fit_unm <- pcount(~x3~x1+offset(log(area)), umf, K=15)
+  expect_RMSE(coef(fit_long), coef(fit_unm), 0.05)
+})
+
+
 test_that("stan_pcount handles NA values",{
   expect_true(is.numeric(coef(fit_na)))
 })
@@ -181,4 +194,13 @@ test_that("pcount spatial works", {
                 umf2[1:20,], K=15, chains=2, iter=100, refresh=0)))
   expect_is(fit_spat@submodels@submodels$state, "ubmsSubmodelSpatial")
   expect_equal(names(coef(fit_spat))[3], "state[RSR [tau]]")
+
+  # With offsets
+  umf2@siteCovs$area <- runif(numSites(umf2), 0, 1)
+  fit_spat <- suppressMessages(suppressWarnings(stan_pcount(~1~x1+offset(area) + RSR(x,y,1),
+                umf2[1:20,], K=15, chains=2, iter=100, refresh=0)))
+  expect_is(fit_spat, "ubmsFit")
+  fit_spat <- suppressMessages(suppressWarnings(stan_pcount(~offset(area)~x1+ RSR(x,y,1),
+                umf2[1:20,], K=15, chains=2, iter=100, refresh=0)))
+  expect_is(fit_spat, "ubmsFit")
 })

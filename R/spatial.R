@@ -204,7 +204,8 @@ setMethod("get_stan_data", "ubmsSubmodelSpatial", function(object, ...){
   sm <- spatial_matrices(object)
   out$n_random_state <- as.array(sm$n_eig)
   X_aug <- model.matrix(object, newdata=object@data_aug)
-  out <- c(out, sm, list(X_aug=X_aug, n_aug_sites=nrow(X_aug)))
+  offset_aug <- model_offset(object, newdata=object@data_aug)
+  out <- c(out, sm, list(X_aug=X_aug, n_aug_sites=nrow(X_aug), offset_aug=offset_aug))
   out
 })
 

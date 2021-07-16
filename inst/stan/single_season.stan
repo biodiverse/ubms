@@ -28,8 +28,8 @@ vector[M] lp_state;
 vector[n_obs_det] lp_det;
 vector[M] log_lik;
 
-lp_state = X_state * beta_state;
-lp_det = X_det * beta_det;
+lp_state = X_state * beta_state + offset_state;
+lp_det = X_det * beta_det + offset_det;
 
 if(has_random_state){
   lp_state = lp_state +

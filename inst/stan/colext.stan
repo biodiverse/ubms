@@ -134,7 +134,7 @@ vector[R] logit_p;
 vector[M] log_lik;
 
 //psi
-logit_psi = X_state * beta_state;
+logit_psi = X_state * beta_state + offset_state;
 if(has_random_state){
   logit_psi = logit_psi +
               csr_matrix_times_vector(Zdim_state[1], Zdim_state[2], Zw_state,
@@ -147,14 +147,14 @@ for (i in 1:M){
 }
 
 //phi
-logit_col = X_col * beta_col;
+logit_col = X_col * beta_col + offset_col;
 if(has_random_col){
   logit_col = logit_col +
               csr_matrix_times_vector(Zdim_col[1], Zdim_col[2], Zw_col,
                                       Zv_col, Zu_col, b_col);
 }
 
-logit_ext = X_ext * beta_ext;
+logit_ext = X_ext * beta_ext + offset_ext;
 if(has_random_ext){
   logit_ext = logit_ext +
               csr_matrix_times_vector(Zdim_ext[1], Zdim_ext[2], Zw_ext,
@@ -169,7 +169,7 @@ for (i in 1:(M*(T-1))){
 }
 
 //det
-logit_p = X_det * beta_det;
+logit_p = X_det * beta_det + offset_det;
 if(has_random_det){
   logit_p = logit_p +
             csr_matrix_times_vector(Zdim_det[1], Zdim_det[2], Zw_det,
