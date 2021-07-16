@@ -46,13 +46,15 @@ int n_eigen;
 matrix[M+n_aug_sites,n_eigen] Kmat;
 matrix[n_eigen,n_eigen] Qalpha;
 matrix[n_aug_sites,n_fixed_state] X_aug;
+vector[n_aug_sites] offset_aug;
 }
 
 transformed data{
-//vector[n_eigen] zeros;
+
 matrix[M+n_aug_sites,n_fixed_state] X_state_all;
+vector[M+n_aug_sites] offset_state_all;
 X_state_all = append_row(X_state, X_aug);
-//zeros = rep_vector(0, n_eigen);
+offset_state_all = append_row(offset_state, offset_aug);
 
 }
 
@@ -67,8 +69,8 @@ vector[M+n_aug_sites] lp_state;
 vector[n_obs_det] lp_det;
 vector[M] log_lik;
 
-lp_state = X_state_all * beta_state;
-lp_det = X_det * beta_det;
+lp_state = X_state_all * beta_state + offset_state_all;
+lp_det = X_det * beta_det + offset_det;
 
 lp_state += Kmat * b_state;
 

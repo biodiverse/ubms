@@ -170,9 +170,10 @@ test_that("get_stan_data for ubmsSubmodelSpatial includes spatial data", {
   dat <- suppressMessages(get_stan_data(sm))
   expect_is(dat, "list")
   expect_equal(dat$n_random_state[1], 2)
-  expect_true(all(c("Kmat","Qalpha","n_eigen","n_aug_sites","X_aug") %in%
+  expect_true(all(c("Kmat","Qalpha","n_eigen","n_aug_sites","X_aug","offset_aug") %in%
                   names(dat)))
   expect_equal(nrow(dat$X_aug), 7)
+  expect_equal(length(dat$offset_aug), 7)
 })
 
 test_that("stanfit_names returns correct names for ubmsSubmodelSpatial", {

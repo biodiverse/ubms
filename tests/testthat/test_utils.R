@@ -47,3 +47,12 @@ test_that("Theme function produces ggplot theme",{
   expect_is(theme_object, "theme")
   expect_is(theme_object, "gg")
 })
+
+test_that("remove_offset removes offset term from formula", {
+  expect_equal(remove_offset(~x1 + offset(test)), ~x1)
+  expect_equal(remove_offset(~x1), ~x1)
+  expect_equal(remove_offset(~x1 + offset(test) + x3), ~x1 + x3)
+  expect_equal(remove_offset(~x1 + offset(test) + x3 + (1|test2)),
+               ~x1 + x3 + (1|test2))
+  expect_equal(remove_offset(~offset(test)), ~1)
+})
