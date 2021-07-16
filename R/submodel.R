@@ -85,6 +85,21 @@ setMethod("model.matrix", "ubmsSubmodel",
   out
 })
 
+setGeneric("model_offset", function(object, ...) standardGeneric("model_offset"))
+
+setMethod("model_offset", "ubmsSubmodel", function(object, newdata=NULL, na.rm=FALSE, ...){
+  mf <- model_frame(object, newdata)
+  off <- stats::model.offset(mf)
+  if(is.null(off)){
+    mm <- model.matrix(object, newdata, na.rm)
+    off <- rep(0, nrow(mm))
+  } else if(na.rm){
+    off <- off[!object@missing]
+  }
+  if(any(is.na(off))) stop("Missing values in offset term are not allowed", call.=FALSE)
+  off
+})
+
 #Check if all required variables are in newdata
 check_newdata <- function(newdata, formula){
   inp_vars <- names(newdata)

@@ -164,6 +164,54 @@ test_that("get_xlev gets levels from factor columns",{
   expect_equal(lvls, list(x1=c("a","b")))
 })
 
+test_that("model_offset method works", {
+  covs <- data.frame(x1=c(1,2,3),area=c(1.3,2,4))
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1+offset(area), "plogis")
+  mo <- model_offset(sm)
+  expect_equal(mo, covs$area)
+
+  # With a function in formula
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1+offset(log(area)), "plogis")
+  mo <- model_offset(sm)
+  expect_equal(mo, log(covs$area))
+})
+
+test_that("model_offset method works with newdata", {
+  covs <- data.frame(x1=c(1,2,3),area=c(1.3,2,4))
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1+offset(log(area)), "plogis")
+  nd <- data.frame(x1=4, area=5)
+
+  mo <- model_offset(sm, nd)
+  expect_equal(mo, log(nd$area))
+})
+
+test_that("model_offset returns vector of 0s with no offset", {
+  covs <- data.frame(x1=c(1,2,3),area=c(NA,2,4))
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1, "plogis")
+  expect_equal(model_offset(sm), c(0,0,0))
+
+  nd <- data.frame(x1=4, area=NA)
+  expect_equal(model_offset(sm, nd), 0)
+})
+
+test_that("model_offset resized if other covariates are missing and na.rm=T", {
+  covs <- data.frame(x1=c(1,NA,3),area=c(0.5,2,4))
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1+offset(area), "plogis")
+  expect_equal(model_offset(sm, na.rm=TRUE), c(0.5,4))
+
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1, "plogis")
+  expect_equal(model_offset(sm, na.rm=TRUE), c(0,0))
+})
+
+test_that("model_offset errors with missing values", {
+  covs <- data.frame(x1=c(1,2,3),area=c(NA,2,4))
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1+offset(log(area)), "plogis")
+  expect_error(model_offset(sm))
+
+  nd <- data.frame(x1=4, area=NA)
+  expect_error(model_offset(sm, nd))
+})
+
 test_that("get_reTrms works",{
   dat <- data.frame(x1=rnorm(3), x2=c("a","b","c"))
   rt <- get_reTrms(~(1|x2), dat)
