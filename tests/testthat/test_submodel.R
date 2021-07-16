@@ -60,6 +60,23 @@ test_that("Missing values are detected when submodel is built",{
   expect_equivalent(sm@missing, c(TRUE,FALSE,FALSE))
 })
 
+test_that("model_frame method works",{
+  covs <- data.frame(x1=c(1,2,3),x2=c(NA,2,4))
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1, "plogis")
+  mf <- model_frame(sm)
+  expect_equal(mf, structure(list(x1 = c(1, 2, 3)), class = "data.frame",
+                             row.names = c(NA, 3L), terms = ~x1))
+})
+
+test_that("model_frame method works with newdata", {
+  covs <- data.frame(x1=c(1,2,3),x2=c(NA,2,4))
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1, "plogis")
+  nd <- data.frame(x1=4, x2=5)
+  mf <- model_frame(sm, nd)
+  expect_equal(mf,  structure(list(x1 = 4), class = "data.frame",
+                              row.names= c(NA,1L), terms = ~x1))
+})
+
 test_that("model.matrix method works",{
   covs <- data.frame(x1=c(1,2,3),x2=c(NA,2,4))
   sm <- ubmsSubmodel("Det", "det", covs, ~x1, "plogis")

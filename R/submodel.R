@@ -58,23 +58,31 @@ is_placeholder <- function(submodel){
   length(model.matrix(submodel)) == 0
 }
 
-setMethod("model.matrix", "ubmsSubmodel",
-          function(object, newdata=NULL, na.rm=FALSE, ...){
+setGeneric("model_frame", function(object, ...)
+           standardGeneric("model_frame"))
+
+# Need to make this a different generic
+setMethod("model_frame", "ubmsSubmodel",
+          function(object, newdata=NULL, ...){
 
   data <- object@data
   formula <- lme4::nobars(object@formula)
   mf <- model.frame(formula, data, na.action=stats::na.pass)
 
-  if(is.null(newdata)){
-    out <- model.matrix(formula, mf)
-    if(na.rm) out <- out[!object@missing,,drop=FALSE]
-    return(out)
-  }
+  if(is.null(newdata)) return(mf)
 
   check_newdata(newdata, formula)
-  new_mf <- model.frame(stats::terms(mf), newdata, na.action=stats::na.pass,
+  model.frame(stats::terms(mf), newdata, na.action=stats::na.pass,
                         xlev=get_xlev(data, mf))
-  model.matrix(formula, new_mf)
+})
+
+setMethod("model.matrix", "ubmsSubmodel",
+          function(object, newdata=NULL, na.rm=FALSE, ...){
+  mf <- model_frame(object, newdata)
+  formula <- lme4::nobars(object@formula)
+  out <- model.matrix(formula, mf)
+  if(na.rm) out <- out[!object@missing,,drop=FALSE]
+  out
 })
 
 #Check if all required variables are in newdata
