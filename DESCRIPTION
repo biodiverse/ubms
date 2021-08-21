@@ -65,6 +65,7 @@ Collate:
     'pcount.R'
     'plot_marginal.R'
     'predict.R'
+    'priors.R'
     'ranef.R'
     'residuals.R'
     'spatial.R'

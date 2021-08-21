@@ -6,6 +6,8 @@
 #' @param formula Double right-hand side formula describing covariates of
 #'  detection and occupancy in that order
 #' @param data A \code{\link{unmarkedFrameOccu}} object
+#' @param priors A list of information defining the priors to be used
+#'  for each submodel. See \code{?default_priors} for more information
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
@@ -30,7 +32,7 @@
 #' @seealso \code{\link{occu}}, \code{\link{unmarkedFrameOccu}}
 #' @include fit.R
 #' @export
-stan_occu <- function(formula, data, ...){
+stan_occu <- function(formula, data, priors=default_priors(), ...){
 
   forms <- split_formula(formula)
   umf <- process_umf(data)
@@ -42,11 +44,13 @@ stan_occu <- function(formula, data, ...){
                                  "plogis", split_umf$sites_augment, split_umf$data_aug)
 
   } else {
-    state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), forms[[2]], "plogis")
+    state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf),
+                          forms[[2]], "plogis", priors$state)
   }
 
   response <- ubmsResponse(getY(umf), "binomial", "binomial")
-  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]], "plogis")
+  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]],
+                      "plogis", priors$det)
   submodels <- ubmsSubmodelList(state, det)
 
   ubmsFit("occu", match.call(), data, response, submodels, ...)

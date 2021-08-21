@@ -5,7 +5,8 @@ setClass("ubmsSubmodel",
     data = "data.frame",
     formula = "formula",
     link = "character",
-    missing = "logical"
+    missing = "logical",
+    priors = "list"
   ),
   prototype = list(
     name = NA_character_,
@@ -13,13 +14,14 @@ setClass("ubmsSubmodel",
     data = data.frame(),
     formula = ~1,
     link = NA_character_,
-    missing = logical(0)
+    missing = logical(0),
+    priors = list()
   )
 )
 
-ubmsSubmodel <- function(name, type, data, formula, link){
+ubmsSubmodel <- function(name, type, data, formula, link, priors){
   out <- new("ubmsSubmodel", name=name, type=type, data=data,
-             formula=formula, link=link)
+             formula=formula, link=link, priors=priors)
   out@missing <- apply(model.matrix(out), 1, function(x) any(is.na(x)))
   out
 }
@@ -27,9 +29,9 @@ ubmsSubmodel <- function(name, type, data, formula, link){
 setClass("ubmsSubmodelTransition", contains = "ubmsSubmodel")
 
 #' @importFrom methods as
-ubmsSubmodelTransition <- function(name, type, data, formula, link, T){
+ubmsSubmodelTransition <- function(name, type, data, formula, link, T, priors){
   data <- drop_final_year(data, T)
-  out <- ubmsSubmodel(name, type, data, formula, link)
+  out <- ubmsSubmodel(name, type, data, formula, link, priors)
   out <- as(out, "ubmsSubmodelTransition")
   if(any(out@missing)){
     stop("Missing values are not allowed in yearlySiteCovs", call.=FALSE)
@@ -45,13 +47,13 @@ drop_final_year <- function(yr_df, nprimary){
 
 setClass("ubmsSubmodelScalar", contains = "ubmsSubmodel")
 
-ubmsSubmodelScalar <- function(name, type, link){
-  out <- ubmsSubmodel(name, type, data.frame(1), ~1, link)
+ubmsSubmodelScalar <- function(name, type, link, priors){
+  out <- ubmsSubmodel(name, type, data.frame(1), ~1, link, priors)
   as(out, "ubmsSubmodelScalar")
 }
 
 placeholderSubmodel <- function(type){
-  ubmsSubmodel("Placeholder", type, data.frame(), ~1, "identity")
+  ubmsSubmodel("Placeholder", type, data.frame(), ~1, "identity", list())
 }
 
 is_placeholder <- function(submodel){

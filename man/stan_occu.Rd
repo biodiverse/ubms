@@ -4,13 +4,16 @@
 \alias{stan_occu}
 \title{Fit the MacKenzie et al. (2002) Occupancy Model}
 \usage{
-stan_occu(formula, data, ...)
+stan_occu(formula, data, priors = default_priors(), ...)
 }
 \arguments{
 \item{formula}{Double right-hand side formula describing covariates of
 detection and occupancy in that order}
 
 \item{data}{A \code{\link{unmarkedFrameOccu}} object}
+
+\item{priors}{A list of information defining the priors to be used
+for each submodel. See \code{?default_priors} for more information}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}
