@@ -9,6 +9,19 @@
   submodel_data <- lapply(submodels, get_stan_data)
   submodel_data <- do.call("c", submodel_data)
 
+  # this is hacky
+  if(! "shape" %in% types){
+    submodel_data$locations_shape <- 0
+    submodel_data$scales_shape <- 0.1
+    submodel_data$prior_type_shape <- 1
+  }
+
+  if(! "scale" %in% types){
+    submodel_data$locations_scale <- 0
+    submodel_data$scales_scale <- 0.1
+    submodel_data$prior_type_scale <- 1
+  }
+
   stan_data <- c(model_code, y_data, submodel_data)
 
   list(stan_data=stan_data, pars=pars)

@@ -21,7 +21,7 @@ setClass("ubmsSubmodel",
 
 ubmsSubmodel <- function(name, type, data, formula, link, priors){
   out <- new("ubmsSubmodel", name=name, type=type, data=data,
-             formula=formula, link=link, priors=priors)
+             formula=formula, link=link, priors=check_missing_prior(priors, type))
   out@missing <- apply(model.matrix(out), 1, function(x) any(is.na(x)))
   out
 }
@@ -31,7 +31,8 @@ setClass("ubmsSubmodelTransition", contains = "ubmsSubmodel")
 #' @importFrom methods as
 ubmsSubmodelTransition <- function(name, type, data, formula, link, T, priors){
   data <- drop_final_year(data, T)
-  out <- ubmsSubmodel(name, type, data, formula, link, priors)
+  out <- ubmsSubmodel(name, type, data, formula, link,
+                      check_missing_priors(priors, type))
   out <- as(out, "ubmsSubmodelTransition")
   if(any(out@missing)){
     stop("Missing values are not allowed in yearlySiteCovs", call.=FALSE)
@@ -48,7 +49,8 @@ drop_final_year <- function(yr_df, nprimary){
 setClass("ubmsSubmodelScalar", contains = "ubmsSubmodel")
 
 ubmsSubmodelScalar <- function(name, type, link, priors){
-  out <- ubmsSubmodel(name, type, data.frame(1), ~1, link, priors)
+  out <- ubmsSubmodel(name, type, data.frame(1), ~1, link,
+                      check_missing_prior(priors, type))
   as(out, "ubmsSubmodelScalar")
 }
 
