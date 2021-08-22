@@ -76,6 +76,14 @@ test_that("fit_model builds model correctly",{
   expect_equal(arg[[1]]$refresh, 0)
 })
 
+test_that("specific model name is shown in console output",{
+  # e.g. 'occu' instead of 'single_season'
+  out <- capture.output(ufit <- suppressWarnings(
+    fit_model("occu", resp, sl, chains=2, iter=20)))
+  expect_true(any(grepl("occu", out)))
+  expect_false(any(grepl("single_season", out)))
+})
+
 test_that("process_stanfit cleans up fitted stan model",{
   expect_true(inherits(sf, "stanfit"))
   psf <- process_stanfit(sf, sl)
