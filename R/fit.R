@@ -51,7 +51,9 @@ fit_class <- function(mod){
 fit_model <- function(name, response, submodels, ...){
   model <- name_to_stanmodel(name, submodels)
   inp <- build_stan_inputs(name, response, submodels)
-  fit <- sampling(stanmodels[[model]], data=inp$stan_data, pars=inp$pars, ...)
+  mod <- stanmodels[[model]]
+  mod@model_name <- name
+  fit <- sampling(mod, data=inp$stan_data, pars=inp$pars, ...)
   process_stanfit(fit, submodels)
 }
 
