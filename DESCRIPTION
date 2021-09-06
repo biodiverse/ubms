@@ -56,7 +56,7 @@ Collate:
     'occu.R'
     'colext.R'
     'missing.R'
-    'distamp.R'
+    'distsamp.R'
     'fitlist.R'
     'occuRN.R'
     'mb_chisq.R'

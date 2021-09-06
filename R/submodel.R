@@ -32,7 +32,7 @@ setClass("ubmsSubmodelTransition", contains = "ubmsSubmodel")
 ubmsSubmodelTransition <- function(name, type, data, formula, link, T, priors){
   data <- drop_final_year(data, T)
   out <- ubmsSubmodel(name, type, data, formula, link,
-                      check_missing_priors(priors, type))
+                      check_missing_prior(priors, type))
   out <- as(out, "ubmsSubmodelTransition")
   if(any(out@missing)){
     stop("Missing values are not allowed in yearlySiteCovs", call.=FALSE)
@@ -55,7 +55,8 @@ ubmsSubmodelScalar <- function(name, type, link, priors){
 }
 
 placeholderSubmodel <- function(type){
-  ubmsSubmodel("Placeholder", type, data.frame(), ~1, "identity", list())
+  ubmsSubmodel("Placeholder", type, data.frame(), ~1, "identity",
+                list(intercept=normal(0,0.1), coef=normal(0,0.1)))
 }
 
 is_placeholder <- function(submodel){

@@ -13,6 +13,8 @@
 #' @param output Model either density \code{"density"} or abundance \code{"abund"}
 #' @param unitsOut Units of density. Either \code{"ha"} or \code{"kmsq"} for
 #'  hectares and square kilometers, respectively
+#' @param priors A list of information defining the priors to be used
+#'  for each submodel. See \code{default_priors()} for correct structure
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
@@ -48,7 +50,7 @@
 #' @export
 stan_distsamp <- function(formula, data, keyfun=c("halfnorm", "exp", "hazard"),
                           output=c("density", "abund"), unitsOut=c("ha", "kmsq"),
-                          ...){
+                          priors=default_priors(), ...){
 
   forms <- split_formula(formula)
   umf <- process_umf(data)
@@ -65,17 +67,20 @@ stan_distsamp <- function(formula, data, keyfun=c("halfnorm", "exp", "hazard"),
     state <- ubmsSubmodelSpatial(state_param, "state", siteCovs(umf), forms[[2]],
                                  "exp", split_umf$sites_augment, split_umf$data_aug)
   } else {
-    state <- ubmsSubmodel(state_param, "state", siteCovs(umf), forms[[2]], "exp")
+    state <- ubmsSubmodel(state_param, "state", siteCovs(umf), forms[[2]],
+                          "exp", priors$state)
   }
 
   response <- ubmsResponseDistsamp(data, keyfun, "P", output, unitsOut)
-  det <- ubmsSubmodel(det_param, "det", siteCovs(umf), forms[[1]], "exp")
+  det <- ubmsSubmodel(det_param, "det", siteCovs(umf), forms[[1]],
+                      "exp", priors$det)
 
   scale <- placeholderSubmodel("scale")
   if(keyfun=="hazard"){
     warning("Hazard key function may perform poorly with small sample sizes",
             call.=FALSE)
-    scale <- ubmsSubmodelScalar("Scale", "scale", "exp")
+    if(is.null(priors$scale)) priors$scale <- list(coef=normal(0,1))
+    scale <- ubmsSubmodelScalar("Scale", "scale", "exp", priors$scale)
   }
 
   submodels <- ubmsSubmodelList(state, det, scale)

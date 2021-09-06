@@ -1,10 +1,11 @@
 check_prior_input <- function(input){
-  stopifnot(length(input) %in% c(1,2))
-  if(length(input) == 1){
-    check_names <- "coef"
-  } else {
-    check_names <- c("intercept","coef")
-  }
+  #stopifnot(length(input) %in% c(1,2))
+  stopifnot(length(input) == 2)
+  #if(length(input) == 1){
+  #  check_names <- "coef"
+  #} else {
+  check_names <- c("intercept","coef")
+  #}
   if(!all(check_names %in% names(input))){
     stop(paste0("List of priors for each submodel must have named elements: ",
                 paste(check_names, collapse=", ")),
@@ -16,8 +17,8 @@ get_prior_info <- function(input, Xmat){
 
   check_prior_input(input)
 
-  locations <- rep(input$coef$location, ncol(Xmat))
-  scales <- rep(input$coef$scale, ncol(Xmat))
+  locations <- array(rep(input$coef$location, ncol(Xmat)))
+  scales <- array(rep(input$coef$scale, ncol(Xmat)))
   prior_type <- c(1,1) # only normal supported at moment
 
   if(input$coef$autoscale){
@@ -79,6 +80,9 @@ normal <- function(location=0, scale=10, autoscale=TRUE){
 #'
 #' @return A list of lists of default prior specifications, one entry
 #'  per submodel.
+#'
+#' @examples
+#' default_priors()
 #'
 #' @export
 default_priors <- function(){

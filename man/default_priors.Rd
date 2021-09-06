@@ -14,3 +14,7 @@ A list of lists of default prior specifications, one entry
 Convenience function providing default priors for most \code{ubms} models.
 Also useful for seeing correct list structure for custom priors.
 }
+\examples{
+default_priors()
+
+}

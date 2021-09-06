@@ -11,15 +11,15 @@
 
   # this is hacky
   if(! "shape" %in% types){
-    submodel_data$locations_shape <- 0
-    submodel_data$scales_shape <- 0.1
-    submodel_data$prior_type_shape <- 1
+    submodel_data$locations_shape <- array(0)
+    submodel_data$scales_shape <- array(0.1)
+    submodel_data$prior_type_shape <- c(1,1)
   }
 
   if(! "scale" %in% types){
-    submodel_data$locations_scale <- 0
-    submodel_data$scales_scale <- 0.1
-    submodel_data$prior_type_scale <- 1
+    submodel_data$locations_scale <- array(0)
+    submodel_data$scales_scale <- array(0.1)
+    submodel_data$prior_type_scale <- c(1,1)
   }
 
   stan_data <- c(model_code, y_data, submodel_data)
