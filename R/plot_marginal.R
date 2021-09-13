@@ -98,9 +98,11 @@ marg_factor_plot <- function(object, submodel, covariate, quant){
 get_mean_df <- function(submodel){
   vars <- all.vars(lme4::nobars(submodel@formula))
   out <- lapply(vars, function(x, data){
-                   ifelse(col_is_factor(x, data),
-                          levels(data[[x]])[1], mean(data[[x]], na.rm=TRUE))},
-                    data=submodel@data)
+                 if(ubms:::col_is_factor(x, data)){
+                   return(factor(levels(data[[x]])[1], levels=levels(data[[x]])))
+                 }
+                 return(mean(data[[x]], na.rm=TRUE))
+                 }, data=submodel@data)
   out <- as.data.frame(out)
   names(out) <- vars
   out
