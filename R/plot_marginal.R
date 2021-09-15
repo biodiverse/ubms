@@ -120,10 +120,10 @@ marg_factor_plot <- function(object, submodel, covariate, quant, draws){
 get_baseline_df <- function(submodel){
   vars <- all.vars(lme4::nobars(submodel@formula))
   out <- lapply(vars, function(x, data){
-                 if(ubms:::col_is_factor(x, data)){
+                 if(col_is_factor(x, data)){
                    return(factor(levels(data[[x]])[1], levels=levels(data[[x]])))
                  }
-                 return(median(data[[x]], na.rm=TRUE))
+                 return(stats::median(data[[x]], na.rm=TRUE))
                  }, data=submodel@data)
   out <- as.data.frame(out)
   names(out) <- vars

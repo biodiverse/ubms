@@ -5,7 +5,15 @@
 \alias{plot_marginal}
 \title{Plot Marginal Effects of Covariates}
 \usage{
-\S4method{plot_marginal}{ubmsFit}(object, submodel, covariate = NULL, level = 0.95, ...)
+\S4method{plot_marginal}{ubmsFit}(
+  object,
+  submodel,
+  covariate = NULL,
+  level = 0.95,
+  draws = 1000,
+  smooth = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{A fitted model of class \code{ubmsFit}}
@@ -16,15 +24,25 @@
 
 \item{level}{Probability mass to include in the uncertainty interval}
 
+\item{draws}{Number of draws from the posterior to use when generating the
+plots. If fewer than \code{draws} are available, they are all used}
+
+\item{smooth}{Smoother span (f) value used for LOWESS smoothing of the
+upper and lower credible interval bounds for a continuous covariate.
+No smoothing is done if \code{NULL}. A reasonable value to try is 0.05.
+The larger the value, the smoother the curve. As with all smoothing, use
+with caution}
+
 \item{...}{Currently ignored}
 }
 \value{
-A \code{ggplot}, potentially with multiple panels, one per covariate
+A \code{ggplot} if a single covariate is plotted, or an object
+ of class \code{grob} if there are multiple covariates/panels
 }
 \description{
 Generates marginal fixed effects plots of one or more covariates from a
 \code{ubmsFit} submodel. For each plot, the focal covariate is allowed to
 vary across its range (or possible discrete values, for a factor), while
-the other covariates are held at their means or reference levels.
+the other covariates are held at their medians or reference levels.
 Random effects are ignored.
 }
