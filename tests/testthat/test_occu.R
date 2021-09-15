@@ -179,5 +179,5 @@ test_that("Fitted/residual methods work with ubmsFitOccu",{
   expect_is(rp, "gg")
   expect_is(rp2, "gg")
   expect_is(rp3, "gtable")
-  expect_is(mp, "gtable")
+  expect_is(mp, "gg")
 })

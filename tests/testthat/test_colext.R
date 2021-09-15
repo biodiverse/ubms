@@ -183,7 +183,7 @@ test_that("Fitted/residual methods work with ubmsFitColext",{
   dev.off()
 
   expect_is(rp, "gg")
-  expect_is(mp, "gtable")
+  expect_is(mp, "gg")
 })
 
 test_that("projected function and sim_state works with ubmsFitColext",{

@@ -22,17 +22,17 @@ fit2 <- suppressWarnings(stan_occu(~1~1, umf,
 })
 skip_if(!good_fit, "Test setup failed")
 
-test_that("plot_marginal creates grid object",{
+test_that("plot_marginal creates gg or grid object",{
   #Multiple covariates
   pdf(NULL)
   mp <- plot_marginal(fit, "state")
   expect_is(mp, "gtable")
   #Submodel with single covariate
   mp2 <- plot_marginal(fit, "det")
-  expect_is(mp2, "gtable")
+  expect_is(mp2, "gg")
   #Specific covariate
   mp3 <- plot_marginal(fit, "state", "x1")
-  expect_is(mp3, "gtable")
+  expect_is(mp3, "gg")
   #No covariates
   expect_error(plot_marginal(fit2, "state"))
   dev.off()
@@ -40,9 +40,9 @@ test_that("plot_marginal creates grid object",{
 
 test_that("marginal_covariate_plot builds plot for either cov type",{
   pdf(NULL)
-  mcp <- marginal_covariate_plot(fit,"state","x1")
+  mcp <- marginal_covariate_plot(fit,"state","x1", draws=100)
   expect_is(mcp, "gg")
-  mcp2 <- marginal_covariate_plot(fit,"state","x2")
+  mcp2 <- marginal_covariate_plot(fit,"state","x2", draws=100)
   expect_is(mcp, "gg")
   #Covariate not in submodel
   expect_error(marginal_covariate_plot(fit,"state","fake"))
@@ -51,23 +51,24 @@ test_that("marginal_covariate_plot builds plot for either cov type",{
 
 test_that("marg_numeric_plot builds plot for numeric covariate",{
   pdf(NULL)
-  mnp <- marg_numeric_plot(fit, "state", "x1", c(0.025,0.975))
+  mnp <- marg_numeric_plot(fit, "state", "x1", c(0.025,0.975), draws=100)
   expect_is(mnp, "gg")
-  expect_error(marg_numeric_plot(fit,"state","x2",c(0.025,0.975)))
+  expect_error(marg_numeric_plot(fit,"state","x2",c(0.025,0.975)), draws=100)
   dev.off()
 })
 
 test_that("marg_factor_plot builds plot for factor covariate",{
   pdf(NULL)
-  mfp <- marg_factor_plot(fit, "state", "x2", c(0.025,0.975))
+  mfp <- marg_factor_plot(fit, "state", "x2", c(0.025,0.975), draws=100)
   expect_is(mfp, "gg")
-  expect_error(marg_factor_plot(fit,"state","x1",c(0.025,0.975)))
+  expect_error(marg_factor_plot(fit,"state","x1",c(0.025,0.975), draws=100))
   dev.off()
 })
 
-test_that("get_mean_df gets baseline data frame for plot data",{
-  mean_df <- get_mean_df(fit["state"])
-  expect_equal(mean_df, data.frame(x1=0.2560184, x2="a"), tol=1e-7)
+test_that("get_baseline_df gets baseline data frame for plot data",{
+  base_df <- get_baseline_df(fit["state"])
+  expect_equal(base_df, data.frame(x1=-0.2301775,
+                                   x2=factor("a",levels=c("a","b"))), tol=1e-6)
 })
 
 test_that("col_is_factor identifies factor column",{
