@@ -4,7 +4,15 @@
 \alias{stan_occu}
 \title{Fit the MacKenzie et al. (2002) Occupancy Model}
 \usage{
-stan_occu(formula, data, priors = default_priors(), ...)
+stan_occu(
+  formula,
+  data,
+  prior_intercept_state = uniform(-5, 5),
+  prior_coef_state = normal(0, 2.5),
+  prior_intercept_det = uniform(-5, 5),
+  prior_coef_det = normal(0, 2.5),
+  ...
+)
 }
 \arguments{
 \item{formula}{Double right-hand side formula describing covariates of
@@ -12,8 +20,17 @@ detection and occupancy in that order}
 
 \item{data}{A \code{\link{unmarkedFrameOccu}} object}
 
-\item{priors}{A list of information defining the priors to be used
-for each submodel. See \code{default_priors()} for correct structure}
+\item{prior_intercept_state}{Prior distribution for the intercept of the
+state (occupancy probability) model; see \code{?priors} for options}
+
+\item{prior_coef_state}{Prior distribution for the regression coefficients of
+the state model}
+
+\item{prior_intercept_det}{Prior distribution for the intercept of the
+detection probability model}
+
+\item{prior_coef_det}{Prior distribution for the regression coefficients of
+the detection model}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}

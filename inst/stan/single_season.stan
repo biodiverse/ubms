@@ -16,6 +16,15 @@ data{
 
 }
 
+transformed data{
+
+int ind_state;
+int ind_det;
+ind_state = prior_dist_state[1] == 0 ? 1 : 2;
+ind_det = prior_dist_det[1] == 0 ? 1 : 2;
+
+}
+
 parameters{
 
 #include /include/params_single_season.stan

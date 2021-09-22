@@ -78,7 +78,7 @@ test_that("offsets work with stan_pcount",{
 
   pr_stan <- predict(fit_long, "state")
   pr_unm <- predict(fit_unm, "state")
-  expect_RMSE(pr_stan$Predicted, pr_unm$Predicted, 0.05)
+  expect_RMSE(pr_stan$Predicted, pr_unm$Predicted, 0.1)
 })
 
 

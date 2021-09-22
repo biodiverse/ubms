@@ -6,8 +6,14 @@
 #' @param formula Double right-hand side formula describing covariates of
 #'  detection and occupancy in that order
 #' @param data A \code{\link{unmarkedFrameOccu}} object
-#' @param priors A list of information defining the priors to be used
-#'  for each submodel. See \code{default_priors()} for correct structure
+#' @param prior_intercept_state Prior distribution for the intercept of the
+#'  state (occupancy probability) model; see \code{?priors} for options
+#' @param prior_coef_state Prior distribution for the regression coefficients of
+#'  the state model
+#' @param prior_intercept_det Prior distribution for the intercept of the
+#'  detection probability model
+#' @param prior_coef_det Prior distribution for the regression coefficients of
+#'  the detection model
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
@@ -32,7 +38,13 @@
 #' @seealso \code{\link{occu}}, \code{\link{unmarkedFrameOccu}}
 #' @include fit.R
 #' @export
-stan_occu <- function(formula, data, priors=default_priors(), ...){
+stan_occu <- function(formula,
+                      data,
+                      prior_intercept_state = uniform(-5, 5),
+                      prior_coef_state = normal(0, 2.5),
+                      prior_intercept_det = uniform(-5, 5),
+                      prior_coef_det = normal(0, 2.5),
+                      ...){
 
   forms <- split_formula(formula)
   umf <- process_umf(data)
@@ -44,13 +56,13 @@ stan_occu <- function(formula, data, priors=default_priors(), ...){
                                  "plogis", split_umf$sites_augment, split_umf$data_aug)
 
   } else {
-    state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf),
-                          forms[[2]], "plogis", priors$state)
+    state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), forms[[2]],
+                          "plogis", prior_intercept_state, prior_coef_state)
   }
 
   response <- ubmsResponse(getY(umf), "binomial", "binomial")
-  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]],
-                      "plogis", priors$det)
+  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]], "plogis",
+                      prior_intercept_det, prior_coef_det)
   submodels <- ubmsSubmodelList(state, det)
 
   ubmsFit("occu", match.call(), data, response, submodels, ...)

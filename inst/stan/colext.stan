@@ -102,12 +102,17 @@ int Zu_ext[Zdim_ext[5]];
 transformed data{
 
 int no_detects[M, T];
+int ind_state;
+int ind_det;
+
 for (m in 1:M){
   for (t in 1:T){
     no_detects[m, t] = 1 - Kmin[m, t];
   }
 }
 
+ind_state = prior_dist_state[1] == 0 ? 1 : 2;
+ind_det = prior_dist_det[1] == 0 ? 1 : 2;
 }
 
 parameters{

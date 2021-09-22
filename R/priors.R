@@ -1,59 +1,15 @@
-check_prior_input <- function(input){
-  #stopifnot(length(input) %in% c(1,2))
-  stopifnot(length(input) == 2)
-  #if(length(input) == 1){
-  #  check_names <- "coef"
-  #} else {
-  check_names <- c("intercept","coef")
-  #}
-  if(!all(check_names %in% names(input))){
-    stop(paste0("List of priors for each submodel must have named elements: ",
-                paste(check_names, collapse=", ")),
-         call.=FALSE)
-  }
-}
-
-get_prior_info <- function(input, Xmat){
-
-  check_prior_input(input)
-
-  locations <- array(rep(input$coef$location, ncol(Xmat)))
-  scales <- array(rep(input$coef$scale, ncol(Xmat)))
-  prior_type <- c(1,1) # only normal supported at moment
-
-  if(input$coef$autoscale){
-    for (i in 1:ncol(Xmat)){
-
-      if(all(unique(Xmat[,i]) %in% c(0,1))){
-        next
-      }
-      scales[i] <- scales[i] * 1/sd(Xmat[,i])
-    }
-  }
-
-  if(!is.null(input$intercept) && colnames(Xmat)[1] == "(Intercept)"){
-    locations[1] <- input$intercept$location
-    scales[1] <- input$intercept$scale
-  }
-
-  list(locations=locations, scales=scales, prior_type=prior_type)
-
-}
-
-check_missing_prior <- function(priors, type){
-  if(is.null(priors)){
-    stop(paste("Missing prior information for submodel",type), call.=FALSE)
-  }
-  priors
-}
-
-#' Specify normal prior distribution
+#' Prior distributions
 #'
-#' Controls settings for normal prior distributions on an intercept or
-#' on coefficients for a submodel.
+#' Specify prior distributions and associated parameters for use in
+#' \code{ubms} models.
 #'
-#' @param location The mean of the distribution
-#' @param scale The standard deviation of the distribution
+#' @param location The mean of the distribution. If setting the priors for
+#'  regression coefficients, this can be a single value, or multiple values,
+#'  one per coefficient
+#' @param scale The standard deviation of the distribution. If setting the priors
+#'  for regression coefficients, this can be a single value, or multiple values,
+#'  one per coefficient
+#' @param df The number of degrees of freedom for the Student-t distribution
 #' @param autoscale If \code{TRUE}, ubms will automatically adjust priors
 #'  for each regression coefficient relative to its corresponding covariate x.
 #'  Specifically, the prior for a given coefficient will be divided by
@@ -62,34 +18,113 @@ check_missing_prior <- function(priors, type){
 #'  \code{scale()}), this will have minimal effect as sd(x) will be
 #'  approximately 1. Standardizing your covariates is highly recommended.
 #'
+#' @name priors
+#'
 #' @return A \code{list} containing prior settings used internally by \code{ubms}.
 #'
 #' @examples
 #' normal()
 #'
+NULL
+
+#' @rdname priors
 #' @export
-normal <- function(location=0, scale=10, autoscale=TRUE){
-  stopifnot(scale > 0)
-  list(dist="normal", location=location, scale=scale, autoscale=autoscale)
+normal <- function(location=0, scale=2.5, autoscale=TRUE){
+  stopifnot(all(scale > 0))
+  if((length(location) > 1) & (length(scale) > 1)){
+    stopifnot(length(location) == length(scale))
+  }
+  list(dist=1, par1=location, par2=scale, par3=0, autoscale=autoscale)
 }
 
-#' Default priors for single-season models
-#'
-#' Convenience function providing default priors for most \code{ubms} models.
-#' Also useful for seeing correct list structure for custom priors.
-#'
-#' @return A list of lists of default prior specifications, one entry
-#'  per submodel.
-#'
-#' @examples
-#' default_priors()
-#'
+#' @rdname priors
 #' @export
-default_priors <- function(){
-  out <- lapply(1:2, function(x){
-           list(intercept=normal(0, 10, autoscale=TRUE),
-           coef=normal(0, 2.5, autoscale=TRUE))
-         })
-  names(out) <- c("state","det")
-  out
+uniform <- function(lower=-5, upper=5){
+  stopifnot(length(lower) == length(upper))
+  stopifnot(all(lower < upper))
+  list(dist=2, par1=lower, par2=upper, par3=0, autoscale=FALSE)
 }
+
+#' @rdname priors
+#' @export
+student_t <- function(df=1, location=0, scale=2.5, autoscale=TRUE){
+  stopifnot(all(scale > 0))
+  stopifnot(all(df > 0))
+  if((length(location) > 1) & (length(scale) > 1)){
+    stopifnot(length(location) == length(scale))
+  }
+  list(dist=3, par1=location, par2=scale, par3=df, autoscale=autoscale)
+}
+
+expand_prior <- function(prior, np){
+  rep_prior <- lapply(prior[c("par1","par2","par3")], function(x){
+    if(length(x) > 1){
+      stopifnot(length(x) == np)
+    } else {
+      x <- rep(x, np)
+    }
+    x
+  })
+  prior[c("par1","par2","par3")] <- rep_prior
+  prior
+}
+
+autoscale_prior <- function(prior, Xmat){
+  if(!prior$autoscale) return(prior)
+  # par2 is always the 'scale' parameter
+  stopifnot(ncol(Xmat) == length(prior$par2))
+
+  for (i in 1:ncol(Xmat)){
+    # skip if dummy variable
+    if(all(unique(Xmat[,i]) %in% c(0,1))) next
+    prior$par2[i] <- prior$par2[i] * 1/sd(Xmat[,i])
+  }
+  prior
+}
+
+process_coef_prior <- function(prior, Xmat){
+  # remove intercept
+  if("(Intercept)" %in% colnames(Xmat)) Xmat <- Xmat[,-1,drop=FALSE]
+  # if no coefs
+  if(ncol(Xmat)==0){
+    prior$dist <- 0
+    prior$par1 <- prior$par2 <- prior$par3 <- NA
+    return(prior)
+  }
+  # expand to correct length
+  prior <- expand_prior(prior, ncol(Xmat))
+  # adjust scale if requested
+  autoscale_prior(prior, Xmat)
+}
+
+process_int_prior <- function(prior, Xmat){
+  stopifnot(length(unlist(prior[c("par1","par2","par3")])) == 3)
+  prior$autoscale <- FALSE
+  # If there's an intercept, don't do anything
+  if("(Intercept)" %in% colnames(Xmat)) return(prior)
+
+  prior$dist <- 0
+  prior$par1 <- prior$par2 <- prior$par3 <- NA
+  prior
+}
+
+setGeneric("process_priors", function(submodel, ...) standardGeneric("process_priors"))
+
+#' @include submodel.R
+setMethod("process_priors", "ubmsSubmodel", function(submodel){
+  Xmat <- model.matrix(submodel)
+  coef_prior <- process_coef_prior(submodel@prior_coef, Xmat)
+  int_prior <- process_int_prior(submodel@prior_intercept, Xmat)
+  out <- mapply(function(x,y) c(x,y), int_prior, coef_prior, SIMPLIFY=FALSE)
+  prior_pars <- matrix(unlist(out[paste0("par",1:3)]), nrow=3, byrow=TRUE)
+  drop_cols <- apply(prior_pars, 2, function(x) any(is.na(x)))
+  prior_pars <- prior_pars[,!drop_cols,drop=FALSE]
+  list(prior_dist = out$dist, prior_pars = prior_pars)
+})
+
+setMethod("process_priors", "ubmsSubmodelScalar", function(submodel){
+  Xmat <- model.matrix(submodel)
+  int_prior <- process_int_prior(submodel@prior_intercept, Xmat)
+  prior_pars <- matrix(unlist(int_prior[paste0("par",1:3)]), nrow=3, byrow=TRUE)
+  list(prior_dist = int_prior$dist, prior_pars = prior_pars)
+})

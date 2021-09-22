@@ -1,13 +1,16 @@
 context("Submodel construction and methods")
 
 test_that("ubmsSubmodel can be built",{
-  sm <- ubmsSubmodel("Det", "det", data.frame(x1=c(1,2,3)), ~x1, "plogis")
+  sm <- ubmsSubmodel("Det", "det", data.frame(x1=c(1,2,3)), ~x1, "plogis",
+                     prior_intercept=normal(0,10), prior_coef=normal(0,2.5))
   expect_true(inherits(sm, "ubmsSubmodel"))
   expect_equal(sm@data, data.frame(x1=c(1,2,3)))
   expect_equal(sm@type, "det")
   expect_equal(sm@link, "plogis")
   expect_equal(do.call(sm@link, list(0)), 0.5)
   expect_equivalent(sm@missing, rep(FALSE, 3))
+  expect_equal(sm@prior_intercept, list(dist=1,par1=0,par2=10,par3=0,autoscale=TRUE))
+  expect_equal(sm@prior_coef, list(dist=1,par1=0,par2=2.5,par3=0,autoscale=TRUE))
 })
 
 test_that("ubmsSubmodelTransition can be built",{
@@ -28,11 +31,14 @@ test_that("ubmsSubmodelTransition errors if NAs in yearlySiteCovs",{
 })
 
 test_that("ubmsSubmodelScalar built correctly",{
-  ss <- ubmsSubmodelScalar("Fake", "fake", "plogis")
+  ss <- ubmsSubmodelScalar("Fake", "fake", "plogis", normal(0,2.5))
   expect_is(ss, "ubmsSubmodelScalar")
   expect_equal(ss@data, data.frame(X1=1))
   expect_equal(ss@formula, ~1)
   expect_equivalent(ss@missing, c(FALSE))
+  expect_equivalent(ss@prior_intercept, list(dist=1,par1=0,par2=2.5,par3=0,
+                                             autoscale=TRUE))
+  expect_equivalent(ss@prior_coef, list())
 })
 
 test_that("placeholderSubmodel creates blank submodel",{
@@ -41,6 +47,8 @@ test_that("placeholderSubmodel creates blank submodel",{
   expect_equal(ps@data, data.frame())
   expect_equal(ps@formula, ~1)
   expect_equal(ps@link, "identity")
+  expect_equal(ps@prior_intercept, list())
+  expect_equal(ps@prior_coef, list())
 })
 
 test_that("drop_final_year removes final year of yearly site covs",{
