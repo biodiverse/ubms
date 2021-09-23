@@ -90,7 +90,7 @@ test_that("stan_multinomPois produces accurate results",{
   expect_RMSE(coef(fit_double_long), c(2.2283,0.1148,0.1789,-0.5666), 0.01)
 
   #Removal
-  expect_RMSE(coef(fit_rem_long), coef(um_rem),  0.01)
+  expect_RMSE(coef(fit_rem_long), coef(um_rem),  0.03)
   expect_RMSE(coef(fit_rem_long), c(0.1097,0.1759,0.26456), 0.01)
 })
 

@@ -10,6 +10,7 @@ stan_distsamp(
   keyfun = c("halfnorm", "exp", "hazard"),
   output = c("density", "abund"),
   unitsOut = c("ha", "kmsq"),
+  priors = default_priors(),
   ...
 )
 }
@@ -27,6 +28,9 @@ or \code{"hazard"} for hazard-rate (see warning below)}
 
 \item{unitsOut}{Units of density. Either \code{"ha"} or \code{"kmsq"} for
 hectares and square kilometers, respectively}
+
+\item{priors}{A list of information defining the priors to be used
+for each submodel. See \code{default_priors()} for correct structure}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}

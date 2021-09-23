@@ -11,7 +11,7 @@
 #'  Note that computation time will increase with K.
 #' @param mixture Character specifying mixture: "P" is only option currently.
 #' @param prior_intercept_state Prior distribution for the intercept of the
-#'  state (occupancy probability) model; see \code{?priors} for options
+#'  state (abundance) model; see \code{?priors} for options
 #' @param prior_coef_state Prior distribution for the regression coefficients of
 #'  the state model
 #' @param prior_intercept_det Prior distribution for the intercept of the

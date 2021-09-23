@@ -10,6 +10,14 @@
 #' @param K Integer upper index of integration for N-mixture. This should be
 #'  set high enough so that it does not affect the parameter estimates.
 #'  Note that computation time will increase with K.
+#' @param prior_intercept_state Prior distribution for the intercept of the
+#'  state (abundance) model; see \code{?priors} for options
+#' @param prior_coef_state Prior distribution for the regression coefficients of
+#'  the state model
+#' @param prior_intercept_det Prior distribution for the intercept of the
+#'  detection probability model
+#' @param prior_coef_det Prior distribution for the regression coefficients of
+#'  the detection model
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
@@ -30,7 +38,14 @@
 #'
 #' @seealso \code{\link{occuRN}}, \code{\link{unmarkedFrameOccu}}
 #' @export
-stan_occuRN <- function(formula, data, K=20, ...){
+stan_occuRN <- function(formula,
+                        data,
+                        K=20,
+                        prior_intercept_state = uniform(-5, 5),
+                        prior_coef_state = normal(0, 2.5),
+                        prior_intercept_det = uniform(-5, 5),
+                        prior_coef_det = normal(0, 2.5),
+                        ...){
 
   forms <- split_formula(formula)
   umf <- process_umf(data)
@@ -41,11 +56,13 @@ stan_occuRN <- function(formula, data, K=20, ...){
     state <- ubmsSubmodelSpatial("Abundance", "state", siteCovs(umf), forms[[2]],
                                  "exp", split_umf$sites_augment, split_umf$data_aug)
   } else {
-    state <- ubmsSubmodel("Abundance", "state", siteCovs(umf), forms[[2]], "exp")
+    state <- ubmsSubmodel("Abundance", "state", siteCovs(umf), forms[[2]], "exp",
+                          prior_intercept_state, prior_coef_state)
   }
 
   response <- ubmsResponse(getY(umf), y_dist="binomial", z_dist="P", K=K)
-  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]], "plogis")
+  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]], "plogis",
+                      prior_intercept_det, prior_coef_det)
   submodels <- ubmsSubmodelList(state, det)
 
   ubmsFit("occuRN", match.call(), data, response, submodels, ...)

@@ -4,13 +4,33 @@
 \alias{stan_multinomPois}
 \title{Fit the Multinomial-Poisson Mixture Model}
 \usage{
-stan_multinomPois(formula, data, ...)
+stan_multinomPois(
+  formula,
+  data,
+  prior_intercept_state = uniform(-5, 5),
+  prior_coef_state = normal(0, 2.5),
+  prior_intercept_det = uniform(-5, 5),
+  prior_coef_det = normal(0, 2.5),
+  ...
+)
 }
 \arguments{
 \item{formula}{Double right-hand side formula describing covariates of
 detection and abundance in that order}
 
 \item{data}{A \code{\link{unmarkedFrameMPois}} object}
+
+\item{prior_intercept_state}{Prior distribution for the intercept of the
+state (abundance) model; see \code{?priors} for options}
+
+\item{prior_coef_state}{Prior distribution for the regression coefficients of
+the state model}
+
+\item{prior_intercept_det}{Prior distribution for the intercept of the
+detection probability model}
+
+\item{prior_coef_det}{Prior distribution for the regression coefficients of
+the detection model}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}
