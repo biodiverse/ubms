@@ -10,7 +10,7 @@
   submodel_data <- do.call("c", submodel_data)
 
   # Change this later?
-  if(model_code != 3) submodel_data <- add_placeholder_priors(submodel_data, types)
+  submodel_data <- add_placeholder_priors(submodel_data, types)
 
   stan_data <- c(model_code, y_data, submodel_data)
 
