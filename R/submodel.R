@@ -22,7 +22,7 @@ setClass("ubmsSubmodel",
 )
 
 ubmsSubmodel <- function(name, type, data, formula, link,
-                         prior_intercept=list(), prior_coef=list()){
+                         prior_intercept, prior_coef){
   out <- new("ubmsSubmodel", name=name, type=type, data=data,
              formula=formula, link=link, prior_intercept=prior_intercept,
              prior_coef=prior_coef)
@@ -34,7 +34,7 @@ setClass("ubmsSubmodelTransition", contains = "ubmsSubmodel")
 
 #' @importFrom methods as
 ubmsSubmodelTransition <- function(name, type, data, formula, link, T,
-                                   prior_intercept=list(), prior_coef=list()){
+                                   prior_intercept, prior_coef){
   data <- drop_final_year(data, T)
   out <- ubmsSubmodel(name, type, data, formula, link, prior_intercept,
                       prior_coef)
@@ -53,15 +53,15 @@ drop_final_year <- function(yr_df, nprimary){
 
 setClass("ubmsSubmodelScalar", contains = "ubmsSubmodel")
 
-ubmsSubmodelScalar <- function(name, type, link, prior_intercept=list()){
+ubmsSubmodelScalar <- function(name, type, link, prior_intercept){
   out <- ubmsSubmodel(name, type, data.frame(1), ~1, link,
-                      prior_intercept, list())
+                      prior_intercept, normal(0,0.01))
   as(out, "ubmsSubmodelScalar")
 }
 
 placeholderSubmodel <- function(type){
   ubmsSubmodel("Placeholder", type, data.frame(), ~1, "identity",
-                list(), list())
+                normal(0,0.01), normal(0,0.01))
 }
 
 is_placeholder <- function(submodel){

@@ -18,8 +18,8 @@ test_that("stan inputs are built correctly", {
   gs2 <- get_stan_data(resp)
   gs3 <- get_stan_data(state)
   gs4 <- get_stan_data(det)
-  gs5 <- list(prior_dist_shape=0, prior_pars_shape=matrix(rep(0,3),nrow=3),
-              prior_dist_scale=0, prior_pars_scale=matrix(rep(0,3),nrow=3))
+  gs5 <- list(prior_dist_shape=c(0,0), prior_pars_shape=matrix(rep(0,3),nrow=3),
+              prior_dist_scale=c(0,0), prior_pars_scale=matrix(rep(0,3),nrow=3))
   gs_all <- c(gs1,gs2,gs3,gs4,gs5)
   expect_equal(inp$stan_data, gs_all)
 })
@@ -84,9 +84,11 @@ test_that("get_stan_data pulls necessary info from submodel",{
   expect_equivalent(dat[[13]], matrix(c(-5,5,0,0,1.581139,0),nrow=3), tol=1e-6)
 })
 
-test_that("get_stan_data pulls empty list from scalar submodel",{
-  ss <- ubmsSubmodelScalar("Fake", "fake", "plogis")
-  expect_equal(get_stan_data(ss), list())
+test_that("get_stan_data pulls only priors from scalar submodel",{
+  ss <- ubmsSubmodelScalar("Fake", "fake", "plogis", normal(0,2.5))
+  pr <- process_priors(ss)
+  names(pr) <- paste0(names(pr),"_fake")
+  expect_equal(get_stan_data(ss), pr)
 })
 
 test_that("get_sparse_Z collapses Z into sparse parts",{

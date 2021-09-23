@@ -114,5 +114,5 @@ test_that("process_priors ubmsSubmodel method works",{
 test_that("process_prior ubmsSubmodelScalar method works",{
   sm <- ubmsSubmodelScalar("Det", "det", "exp", prior_intercept=normal(0,10))
   expect_equal(process_priors(sm),
-               list(prior_dist=1, prior_pars=matrix(c(0,10,0), nrow=3)))
+               list(prior_dist=c(1,0), prior_pars=matrix(c(0,10,0), nrow=3)))
 })

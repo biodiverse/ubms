@@ -41,22 +41,22 @@ if(prior_dist_det[2] == 1){
 }
 
 
-if(prior_dist_scale == 0){
+if(prior_dist_scale[1] == 0){
   beta_scale ~ normal(0, 0.01);
-} else if(prior_dist_scale == 1){
+} else if(prior_dist_scale[1] == 1){
   beta_scale ~ normal(prior_pars_scale[1,1], prior_pars_scale[2,1]);
-} else if(prior_dist_scale == 2){
+} else if(prior_dist_scale[1] == 2){
   beta_scale ~ uniform(prior_pars_scale[1,1], prior_pars_scale[2,1]);
-} else if(prior_dist_scale == 3){
+} else if(prior_dist_scale[1] == 3){
   beta_scale ~ student_t(prior_pars_scale[3,1], prior_pars_scale[1,1], prior_pars_scale[2,1]);
 }
 
-if(prior_dist_shape == 0){
+if(prior_dist_shape[1] == 0){
   beta_shape ~ normal(0, 0.01);
-} else if(prior_dist_shape == 1){
+} else if(prior_dist_shape[1] == 1){
   beta_shape ~ normal(prior_pars_shape[1,1], prior_pars_shape[2,1]);
-} else if(prior_dist_shape == 2){
+} else if(prior_dist_shape[1] == 2){
   beta_shape ~ uniform(prior_pars_shape[1,1], prior_pars_shape[2,1]);
-} else if(prior_dist_shape == 3){
+} else if(prior_dist_shape[1] == 3){
   beta_shape ~ student_t(prior_pars_shape[3,1], prior_pars_shape[1,1], prior_pars_shape[2,1]);
 }

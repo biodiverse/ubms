@@ -54,7 +54,8 @@ stan_pcount <- function(formula,
     split_umf <- extract_missing_sites(umf)
     umf <- split_umf$umf
     state <- ubmsSubmodelSpatial("Abundance", "state", siteCovs(umf), forms[[2]],
-                                 "exp", split_umf$sites_augment, split_umf$data_aug)
+                                 "exp", prior_intercept_state, prior_coef_state,
+                                 split_umf$sites_augment, split_umf$data_aug)
   } else {
     state <- ubmsSubmodel("Abundance", "state", siteCovs(umf), forms[[2]], "exp",
                           prior_intercept_state, prior_coef_state)

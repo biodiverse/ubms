@@ -126,5 +126,5 @@ setMethod("process_priors", "ubmsSubmodelScalar", function(submodel){
   Xmat <- model.matrix(submodel)
   int_prior <- process_int_prior(submodel@prior_intercept, Xmat)
   prior_pars <- matrix(unlist(int_prior[paste0("par",1:3)]), nrow=3, byrow=TRUE)
-  list(prior_dist = int_prior$dist, prior_pars = prior_pars)
+  list(prior_dist = c(int_prior$dist,0), prior_pars = prior_pars)
 })

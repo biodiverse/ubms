@@ -53,7 +53,8 @@ stan_occu <- function(formula,
     split_umf <- extract_missing_sites(umf)
     umf <- split_umf$umf
     state <- ubmsSubmodelSpatial("Occupancy", "state", siteCovs(umf), forms[[2]],
-                                 "plogis", split_umf$sites_augment, split_umf$data_aug)
+                                 "plogis", prior_intercept_state, prior_coef_state,
+                                 split_umf$sites_augment, split_umf$data_aug)
 
   } else {
     state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), forms[[2]],
