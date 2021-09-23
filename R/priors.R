@@ -76,8 +76,8 @@ autoscale_prior <- function(prior, Xmat){
 
   for (i in 1:ncol(Xmat)){
     # skip if dummy variable
-    if(all(unique(Xmat[,i]) %in% c(0,1))) next
-    prior$par2[i] <- prior$par2[i] * 1/sd(Xmat[,i])
+    if(all(unique(na.omit(Xmat[,i])) %in% c(0,1))) next
+    prior$par2[i] <- prior$par2[i] * 1/sd(Xmat[,i], na.rm=TRUE)
   }
   prior
 }

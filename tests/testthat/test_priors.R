@@ -45,6 +45,16 @@ test_that("autoscale_prior scales prior by sd of covariate",{
   expect_error(autoscale_prior(expand_prior(normal(), 3), Xmat))
 })
 
+test_that("autoscale_prior handles NAs",{
+  Xmat <- matrix(c(1,3,NA,0,1,NA), nrow=2)
+  n <- expand_prior(normal(), 3)
+  expect_equal(autoscale_prior(n, Xmat),
+               list(dist=1, par1=c(0,0,0), par2=c(1.76777,2.5,2.5), par3=c(0,0,0),
+                    autoscale=TRUE), tol=1e-4)
+  n <- expand_prior(normal(autoscale=FALSE), 3)
+  expect_equal(n, autoscale_prior(n, Xmat))
+})
+
 test_that("process_coef_prior can expand and scale priors",{
   Xmat <- matrix(c(1,3,1,5), nrow=2)
   p <- normal()
