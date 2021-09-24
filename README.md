@@ -106,30 +106,29 @@ Create `unmarked` frame:
 umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
 ```
 
-Fit a model with a random intercept:
+Fit a model with a random intercept, using 3 parallel cores:
 
 ``` r
-options(mc.cores=3) #number of parallel cores to use
-(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3))
+(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3, cores=3))
 ```
 
     ## 
     ## Call:
     ## stan_occu(formula = ~x2 ~ x1 + (1 | group), data = umf, chains = 3, 
-    ##     refresh = 0)
+    ##     cores = 3, refresh = 0)
     ## 
     ## Occupancy (logit-scale):
-    ##                 Estimate    SD   2.5%  97.5% n_eff Rhat
-    ## (Intercept)        0.319 0.297 -0.284  0.884   997    1
-    ## x1                -0.464 0.120 -0.693 -0.238  4935    1
-    ## sigma [1|group]    1.393 0.282  0.951  2.036  2135    1
+    ##                 Estimate    SD   2.5%  97.5% n_eff  Rhat
+    ## (Intercept)        0.335 0.306 -0.272  0.935   574 1.004
+    ## x1                -0.466 0.116 -0.692 -0.239  4147 0.999
+    ## sigma [1|group]    1.394 0.283  0.948  2.032  1822 1.001
     ## 
     ## Detection (logit-scale):
-    ##             Estimate     SD  2.5% 97.5% n_eff  Rhat
-    ## (Intercept)    0.381 0.0572 0.271 0.492  6047 0.999
-    ## x2             0.587 0.0616 0.464 0.709  5318 1.000
+    ##             Estimate     SD  2.5% 97.5% n_eff Rhat
+    ## (Intercept)    0.382 0.0603 0.265 0.501  4575    1
+    ## x2             0.589 0.0623 0.465 0.712  4637    1
     ## 
-    ## LOOIC: 2267.542
+    ## LOOIC: 2267.638
 
 Examine residuals for occupancy and detection submodels (following
 [Wright et al. 2019](https://doi.org/10.1002/ecy.2703)). Each panel
