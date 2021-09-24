@@ -90,7 +90,7 @@ model{
 #include /include/fixed_priors_single_season.stan
 
 tau ~ gamma(0.5, 0.005);
-b_state ~ theta_lpdf(tau, Qalpha, n_eigen);
+b_state ~ theta(tau, Qalpha, n_eigen);
 
 target += sum(log_lik);
 
