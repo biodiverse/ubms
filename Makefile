@@ -14,7 +14,7 @@ check:
 	Rscript -e "devtools::check()"
 
 test:
-	Rscript -e "devtools::test()"
+	Rscript -e "options(testthat.progress.max_fails=30); devtools::test()"
 
 document:
 	Rscript -e "devtools::document()"

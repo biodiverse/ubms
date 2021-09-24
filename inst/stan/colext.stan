@@ -110,6 +110,8 @@ int ind_state;
 int ind_det;
 int ind_col;
 int ind_ext;
+int include_scale;
+int include_shape;
 
 for (m in 1:M){
   for (t in 1:T){
@@ -121,6 +123,9 @@ ind_state = prior_dist_state[1] == 0 ? 1 : 2;
 ind_det = prior_dist_det[1] == 0 ? 1 : 2;
 ind_col = prior_dist_col[1] == 0 ? 1 : 2;
 ind_ext = prior_dist_ext[1] == 0 ? 1 : 2;
+
+include_scale = 0;
+include_shape = 0;
 }
 
 parameters{

@@ -41,7 +41,7 @@ test_that("ubmsSubmodelScalar built correctly",{
   expect_equivalent(ss@missing, c(FALSE))
   expect_equivalent(ss@prior_intercept, list(dist=1,par1=0,par2=2.5,par3=0,
                                              autoscale=TRUE))
-  expect_equivalent(ss@prior_coef, normal(0,0.01))
+  expect_equivalent(ss@prior_coef, null_prior())
 })
 
 test_that("placeholderSubmodel creates blank submodel",{
@@ -50,8 +50,8 @@ test_that("placeholderSubmodel creates blank submodel",{
   expect_equal(ps@data, data.frame())
   expect_equal(ps@formula, ~1)
   expect_equal(ps@link, "identity")
-  expect_equal(ps@prior_intercept, normal(0,0.01))
-  expect_equal(ps@prior_coef, normal(0,0.01))
+  expect_equal(ps@prior_intercept, null_prior())
+  expect_equal(ps@prior_coef, null_prior())
 })
 
 test_that("drop_final_year removes final year of yearly site covs",{

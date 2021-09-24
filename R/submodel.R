@@ -55,13 +55,13 @@ setClass("ubmsSubmodelScalar", contains = "ubmsSubmodel")
 
 ubmsSubmodelScalar <- function(name, type, link, prior_intercept){
   out <- ubmsSubmodel(name, type, data.frame(1), ~1, link,
-                      prior_intercept, normal(0,0.01))
+                      prior_intercept, null_prior())
   as(out, "ubmsSubmodelScalar")
 }
 
 placeholderSubmodel <- function(type){
   ubmsSubmodel("Placeholder", type, data.frame(), ~1, "identity",
-                normal(0,0.01), normal(0,0.01))
+                null_prior(), null_prior())
 }
 
 is_placeholder <- function(submodel){

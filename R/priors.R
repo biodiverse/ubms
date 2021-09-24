@@ -56,6 +56,10 @@ student_t <- function(df=1, location=0, scale=2.5, autoscale=TRUE){
   list(dist=3, par1=location, par2=scale, par3=df, autoscale=autoscale)
 }
 
+null_prior <- function(){
+  list(dist=0, par1=0, par2=0, par3=0, autoscale=FALSE)
+}
+
 expand_prior <- function(prior, np){
   rep_prior <- lapply(prior[c("par1","par2","par3")], function(x){
     if(length(x) > 1){

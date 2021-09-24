@@ -23,6 +23,10 @@ test_that("uniform prior can be specified",{
   expect_error(uniform(2, -0.2))
 })
 
+test_that("null prior can be specified",{
+  expect_equal(null_prior(), list(dist=0, par1=0, par2=0, par3=0, autoscale=FALSE))
+})
+
 test_that("expand_prior replicates parameters as needed",{
   n <- normal()
   expect_equal(expand_prior(n, 3),

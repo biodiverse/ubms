@@ -79,6 +79,8 @@ test_that("stan_distsamp output structure is correct",{
   expect_true(all(sapply(point_mods, function(x) class(x)[1])=="ubmsFitDistsamp"))
   expect_equal(sapply(point_mods, function(x) x@response@y_dist),
               c("halfnorm", "exp", "hazard"))
+  expect_is(fit_pt_haz['scale'], 'ubmsSubmodelScalar')
+  expect_is(fit_line_haz['scale'], 'ubmsSubmodelScalar')
 })
 
 test_that("stan_distsamp produces accurate results",{
@@ -108,7 +110,7 @@ test_that("stan_distsamp produces accurate results",{
   stan_mod <- suppressWarnings(stan_distsamp(~1~1, ptUMF, chains=2,
                                              iter=200, refresh=0))
   um_mod <- distsamp(~1~1, ptUMF)
-  expect_RMSE(coef(stan_mod), coef(um_mod), 0.02)
+  expect_RMSE(coef(stan_mod), coef(um_mod), 0.05)
 
   stan_mod <- suppressWarnings(stan_distsamp(~1~1, ptUMF_big, keyfun="exp",
                                              chains=2, iter=200, refresh=0))
