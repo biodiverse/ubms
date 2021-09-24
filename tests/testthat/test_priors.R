@@ -23,6 +23,16 @@ test_that("uniform prior can be specified",{
   expect_error(uniform(2, -0.2))
 })
 
+test_that("student t prior can be specified",{
+  p <- student_t()
+  expect_equal(p, list(dist=3, par1=0, par2=2.5, par3=1, autoscale=TRUE))
+  expect_error(student_t(df=-1))
+  expect_error(student_t(scale=-3))
+  p2 <- student_t(1, c(0,0), c(1,2))
+  expect_equal(p2, list(dist=3, par1=c(0,0), par2=c(1,2), par3=1, autoscale=TRUE))
+  expect_error(student_t(1, c(0,0), c(1,2,3)))
+})
+
 test_that("null prior can be specified",{
   expect_equal(null_prior(), list(dist=0, par1=0, par2=0, par3=0, autoscale=FALSE))
 })

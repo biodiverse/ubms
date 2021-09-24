@@ -9,6 +9,8 @@
 #' @param scale The standard deviation of the distribution. If setting the priors
 #'  for regression coefficients, this can be a single value, or multiple values,
 #'  one per coefficient
+#' @param lower The lower bound for the uniform distribution
+#' @param upper The upper bound for the uniform distribution
 #' @param df The number of degrees of freedom for the Student-t distribution
 #' @param autoscale If \code{TRUE}, ubms will automatically adjust priors
 #'  for each regression coefficient relative to its corresponding covariate x.
@@ -80,8 +82,8 @@ autoscale_prior <- function(prior, Xmat){
 
   for (i in 1:ncol(Xmat)){
     # skip if dummy variable
-    if(all(unique(na.omit(Xmat[,i])) %in% c(0,1))) next
-    prior$par2[i] <- prior$par2[i] * 1/sd(Xmat[,i], na.rm=TRUE)
+    if(all(unique(stats::na.omit(Xmat[,i])) %in% c(0,1))) next
+    prior$par2[i] <- prior$par2[i] * 1/stats::sd(Xmat[,i], na.rm=TRUE)
   }
   prior
 }

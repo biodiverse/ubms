@@ -30,6 +30,10 @@ in the same model. If your data are already standardized (e.g. with use of
 \code{scale()}), this will have minimal effect as sd(x) will be
 approximately 1. Standardizing your covariates is highly recommended.}
 
+\item{lower}{The lower bound for the uniform distribution}
+
+\item{upper}{The upper bound for the uniform distribution}
+
 \item{df}{The number of degrees of freedom for the Student-t distribution}
 }
 \value{
