@@ -189,6 +189,7 @@ setMethod("spatial_matrices", "ubmsSubmodelSpatial", function(object, ...){
   P <- diag(nrow(X)) - X %*% solve(crossprod(X), t(X))
   Op <- (nrow(A)/sum(A))*(P %*% (A %*% P))
   K <- RSpectra::eigs(Op, as.integer(rsr_info$n_eig))$vectors
+  if (all(Im(K <- zapsmall(K))==0)) K <- matrix(as.numeric(K), nrow=nrow(K))
   Q <- rsr_info$Q
   Qalpha <- as.matrix(t(K) %*% Q %*% K)
   stopifnot(ncol(K) == nrow(Qalpha))
