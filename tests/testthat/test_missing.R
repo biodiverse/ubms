@@ -2,8 +2,10 @@ context("Missing value handling")
 
 sc <- data.frame(x1=rnorm(3), group=factor(c("a","b","a")))
 oc <- data.frame(x2=rnorm(9))
-state <- ubmsSubmodel("Occ", "state", sc, ~x1+(1|group), "plogis")
-det <- ubmsSubmodel("Det", "det", oc, ~x2, "plogis")
+state <- ubmsSubmodel("Occ", "state", sc, ~x1+(1|group), "plogis",
+                      uniform(-5,5), normal(0,2.5))
+det <- ubmsSubmodel("Det", "det", oc, ~x2, "plogis",
+                    uniform(-5,5), normal(0,2.5))
 sl <- ubmsSubmodelList(state, det)
 y <- matrix(c(1,0,0,1,1,1,0,0,1), nrow=3, byrow=T)
 resp <- ubmsResponse(y, "binomial", "binomial")
@@ -12,8 +14,10 @@ sc2 <- sc
 sc2$x1[1] <- NA
 oc2 <- oc
 oc2$x2[4] <- NA
-state2 <- ubmsSubmodel("Occ", "state", sc2, ~x1+(1|group), "plogis")
-det2 <- ubmsSubmodel("Det", "det", oc2, ~x2, "plogis")
+state2 <- ubmsSubmodel("Occ", "state", sc2, ~x1+(1|group), "plogis",
+                       uniform(-5,5), normal(0,2.5))
+det2 <- ubmsSubmodel("Det", "det", oc2, ~x2, "plogis",
+                     uniform(-5,5), normal(0,2.5))
 sl2 <- ubmsSubmodelList(state2, det2)
 y2 <- matrix(c(1,0,0,1,1,1,NA,0,1), nrow=3, byrow=T)
 resp2 <- ubmsResponse(y2, "binomial", "binomial")
@@ -40,7 +44,8 @@ test_that("setting submodel missing attribute works",{
 
 test_that("submodel_set_missing works with transition-type parameters",{
   ysc <- data.frame(x3 = rnorm(9))
-  col <- ubmsSubmodelTransition("Col", "col", ysc, ~x3, "plogis", 3)
+  col <- ubmsSubmodelTransition("Col", "col", ysc, ~x3, "plogis", 3,
+                                uniform(-5,5), normal(0,2.5))
   y3 <- y2
   y3[1,] <- NA
   resp3 <- ubmsResponse(y3, "binomial", "binomial", 3)
@@ -51,7 +56,8 @@ test_that("submodel_set_missing works with transition-type parameters",{
 
 test_that("error thrown if dimensions of missing slot changes",{
   ysc <- data.frame(x3 = rnorm(12))
-  col <- ubmsSubmodelTransition("Col", "col", ysc, ~x3, "plogis", 3)
+  col <- ubmsSubmodelTransition("Col", "col", ysc, ~x3, "plogis", 3,
+                                uniform(-5,5), normal(0,2.5))
   y3 <- y2
   y3[1,] <- NA
   resp3 <- ubmsResponse(y3, "binomial", "binomial", 3)
@@ -77,8 +83,10 @@ test_that("find_missing identifies missing values",{
 
 test_that("find_missing ignores transition-type parameters",{
   ysc <- data.frame(x3 = rnorm(3))
-  col <- ubmsSubmodel("Col", "col", ysc, ~x3, "plogis")
-  col2 <- ubmsSubmodelTransition("Col", "col", ysc, ~x3, "plogis", 3)
+  col <- ubmsSubmodel("Col", "col", ysc, ~x3, "plogis",
+                      uniform(-5,5), normal(0,2.5))
+  col2 <- ubmsSubmodelTransition("Col", "col", ysc, ~x3, "plogis", 3,
+                                 uniform(-5,5), normal(0,2.5))
   sl3 <- ubmsSubmodelList(state2, det2, col)
   sl4 <- ubmsSubmodelList(state2, det2, col2)
   expect_equal(find_missing(resp, sl3), find_missing(resp, sl4))
@@ -107,7 +115,7 @@ test_that("get_row_reps calculates correct replication factor",{
 })
 
 test_that("ubmsSubmodelScalar is returned unchanged by update_missing",{
-  sub_scalar <- ubmsSubmodelScalar("Fake", "fake", "plogis")
+  sub_scalar <- ubmsSubmodelScalar("Fake", "fake", "plogis", normal(0,2.5))
   sl_scalar <- ubmsSubmodelList(state, det, sub_scalar)
   um <- update_missing(sl_scalar, resp2)
   expect_equivalent(um@submodels$fake, sub_scalar)

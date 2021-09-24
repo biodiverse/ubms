@@ -9,6 +9,9 @@
   submodel_data <- lapply(submodels, get_stan_data)
   submodel_data <- do.call("c", submodel_data)
 
+  # Change this later?
+  submodel_data <- add_placeholder_priors(submodel_data, types)
+
   stan_data <- c(model_code, y_data, submodel_data)
 
   list(stan_data=stan_data, pars=pars)
@@ -17,6 +20,21 @@
 name_to_modelcode <- function(name){
   list(model_code=switch(name, occu={0}, occuRN={1}, pcount={2}, colext={3},
                          distsamp={4}, multinomPois={5}, occuTTD={6}))
+}
+
+# Add prior info for submodel not being used in a given model
+# Placeholder info is still needed to satisfy the Stan data block
+add_placeholder_priors <- function(submodel_data, types){
+  # this is hacky
+  if(! "shape" %in% types){
+    submodel_data$prior_dist_shape <- c(0,0)
+    submodel_data$prior_pars_shape <- matrix(c(0,0,0), nrow=3)
+  }
+  if(! "scale" %in% types){
+    submodel_data$prior_dist_scale <- c(0,0)
+    submodel_data$prior_pars_scale <- matrix(c(0,0,0), nrow=3)
+  }
+  submodel_data
 }
 
 setGeneric("get_pars", function(object, ...) standardGeneric("get_pars"))
@@ -75,7 +93,9 @@ setMethod("get_auxiliary_data", "ubmsResponse", function(object, ...){
 })
 
 setMethod("get_stan_data", "ubmsSubmodelScalar", function(object, ...){
-  list()
+  out <- process_priors(object)
+  names(out) <- paste0(names(out), "_", object@type)
+  out
 })
 
 #' @include submodel.R
@@ -85,10 +105,11 @@ setMethod("get_stan_data", "ubmsSubmodel", function(object, ...){
   n_random <- get_nrandom(object@formula, object@data)
   Zinfo <- get_sparse_Z(Z_matrix(object, na.rm=TRUE))
   X <- model.matrix(object, na.rm=TRUE)
+  priors <- process_priors(object)
   off <- model_offset(object, na.rm=TRUE)
   out <- list(X=X, offset=off, n_obs=nrow(X), n_fixed=ncol(X),
               n_group_vars=n_group_vars, has_random=has_rand, n_random=n_random)
-  out <- c(out, Zinfo)
+  out <- c(out, Zinfo, priors)
   names(out) <- paste0(names(out), "_", object@type)
   out
 })

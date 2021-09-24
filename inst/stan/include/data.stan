@@ -43,3 +43,14 @@ int Zdim_det[5];
 vector[Zdim_det[3]] Zw_det;
 int Zv_det[Zdim_det[4]];
 int Zu_det[Zdim_det[5]];
+
+// Stuff for custom priors
+int prior_dist_state[2];
+int prior_dist_det[2];
+int prior_dist_shape[2];
+int prior_dist_scale[2];
+
+matrix[3, n_fixed_state] prior_pars_state;
+matrix[3, n_fixed_det] prior_pars_det;
+matrix[3, 1] prior_pars_shape;
+matrix[3, 1] prior_pars_scale;

@@ -85,8 +85,7 @@ I probably did not use enough iterations but it's fine for this example.
 
 
 ```r
-options(mc.cores=3)
-ubms_fit <- stan_occu(~x2~x1+(1|group), umf, chains=3, iter=300)
+ubms_fit <- stan_occu(~x2~x1+(1|group), umf, chains=3, iter=300, cores=3)
 ```
 
 

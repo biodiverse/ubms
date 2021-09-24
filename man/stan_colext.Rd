@@ -10,6 +10,14 @@ stan_colext(
   epsilonformula = ~1,
   pformula = ~1,
   data,
+  prior_intercept_psi = uniform(-5, 5),
+  prior_coef_psi = normal(0, 2.5),
+  prior_intercept_gamma = uniform(-5, 5),
+  prior_coef_gamma = normal(0, 2.5),
+  prior_intercept_eps = uniform(-5, 5),
+  prior_coef_eps = normal(0, 2.5),
+  prior_intercept_det = uniform(-5, 5),
+  prior_coef_det = normal(0, 2.5),
   ...
 )
 }
@@ -24,6 +32,30 @@ occupancy at each site}
 \item{pformula}{Right-hand sided formula for detection probability}
 
 \item{data}{A \code{\link{unmarkedMultFrame}} object}
+
+\item{prior_intercept_psi}{Prior distribution for the intercept of the
+psi (initial occupancy probability) model; see \code{?priors} for options}
+
+\item{prior_coef_psi}{Prior distribution for the regression coefficients of
+the psi model}
+
+\item{prior_intercept_gamma}{Prior distribution on intercept for
+colonization probability}
+
+\item{prior_coef_gamma}{Prior distribution on regression coefficients for
+colonization probability}
+
+\item{prior_intercept_eps}{Prior distribution on intercept for
+extinction probability}
+
+\item{prior_coef_eps}{Prior distribution on regression coefficients for
+extinction probability}
+
+\item{prior_intercept_det}{Prior distribution for the intercept of the
+detection probability model}
+
+\item{prior_coef_det}{Prior distribution for the regression coefficients of
+the detection model}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}

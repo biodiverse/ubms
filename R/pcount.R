@@ -10,6 +10,14 @@
 #'  set high enough so that it does not affect the parameter estimates.
 #'  Note that computation time will increase with K.
 #' @param mixture Character specifying mixture: "P" is only option currently.
+#' @param prior_intercept_state Prior distribution for the intercept of the
+#'  state (abundance) model; see \code{?priors} for options
+#' @param prior_coef_state Prior distribution for the regression coefficients of
+#'  the state model
+#' @param prior_intercept_det Prior distribution for the intercept of the
+#'  detection probability model
+#' @param prior_coef_det Prior distribution for the regression coefficients of
+#'  the detection model
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
@@ -29,7 +37,15 @@
 #'
 #' @seealso \code{\link{pcount}}, \code{\link{unmarkedFramePCount}}
 #' @export
-stan_pcount <- function(formula, data, K=NULL, mixture="P", ...){
+stan_pcount <- function(formula,
+                        data,
+                        K=NULL,
+                        mixture="P",
+                        prior_intercept_state = uniform(-5, 5),
+                        prior_coef_state = normal(0, 2.5),
+                        prior_intercept_det = uniform(-5, 5),
+                        prior_coef_det = normal(0, 2.5),
+                        ...){
 
   forms <- split_formula(formula)
   umf <- process_umf(data)
@@ -38,13 +54,16 @@ stan_pcount <- function(formula, data, K=NULL, mixture="P", ...){
     split_umf <- extract_missing_sites(umf)
     umf <- split_umf$umf
     state <- ubmsSubmodelSpatial("Abundance", "state", siteCovs(umf), forms[[2]],
-                                 "exp", split_umf$sites_augment, split_umf$data_aug)
+                                 "exp", prior_intercept_state, prior_coef_state,
+                                 split_umf$sites_augment, split_umf$data_aug)
   } else {
-    state <- ubmsSubmodel("Abundance", "state", siteCovs(umf), forms[[2]], "exp")
+    state <- ubmsSubmodel("Abundance", "state", siteCovs(umf), forms[[2]], "exp",
+                          prior_intercept_state, prior_coef_state)
   }
 
   response <- ubmsResponse(getY(umf), y_dist="binomial", z_dist=mixture, K=K)
-  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]], "plogis")
+  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]], "plogis",
+                      prior_intercept_det, prior_coef_det)
   submodels <- ubmsSubmodelList(state, det)
 
   ubmsFit("pcount", match.call(), data, response, submodels, ...)

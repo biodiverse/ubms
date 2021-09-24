@@ -39,11 +39,6 @@ Currently all single-season models in `ubms` are supported.
 In addition to fitting RSRs, `ubms` also provides tools for applying and visualizing fitted spatial models.
 For now these features are available in the dev version of `ubms`, which you can install with the following code:
 
-
-```r
-install.packages("ubms", repos="https://kenkellner.com/R")
-```
-
 # Example
 
 We will adapt the demo code and dataset available in R package `stocc` to fit a spatial occupancy model, which will also facilitate a comparison between `stocc` and `ubms` results.
@@ -225,13 +220,12 @@ We also include two fixed detection and two fixed occupancy covariates.
 form <- ~detCov1 + detCov2 ~habCov1 + habCov2 + RSR(x, y, threshold=1)
 ```
 
-We will then fit the model in Stan with `stan_occu()`, first setting our desired number of parallel cores to use to 3.
+We will then fit the model in Stan with `stan_occu()`, using 3 parallel cores.
 This will take Stan a few minutes with default MCMC settings.
 
 
 ```r
-options(mc.cores=3)
-fit_ubms <- stan_occu(form, umf, chains=3)
+fit_ubms <- stan_occu(form, umf, chains=3, cores=3)
 ```
 
 
@@ -251,25 +245,25 @@ fit_ubms
 ```
 ## 
 ## Call:
-## stan_occu(formula = form, data = umf, chains = 3)
+## stan_occu(formula = form, data = umf, chains = 3, cores = 3)
 ## 
 ## Occupancy (logit-scale):
 ##             Estimate     SD    2.5%  97.5% n_eff Rhat
-## (Intercept)   -1.077 0.2389 -1.5736 -0.621  1479 1.00
-## habCov12      -0.206 0.3303 -0.8384  0.441  2139 1.00
-## habCov13      -0.256 0.3435 -0.9220  0.417  1863 1.00
-## habCov2        1.114 0.1768  0.7869  1.481  1343 1.00
-## RSR [tau]      0.141 0.0552  0.0642  0.274   225 1.01
+## (Intercept)   -1.084 0.2443 -1.5666 -0.612   933 1.00
+## habCov12      -0.204 0.3263 -0.8585  0.418  2067 1.00
+## habCov13      -0.245 0.3380 -0.9373  0.399  1945 1.00
+## habCov2        1.112 0.1744  0.7914  1.464  1114 1.00
+## RSR [tau]      0.141 0.0538  0.0618  0.269   206 1.01
 ## 
 ## Detection (logit-scale):
-##             Estimate    SD   2.5% 97.5% n_eff  Rhat
-## (Intercept)    1.695 0.392  0.947 2.507  1359 1.002
-## detCov1        0.114 0.214 -0.291 0.536  4242 0.999
-## detCov21       1.326 0.622  0.152 2.660  2153 1.000
-## detCov22       1.534 0.602  0.397 2.826  1871 1.000
-## detCov23      -0.215 0.522 -1.206 0.816  1844 1.000
+##             Estimate    SD   2.5% 97.5% n_eff Rhat
+## (Intercept)    1.748 0.380  1.056 2.546  1594    1
+## detCov1        0.114 0.214 -0.299 0.535  4464    1
+## detCov21       1.230 0.577  0.120 2.404  2010    1
+## detCov22       1.431 0.585  0.292 2.606  2023    1
+## detCov23      -0.258 0.506 -1.257 0.710  1869    1
 ## 
-## LOOIC: 669.228
+## LOOIC: 670.079
 ```
 
 The precision term (tau, $\tau$) associated with the spatial random effect is the final row of the occupancy model estimates.
@@ -296,12 +290,12 @@ head(psi)
 
 ```
 ##   Predicted         SD       2.5%     97.5%
-## 1 0.1377537 0.04573613 0.06612909 0.2447425
-## 2 0.2302972 0.08700916 0.09788428 0.4333969
-## 3 0.3543871 0.11976392 0.15709094 0.6244015
-## 4 0.4507624 0.13170205 0.22163401 0.7223539
-## 5 0.4506006 0.12536403 0.22482546 0.7152775
-## 6 0.3796596 0.11863216 0.17572626 0.6416240
+## 1 0.1375419 0.04510106 0.06673749 0.2450371
+## 2 0.2301707 0.08477789 0.10070910 0.4315150
+## 3 0.3551394 0.11607816 0.16659691 0.6103193
+## 4 0.4522749 0.12664576 0.22468614 0.7208363
+## 5 0.4522390 0.12280803 0.23486858 0.7114437
+## 6 0.3809225 0.11546636 0.17960428 0.6248035
 ```
 
 ## Plotting
@@ -354,8 +348,8 @@ round(modSel(fl),2)
 
 ```
 ##                   elpd nparam elpd_diff se_diff weight
-## fit_ubms       -334.61  47.09      0.00    0.00      1
-## fit_nonspatial -381.08   9.04    -46.47    8.35      0
+## fit_ubms       -335.04  47.54      0.00    0.00      1
+## fit_nonspatial -381.27   9.19    -46.23    8.38      0
 ```
 
 A measure of predictive accuracy (`elpd`) is shown for each model, and the model with the highest predictive accuracy is listed first.

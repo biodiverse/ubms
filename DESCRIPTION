@@ -1,6 +1,6 @@
 Package: ubms
-Version: 1.0.2.9009
-Date: 2021-09-15
+Version: 1.0.2.9010
+Date: 2021-09-24
 Title: Bayesian Models for Data from Unmarked Animals using 'Stan'
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))
@@ -57,7 +57,7 @@ Collate:
     'occu.R'
     'colext.R'
     'missing.R'
-    'distamp.R'
+    'distsamp.R'
     'fitlist.R'
     'occuRN.R'
     'mb_chisq.R'
@@ -66,6 +66,7 @@ Collate:
     'pcount.R'
     'plot_marginal.R'
     'predict.R'
+    'priors.R'
     'ranef.R'
     'residuals.R'
     'spatial.R'

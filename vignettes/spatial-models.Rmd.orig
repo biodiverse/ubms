@@ -43,10 +43,6 @@ Currently all single-season models in `ubms` are supported.
 In addition to fitting RSRs, `ubms` also provides tools for applying and visualizing fitted spatial models.
 For now these features are available in the dev version of `ubms`, which you can install with the following code:
 
-```{r,eval=FALSE}
-install.packages("ubms", repos="https://kenkellner.com/R")
-```
-
 # Example
 
 We will adapt the demo code and dataset available in R package `stocc` to fit a spatial occupancy model, which will also facilitate a comparison between `stocc` and `ubms` results.
@@ -189,20 +185,18 @@ We also include two fixed detection and two fixed occupancy covariates.
 form <- ~detCov1 + detCov2 ~habCov1 + habCov2 + RSR(x, y, threshold=1)
 ```
 
-We will then fit the model in Stan with `stan_occu()`, first setting our desired number of parallel cores to use to 3.
+We will then fit the model in Stan with `stan_occu()`, using 3 parallel cores.
 This will take Stan a few minutes with default MCMC settings.
 
 ```{r, eval=FALSE}
-options(mc.cores=3)
-fit_ubms <- stan_occu(form, umf, chains=3)
+fit_ubms <- stan_occu(form, umf, chains=3, cores=3)
 ```
 
 ```{r, message=FALSE, echo=FALSE, warning=FALSE}
 if(file.exists("fit_ubms.Rds")){
   fit_ubms <- readRDS("fit_ubms.Rds")
 } else {
-  options(mc.cores=3)
-  fit_ubms <- stan_occu(form, umf, chains=3, refresh=0)
+  fit_ubms <- stan_occu(form, umf, chains=3, refresh=0, cores=3)
   saveRDS(fit_ubms, "fit_ubms.Rds")
 }
 ```

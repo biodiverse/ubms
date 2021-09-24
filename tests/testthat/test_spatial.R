@@ -128,6 +128,7 @@ test_that("has_spatial works on lists of formulas", {
 test_that("construction of ubmsSubmodelSpatial objects", {
   ex <- extract_missing_sites(umf)
   sm <- ubmsSubmodelSpatial("Test","test", ex$umf@siteCovs, ~1+RSR(x,y,1), "plogis",
+                            uniform(-5,5), normal(0,2.5),
                             ex$sites_augment, ex$data_aug)
   expect_is(sm, "ubmsSubmodelSpatial")
 })

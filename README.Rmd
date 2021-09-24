@@ -101,17 +101,15 @@ Create `unmarked` frame:
 umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
 ```
 
-Fit a model with a random intercept:
+Fit a model with a random intercept, using 3 parallel cores:
 
 ```{r, eval=FALSE}
-options(mc.cores=3) #number of parallel cores to use
-(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3))
+(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3, cores=3))
 ```
 
 ```{r, echo=FALSE, warning=FALSE}
 set.seed(123)
-options(mc.cores=3)
-(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3, refresh=0))
+(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3, cores=3, refresh=0))
 ```
 
 

@@ -6,6 +6,14 @@
 #' @param formula Double right-hand side formula describing covariates of
 #'  detection and abundance in that order
 #' @param data A \code{\link{unmarkedFrameMPois}} object
+#' @param prior_intercept_state Prior distribution for the intercept of the
+#'  state (abundance) model; see \code{?priors} for options
+#' @param prior_coef_state Prior distribution for the regression coefficients of
+#'  the state model
+#' @param prior_intercept_det Prior distribution for the intercept of the
+#'  detection probability model
+#' @param prior_coef_det Prior distribution for the regression coefficients of
+#'  the detection model
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
@@ -23,7 +31,13 @@
 #'
 #' @seealso \code{\link{multinomPois}}, \code{\link{unmarkedFrameMPois}}
 #' @export
-stan_multinomPois <- function(formula, data, ...){
+stan_multinomPois <- function(formula,
+                              data,
+                              prior_intercept_state = uniform(-5, 5),
+                              prior_coef_state = normal(0, 2.5),
+                              prior_intercept_det = uniform(-5, 5),
+                              prior_coef_det = normal(0, 2.5),
+                              ...){
 
   forms <- split_formula(formula)
   umf <- process_umf(data)
@@ -33,13 +47,16 @@ stan_multinomPois <- function(formula, data, ...){
     split_umf <- extract_missing_sites(umf)
     umf <- split_umf$umf
     state <- ubmsSubmodelSpatial("Abundance", "state", siteCovs(umf), forms[[2]],
-                                 "exp", split_umf$sites_augment, split_umf$data_aug)
+                                 "exp", prior_intercept_state, prior_coef_state,
+                                 split_umf$sites_augment, split_umf$data_aug)
   } else {
-    state <- ubmsSubmodel("Abundance", "state", siteCovs(umf), forms[[2]], "exp")
+    state <- ubmsSubmodel("Abundance", "state", siteCovs(umf), forms[[2]], "exp",
+                          prior_intercept_state, prior_coef_state)
   }
 
   response <- ubmsResponseMultinomPois(getY(umf), pifun_type, "P")
-  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]], "plogis")
+  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]], "plogis",
+                      prior_intercept_det, prior_coef_det)
   submodels <- ubmsSubmodelList(state, det)
 
   ubmsFit("multinomPois", match.call(), data, response, submodels, ...)

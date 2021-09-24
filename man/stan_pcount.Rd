@@ -4,7 +4,17 @@
 \alias{stan_pcount}
 \title{Fit the N-mixture model of Royle (2004)}
 \usage{
-stan_pcount(formula, data, K = NULL, mixture = "P", ...)
+stan_pcount(
+  formula,
+  data,
+  K = NULL,
+  mixture = "P",
+  prior_intercept_state = uniform(-5, 5),
+  prior_coef_state = normal(0, 2.5),
+  prior_intercept_det = uniform(-5, 5),
+  prior_coef_det = normal(0, 2.5),
+  ...
+)
 }
 \arguments{
 \item{formula}{Double right-hand side formula describing covariates of
@@ -17,6 +27,18 @@ set high enough so that it does not affect the parameter estimates.
 Note that computation time will increase with K.}
 
 \item{mixture}{Character specifying mixture: "P" is only option currently.}
+
+\item{prior_intercept_state}{Prior distribution for the intercept of the
+state (abundance) model; see \code{?priors} for options}
+
+\item{prior_coef_state}{Prior distribution for the regression coefficients of
+the state model}
+
+\item{prior_intercept_det}{Prior distribution for the intercept of the
+detection probability model}
+
+\item{prior_coef_det}{Prior distribution for the regression coefficients of
+the detection model}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}
