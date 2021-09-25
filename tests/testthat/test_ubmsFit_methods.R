@@ -117,3 +117,21 @@ test_that("getP method works for ubmsFit",{
   gp <- getP(fit)
   expect_equal(dim(gp), c(3,3,40))
 })
+
+test_that("get_elapsed_time method works for ubmsFit",{
+  et <- get_elapsed_time(fit)
+  expect_is(et, "matrix")
+  expect_equal(colnames(et), c("warmup","sample"))
+  expect_equal(rownames(et), c("chain:1","chain:2"))
+})
+
+test_that("get_runtime calculates runtime for display",{
+  fit2 <- fit
+  attr(fit2@stanfit@sim$samples[[1]],"elapsed_time") <- c(warmup=49,sample=50)
+  rt <- get_runtime(fit2)
+  expect_equal(rt, "99 sec")
+  attr(fit2@stanfit@sim$samples[[1]],"elapsed_time") <- c(warmup=100,sample=50)
+  expect_equal(get_runtime(fit2), "2.5 min")
+  attr(fit2@stanfit@sim$samples[[1]],"elapsed_time") <- c(warmup=10000,sample=50)
+  expect_equal(get_runtime(fit2), "2.792 hr")
+})

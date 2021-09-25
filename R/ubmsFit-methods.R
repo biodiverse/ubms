@@ -91,6 +91,8 @@ setMethod("show", "ubmsFit", function(object){
 
   cat(paste0("LOOIC: ", round(object@loo$estimates[3,1], 3)))
   cat("\n")
+  cat("Runtime:", get_runtime(object))
+  cat("\n")
 })
 
 get_link_name <- function(submodel){
@@ -220,3 +222,34 @@ setMethod("traceplot", "ubmsFit", function(object, ...){
   rstan::traceplot(object@stanfit, ...)
 })
 
+#' Get Model Runtime
+#'
+#' Get warmup and sampling time from a \code{ubmsFit} object
+#'
+#' @param object A \code{ubmsFit} object
+#' @param ... Arguments passed to \code{rstan::get_elapsed_time}
+#'
+#' @return A matrix with one row per chain and two columns, containing
+#'  the warmup time and sampling time, respectively, in seconds
+#'
+#' @importFrom rstan get_elapsed_time
+#' @export
+setMethod("get_elapsed_time", "ubmsFit", function(object, ...){
+  rstan::get_elapsed_time(object@stanfit, ...)
+})
+
+# Get total model runtime to display in output of show() method
+get_runtime <- function(object){
+  units <- 'sec'
+  chain_time <- get_elapsed_time(object)
+  total_time <- max(apply(chain_time, 1, sum))
+  if(total_time > 100){
+    units <- 'min'
+    total_time <- total_time / 60
+  }
+  if(total_time > 100){
+    units <- 'hr'
+    total_time <- total_time / 60
+  }
+  paste(round(total_time, 3), units)
+}
