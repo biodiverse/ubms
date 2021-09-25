@@ -141,7 +141,7 @@ plot(fm_fit)
 Look at the marginal effect of `x2` on detection:
 
 ```{r marginal}
-plot_marginal(fm, "det")
+plot_effects(fm, "det")
 ```
 
 A more detailed vignette for the package is available [here](https://kenkellner.com/blog/ubms-vignette.html).

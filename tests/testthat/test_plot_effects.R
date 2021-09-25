@@ -22,6 +22,22 @@ fit2 <- suppressWarnings(stan_occu(~1~1, umf,
 })
 skip_if(!good_fit, "Test setup failed")
 
+test_that("plot_effects creates gg or grid object",{
+  #Multiple covariates
+  pdf(NULL)
+  mp <- plot_effects(fit, "state")
+  expect_is(mp, "gtable")
+  #Submodel with single covariate
+  mp2 <- plot_effects(fit, "det")
+  expect_is(mp2, "gg")
+  #Specific covariate
+  mp3 <- plot_effects(fit, "state", "x1")
+  expect_is(mp3, "gg")
+  #No covariates
+  expect_error(plot_effects(fit2, "state"))
+  dev.off()
+})
+
 test_that("plot_marginal creates gg or grid object",{
   #Multiple covariates
   pdf(NULL)

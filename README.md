@@ -153,7 +153,7 @@ plot(fm_fit)
 Look at the marginal effect of `x2` on detection:
 
 ``` r
-plot_marginal(fm, "det")
+plot_effects(fm, "det")
 ```
 
 ![](README_figs/README-marginal-1.png)<!-- -->

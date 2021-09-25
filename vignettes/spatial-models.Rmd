@@ -271,11 +271,11 @@ The precision term (tau, $\tau$) associated with the spatial random effect is th
 Smaller values of $\tau$ imply greater variability in the spatial random effect.
 
 There also appears to be a strong effect of `habCov2` on occupancy.
-We can quickly visualize marginal effects of fixed covariates with `plot_marginal`.
+We can quickly visualize marginal effects of fixed covariates with `plot_effects`.
 
 
 ```r
-plot_marginal(fit_ubms, "state")
+plot_effects(fit_ubms, "state")
 ```
 
 ![](spatial_marginal-1.png)

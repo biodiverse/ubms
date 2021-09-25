@@ -1,4 +1,4 @@
-setGeneric("plot_marginal", function(object, ...) standardGeneric("plot_marginal"))
+setGeneric("plot_effects", function(object, ...) standardGeneric("plot_effects"))
 
 #' Plot Marginal Effects of Covariates
 #'
@@ -24,12 +24,11 @@ setGeneric("plot_marginal", function(object, ...) standardGeneric("plot_marginal
 #' @return A \code{ggplot} if a single covariate is plotted, or an object
 #'  of class \code{grob} if there are multiple covariates/panels
 #'
-#' @aliases plot_marginal
 #' @include fit.R
 #' @importFrom grid textGrob gpar
 #' @importFrom ggplot2 geom_errorbar
 #' @export
-setMethod("plot_marginal", "ubmsFit", function(object, submodel, covariate=NULL,
+setMethod("plot_effects", "ubmsFit", function(object, submodel, covariate=NULL,
                                                level=0.95, draws=1000, smooth=NULL, ...){
 
   sm <- object[submodel]
@@ -58,6 +57,15 @@ setMethod("plot_marginal", "ubmsFit", function(object, submodel, covariate=NULL,
   gridExtra::grid.arrange(grobs=plots, nrow=dims[1], ncol=dims[2],
                           left=grid::textGrob(sm@name, rot=90, vjust=0.5,
                           gp=grid::gpar(fontsize=14)))
+})
+
+setGeneric("plot_marginal", function(object, ...) standardGeneric("plot_marginal"))
+
+#' @rdname plot_effects-ubmsFit-method
+#' @export
+setMethod("plot_marginal", "ubmsFit", function(object, submodel, covariate=NULL,
+                                               level=0.95, draws=1000, smooth=NULL, ...){
+  plot_effects(object, submodel, covariate, level, draws, smooth, ...)
 })
 
 marginal_covariate_plot <- function(object, submodel, covariate, level=0.95,

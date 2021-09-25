@@ -371,11 +371,11 @@ abline(v=actual_prop0, col='red', lwd=2)
 
 Based on the 95% uncertainty intervals, both forest and elevation have a positive effect on occupancy probability (both intervals do not contain 0).
 Similarly, Julian date has a positive impact on detection probability.
-We can quickly visualize these marginal covariate effects with the `plot_marginal` function:
+We can quickly visualize these marginal covariate effects with the `plot_effects` function:
 
 ```{r}
-plot_marginal(fit_top, "state")
-plot_marginal(fit_top, "det")
+plot_effects(fit_top, "state")
+plot_effects(fit_top, "det")
 ```
 
 ### Predict parameter values

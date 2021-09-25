@@ -64,7 +64,7 @@ Collate:
     'multinomPois.R'
     'occuTTD.R'
     'pcount.R'
-    'plot_marginal.R'
+    'plot_effects.R'
     'predict.R'
     'priors.R'
     'ranef.R'
