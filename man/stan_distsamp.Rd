@@ -10,9 +10,9 @@ stan_distsamp(
   keyfun = c("halfnorm", "exp", "hazard"),
   output = c("density", "abund"),
   unitsOut = c("ha", "kmsq"),
-  prior_intercept_state = uniform(-5, 5),
+  prior_intercept_state = normal(0, 5),
   prior_coef_state = normal(0, 2.5),
-  prior_intercept_det = uniform(-5, 5),
+  prior_intercept_det = normal(0, 5),
   prior_coef_det = normal(0, 2.5),
   prior_intercept_scale = normal(0, 2.5),
   ...

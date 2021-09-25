@@ -10,14 +10,14 @@ stan_colext(
   epsilonformula = ~1,
   pformula = ~1,
   data,
-  prior_intercept_psi = uniform(-5, 5),
-  prior_coef_psi = normal(0, 2.5),
-  prior_intercept_gamma = uniform(-5, 5),
-  prior_coef_gamma = normal(0, 2.5),
-  prior_intercept_eps = uniform(-5, 5),
-  prior_coef_eps = normal(0, 2.5),
-  prior_intercept_det = uniform(-5, 5),
-  prior_coef_det = normal(0, 2.5),
+  prior_intercept_psi = logistic(0, 1),
+  prior_coef_psi = logistic(0, 1),
+  prior_intercept_gamma = logistic(0, 1),
+  prior_coef_gamma = logistic(0, 1),
+  prior_intercept_eps = logistic(0, 1),
+  prior_coef_eps = logistic(0, 1),
+  prior_intercept_det = logistic(0, 1),
+  prior_coef_det = logistic(0, 1),
   ...
 )
 }

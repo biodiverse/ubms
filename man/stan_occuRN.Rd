@@ -8,10 +8,10 @@ stan_occuRN(
   formula,
   data,
   K = 20,
-  prior_intercept_state = uniform(-5, 5),
+  prior_intercept_state = normal(0, 5),
   prior_coef_state = normal(0, 2.5),
-  prior_intercept_det = uniform(-5, 5),
-  prior_coef_det = normal(0, 2.5),
+  prior_intercept_det = logistic(0, 1),
+  prior_coef_det = logistic(0, 1),
   ...
 )
 }

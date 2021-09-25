@@ -58,6 +58,26 @@ student_t <- function(df=1, location=0, scale=2.5, autoscale=TRUE){
   list(dist=3, par1=location, par2=scale, par3=df, autoscale=autoscale)
 }
 
+#' @rdname priors
+#' @export
+logistic <- function(location=0, scale=1){
+    stopifnot(all(scale > 0))
+  if((length(location) > 1) & (length(scale) > 1)){
+    stopifnot(length(location) == length(scale))
+  }
+  list(dist=4, par1=location, par2=scale, par3=0, autoscale=FALSE)
+}
+
+#' @rdname priors
+#' @export
+cauchy <- function(location=0, scale=2.5, autoscale=TRUE){
+  stopifnot(all(scale > 0))
+  if((length(location) > 1) & (length(scale) > 1)){
+    stopifnot(length(location) == length(scale))
+  }
+  list(dist=3, par1=location, par2=scale, par3=1, autoscale=autoscale)
+}
+
 null_prior <- function(){
   list(dist=0, par1=0, par2=0, par3=0, autoscale=FALSE)
 }

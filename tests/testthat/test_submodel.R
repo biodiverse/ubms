@@ -168,6 +168,17 @@ test_that("model.matrix handles functions in formulas", {
   expect_equal(model.matrix(sm, covs), ref)
 })
 
+test_that("model.matrix warns on unstandardized covariates",{
+  covs <- data.frame(x1=c(1,2,2),x2=c(3,4,5))
+  sm <- ubmsSubmodel("Det", "det", covs, ~x1, "plogis", pri, prc)
+  expect_warning(model.matrix(sm), regexp=NA)
+  expect_warning(model.matrix(sm, warn=TRUE), regexp=NA)
+
+  sm2 <- ubmsSubmodel("Det", "det", covs, ~x2, "plogis", pri, prc)
+  expect_warning(model.matrix(sm2), regexp=NA)
+  expect_warning(model.matrix(sm2, warn=TRUE))
+})
+
 test_that("get_xlev gets levels from factor columns",{
   ref_df <- data.frame(x1=factor(c("a","a","b")),x2=c(1,2,3),
                       x3=factor(c("c","d","e")))

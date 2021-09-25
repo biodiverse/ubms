@@ -114,7 +114,7 @@ test_that("stan_distsamp produces accurate results",{
 
   stan_mod <- suppressWarnings(stan_distsamp(~1~1, ptUMF_big, keyfun="exp",
                                              chains=2, iter=200, refresh=0))
-  expect_RMSE(coef(stan_mod), c(4.935159, 2.083168), 0.01)
+  expect_RMSE(coef(stan_mod), c(4.9806, 2.0597), 0.05)
   #unmarked model fails here
 
   #Need hazard tests here at some point, maybe when I can speed it up

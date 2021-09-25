@@ -87,11 +87,11 @@ test_that("stan_multinomPois produces accurate results",{
   #similar to unmarked
   expect_RMSE(coef(fit_double_long), coef(um_double), 0.01)
   #similar to previous known values
-  expect_RMSE(coef(fit_double_long), c(2.23301,0.11582,0.16478,-0.58345), 0.01)
+  expect_RMSE(coef(fit_double_long), c(2.2268,0.1133,0.1853,-0.5620), 0.05)
 
   #Removal
   expect_RMSE(coef(fit_rem_long), coef(um_rem),  0.03)
-  expect_RMSE(coef(fit_rem_long), c(0.096821,0.17626,0.28672), 0.01)
+  expect_RMSE(coef(fit_rem_long), c(0.11398,0.17389,0.26453), 0.05)
 })
 
 test_that("stan_multinomPois handles NA values",{

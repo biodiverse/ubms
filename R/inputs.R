@@ -104,7 +104,7 @@ setMethod("get_stan_data", "ubmsSubmodel", function(object, ...){
   has_rand <- has_random(object)
   n_random <- get_nrandom(object@formula, object@data)
   Zinfo <- get_sparse_Z(Z_matrix(object, na.rm=TRUE))
-  X <- model.matrix(object, na.rm=TRUE)
+  X <- model.matrix(object, na.rm=TRUE, warn=TRUE)
   priors <- process_priors(object)
   off <- model_offset(object, na.rm=TRUE)
   out <- list(X=X, offset=off, n_obs=nrow(X), n_fixed=ncol(X),

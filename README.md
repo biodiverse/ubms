@@ -118,17 +118,17 @@ Fit a model with a random intercept, using 3 parallel cores:
     ##     cores = 3, refresh = 0)
     ## 
     ## Occupancy (logit-scale):
-    ##                 Estimate    SD   2.5%  97.5% n_eff  Rhat
-    ## (Intercept)        0.335 0.306 -0.272  0.935   574 1.004
-    ## x1                -0.466 0.116 -0.692 -0.239  4147 0.999
-    ## sigma [1|group]    1.394 0.283  0.948  2.032  1822 1.001
+    ##                 Estimate    SD   2.5%  97.5% n_eff Rhat
+    ## (Intercept)        0.317 0.294 -0.259  0.900   668    1
+    ## x1                -0.461 0.119 -0.693 -0.229  4502    1
+    ## sigma [1|group]    1.388 0.277  0.929  2.018  1982    1
     ## 
     ## Detection (logit-scale):
-    ##             Estimate     SD  2.5% 97.5% n_eff Rhat
-    ## (Intercept)    0.382 0.0603 0.265 0.501  4575    1
-    ## x2             0.589 0.0623 0.465 0.712  4637    1
+    ##             Estimate     SD  2.5% 97.5% n_eff  Rhat
+    ## (Intercept)    0.382 0.0592 0.268 0.496  5380 1.000
+    ## x2             0.586 0.0615 0.469 0.710  4311 0.999
     ## 
-    ## LOOIC: 2267.638
+    ## LOOIC: 2267.997
 
 Examine residuals for occupancy and detection submodels (following
 [Wright et al. 2019](https://doi.org/10.1002/ecy.2703)). Each panel

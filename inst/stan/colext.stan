@@ -228,6 +228,8 @@ if(prior_dist_col[1] == 1){
 } else if(prior_dist_col[1] == 3){
   beta_col[1] ~ student_t(prior_pars_col[3,1], prior_pars_col[1,1],
                           prior_pars_col[2,1]);
+} else if(prior_dist_col[1] == 4){
+  beta_col[1] ~ logistic(prior_pars_col[1,1], prior_pars_col[2,1]);
 }
 
 if(prior_dist_col[2] == 1){
@@ -240,6 +242,9 @@ if(prior_dist_col[2] == 1){
   beta_col[ind_col:n_fixed_col] ~ student_t(prior_pars_col[3,ind_col:n_fixed_col],
                                             prior_pars_col[1,ind_col:n_fixed_col],
                                             prior_pars_col[2,ind_col:n_fixed_col]);
+} else if(prior_dist_col[2] == 4){
+  beta_col[ind_col:n_fixed_col] ~ logistic(prior_pars_col[1,ind_col:n_fixed_col],
+                                           prior_pars_col[2,ind_col:n_fixed_col]);
 }
 
 if(prior_dist_ext[1] == 1){
@@ -249,6 +254,8 @@ if(prior_dist_ext[1] == 1){
 } else if(prior_dist_ext[1] == 3){
   beta_ext[1] ~ student_t(prior_pars_ext[3,1], prior_pars_ext[1,1],
                           prior_pars_ext[2,1]);
+} else if(prior_dist_ext[1] == 4){
+  beta_ext[1] ~ logistic(prior_pars_ext[1,1], prior_pars_ext[2,1]);
 }
 
 if(prior_dist_ext[2] == 1){
@@ -261,6 +268,9 @@ if(prior_dist_ext[2] == 1){
   beta_ext[ind_ext:n_fixed_ext] ~ student_t(prior_pars_ext[3,ind_ext:n_fixed_ext],
                                             prior_pars_ext[1,ind_ext:n_fixed_ext],
                                             prior_pars_ext[2,ind_ext:n_fixed_ext]);
+} else if(prior_dist_ext[2] == 4){
+  beta_ext[ind_ext:n_fixed_ext] ~ logistic(prior_pars_ext[1,ind_ext:n_fixed_ext],
+                                           prior_pars_ext[2,ind_ext:n_fixed_ext]);
 }
 
 target += sum(log_lik);

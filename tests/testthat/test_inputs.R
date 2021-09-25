@@ -63,7 +63,7 @@ test_that("dist_code returns integer code for distribution", {
 })
 
 test_that("get_stan_data pulls necessary info from submodel",{
-  sc <- data.frame(x1=1:5)
+  sc <- data.frame(x1=-1:3)
   submod <- ubmsSubmodel("Occ", "state", sc, ~x1, "plogis",
                          uniform(-5,5), normal(0,2.5))
   dat <- get_stan_data(submod)

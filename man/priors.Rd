@@ -5,6 +5,8 @@
 \alias{normal}
 \alias{uniform}
 \alias{student_t}
+\alias{logistic}
+\alias{cauchy}
 \title{Prior distributions}
 \usage{
 normal(location = 0, scale = 2.5, autoscale = TRUE)
@@ -12,6 +14,10 @@ normal(location = 0, scale = 2.5, autoscale = TRUE)
 uniform(lower = -5, upper = 5)
 
 student_t(df = 1, location = 0, scale = 2.5, autoscale = TRUE)
+
+logistic(location = 0, scale = 1)
+
+cauchy(location = 0, scale = 2.5, autoscale = TRUE)
 }
 \arguments{
 \item{location}{The mean of the distribution. If setting the priors for

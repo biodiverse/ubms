@@ -87,11 +87,18 @@ setMethod("model_frame", "ubmsSubmodel",
 })
 
 setMethod("model.matrix", "ubmsSubmodel",
-          function(object, newdata=NULL, na.rm=FALSE, ...){
+          function(object, newdata=NULL, na.rm=FALSE, warn=FALSE, ...){
   mf <- model_frame(object, newdata)
   formula <- lme4::nobars(object@formula)
   out <- model.matrix(formula, mf)
   if(na.rm) out <- out[!object@missing,,drop=FALSE]
+  if(warn){
+    max_cov <- max(out, na.rm=TRUE)
+    if(max_cov > 3){
+      warning(paste0("Covariates possibly not standardized (max value = ", max_cov,
+                    ").\nStandardizing covariates is highly recommended."), call.=FALSE)
+    }
+  }
   out
 })
 

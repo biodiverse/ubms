@@ -33,6 +33,30 @@ test_that("student t prior can be specified",{
   expect_error(student_t(1, c(0,0), c(1,2,3)))
 })
 
+test_that("logistic prior can be specified",{
+  p <- logistic()
+  expect_equal(p, list(dist=4, par1=0, par2=1, par3=0, autoscale=FALSE))
+  p <- logistic(2, 0.5)
+  expect_equal(p, list(dist=4, par1=2, par2=0.5, par3=0, autoscale=FALSE))
+  p <- logistic(c(0.5,1), c(0.1,0.2))
+  expect_equal(p, list(dist=4, par1=c(0.5,1), par2=c(0.1,0.2), par3=0, autoscale=FALSE))
+  p <- logistic(c(0.5,1), 0.1) # no error
+  expect_error(logistic(c(0.5,1), c(0.1,0.2,0.3)))
+  expect_error(logistic(0.5, -0.2))
+})
+
+test_that("cauchy prior can be specified",{
+  n <- cauchy()
+  expect_equal(n, list(dist=3, par1=0, par2=2.5, par3=1, autoscale=TRUE))
+  n <- cauchy(2, 0.5, autoscale=FALSE)
+  expect_equal(n, list(dist=3, par1=2, par2=0.5, par3=1, autoscale=FALSE))
+  n <- cauchy(c(0.5,1), c(0.1,0.2))
+  expect_equal(n, list(dist=3, par1=c(0.5,1), par2=c(0.1,0.2), par3=1, autoscale=TRUE))
+  n <- cauchy(c(0.5,1), 0.1) # no error
+  expect_error(cauchy(c(0.5,1), c(0.1,0.2,0.3)))
+  expect_error(cauchy(0.5, -0.2))
+})
+
 test_that("null prior can be specified",{
   expect_equal(null_prior(), list(dist=0, par1=0, par2=0, par3=0, autoscale=FALSE))
 })
