@@ -135,3 +135,16 @@ test_that("get_runtime calculates runtime for display",{
   attr(fit2@stanfit@sim$samples[[1]],"elapsed_time") <- c(warmup=10000,sample=50)
   expect_equal(get_runtime(fit2), "2.792 hr")
 })
+
+test_that("plot_effects creates gg or grid object",{
+  #Multiple covariates
+  pdf(NULL)
+  mp <- plot_posteriors(fit)
+  expect_is(mp, "gg")
+  mp2 <- plot_posteriors(fit, density=TRUE)
+  expect_is(mp2, "gg")
+  mp3 <- plot_posteriors(fit, "lp__")
+  expect_is(mp3, "gg")
+  expect_error(plot_posteriors(fit, pars="fake"))
+  dev.off()
+})

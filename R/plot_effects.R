@@ -24,6 +24,7 @@ setGeneric("plot_effects", function(object, ...) standardGeneric("plot_effects")
 #' @return A \code{ggplot} if a single covariate is plotted, or an object
 #'  of class \code{grob} if there are multiple covariates/panels
 #'
+#' @aliases plot_effects plot_marginal
 #' @include fit.R
 #' @importFrom grid textGrob gpar
 #' @importFrom ggplot2 geom_errorbar

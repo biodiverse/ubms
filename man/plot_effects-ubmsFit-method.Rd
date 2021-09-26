@@ -2,6 +2,8 @@
 % Please edit documentation in R/plot_effects.R
 \name{plot_effects,ubmsFit-method}
 \alias{plot_effects,ubmsFit-method}
+\alias{plot_effects}
+\alias{plot_marginal}
 \alias{plot_marginal,ubmsFit-method}
 \title{Plot Marginal Effects of Covariates}
 \usage{
