@@ -295,4 +295,7 @@ test_that("multinomPois spatial works", {
                 umf2[1:20,], chains=2, iter=100, refresh=0)))
   expect_is(fit_spat@submodels@submodels$state, "ubmsSubmodelSpatial")
   expect_equal(names(coef(fit_spat))[3], "state[RSR [tau]]")
+
+  ps <- plot_spatial(fit_spat)
+  expect_is(ps, "gg")
 })

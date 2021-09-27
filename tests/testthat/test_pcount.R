@@ -199,6 +199,9 @@ test_that("pcount spatial works", {
   expect_is(fit_spat@submodels@submodels$state, "ubmsSubmodelSpatial")
   expect_equal(names(coef(fit_spat))[3], "state[RSR [tau]]")
 
+  ps <- plot_spatial(fit_spat)
+  expect_is(ps, "gg")
+
   # With offsets
   umf2@siteCovs$area <- runif(numSites(umf2), 0, 1)
   fit_spat <- suppressMessages(suppressWarnings(stan_pcount(~1~x1+offset(area) + RSR(x,y,1),

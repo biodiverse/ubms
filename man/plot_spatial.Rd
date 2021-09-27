@@ -4,7 +4,7 @@
 \alias{plot_spatial}
 \title{Plot A Map of the State Parameter Based on a Spatial ubms Model}
 \usage{
-plot_spatial(object, param = c("state", "eta"), sites = TRUE)
+plot_spatial(object, param = c("state", "eta"), sites = TRUE, cell_size = NULL)
 }
 \arguments{
 \item{object}{A \code{ubmsFit} model with a spatial random effect}
@@ -14,6 +14,10 @@ mean occupancy or abundance, or \code{"eta"} for the random effect itself}
 
 \item{sites}{If \code{TRUE}, also plot the locations of sites that
 were sampled on the map and if had a detection of the species}
+
+\item{cell_size}{The size of each side of the (square) cells drawn in the map,
+in the same units as the coordinates. If \code{NULL}, \code{ubms} will try
+to pick a reasonable cell size for you}
 }
 \description{
 Plot A Map of the State Parameter Based on a Spatial ubms Model

@@ -233,12 +233,15 @@ setMethod("stanfit_names", "ubmsSubmodelSpatial", function(object, ...){
 #'  mean occupancy or abundance, or \code{"eta"} for the random effect itself
 #' @param sites If \code{TRUE}, also plot the locations of sites that
 #'  were sampled on the map and if had a detection of the species
+#' @param cell_size The size of each side of the (square) cells drawn in the map,
+#'  in the same units as the coordinates. If \code{NULL}, \code{ubms} will try
+#'  to pick a reasonable cell size for you
 #'
 #' @importFrom ggplot2 geom_tile scale_fill_gradientn scale_x_continuous
 #' @importFrom ggplot2 scale_y_continuous scale_color_manual
 #' @importFrom grDevices terrain.colors
 #' @export
-plot_spatial <- function(object, param=c('state','eta'), sites=TRUE){
+plot_spatial <- function(object, param=c('state','eta'), sites=TRUE, cell_size=NULL){
   if(!inherits(object, "ubmsFit")){
     stop("Requires ubmsFit object", call.=FALSE)
   }
@@ -251,11 +254,20 @@ plot_spatial <- function(object, param=c('state','eta'), sites=TRUE){
   nms <- colnames(coords)
   sampled <- !sm@sites_aug
 
+  if(is.null(cell_size)){
+    pd <- as.matrix(stats::dist(coords))
+    diag(pd) <- NA
+    min_dist <- apply(pd, 1, min, na.rm=TRUE)
+    cell_size <- mean(min_dist, na.rm=TRUE)
+  }
+
   if(param == "state"){
     est_raw <- predict(object, "state")$Predicted
     est <- c(est_raw[sampled], est_raw[!sampled])
-    if(inherits(object, "ubmsFitOccu")) param <- "psi"
-  } else{
+    param <- "lambda"
+    if(inherits(object, c("ubmsFitOccu","ubmsFitOccuTTD"))) param <- "psi"
+    if(inherits(object, "ubmsFitOccuRN")) param <- "lambda"
+  } else if(param == "eta"){
     b <- extract(object, "b_state")$b_state
     Kmat <- spatial_matrices(sm)$Kmat
     est <- Kmat %*% colMeans(b)
@@ -263,7 +275,7 @@ plot_spatial <- function(object, param=c('state','eta'), sites=TRUE){
   plot_data <- cbind(as.data.frame(coords), est=est)
 
   out <- ggplot(data=plot_data, aes_string(x=nms[1], y=nms[2])) +
-    geom_tile(aes_string(fill=est)) +
+    geom_tile(aes_string(fill="est"), width=cell_size, height=cell_size) +
     scale_fill_gradientn(colors=terrain.colors(10)) +
     labs(fill=param) +
     plot_theme() +
@@ -271,12 +283,22 @@ plot_spatial <- function(object, param=c('state','eta'), sites=TRUE){
 
   if(sites){
     coords_samp <- as.data.frame(coords)[1:nrow(sm@data),]
-    coords_samp$obs <- factor(get_Kmin(object@response))
-    out <- out + geom_point(data=coords_samp, aes_string(col="obs"),
+    coords_samp$obs <- get_Kmin(object@response)
+    if(inherits(object, "ubmsFitOccuTTD")){
+      coords_samp$obs <- as.numeric(coords_samp$obs < object@response@surveyLength)
+    }
+
+    if(inherits(object, c("ubmsFitOccu","ubmsFitOccuTTD","ubmsFitOccuRN"))){
+      coords_samp$obs <- factor(coords_samp$obs)
+      out <- out + geom_point(data=coords_samp, aes_string(col="obs"),
                             size=1, pch=19) +
-      scale_color_manual(values=c("gray","black")) +
-      labs(color="Detected")
+        scale_color_manual(values=c("gray","black")) +
+        labs(color="Detected")
+    } else {
+      out <- out + geom_point(data=coords_samp, aes_string(size="obs"), pch=19) +
+        #scale_color_manual(values=c("gray","black")) +
+        labs(size="Minimum\ncount")
+    }
   }
   out
 }
-

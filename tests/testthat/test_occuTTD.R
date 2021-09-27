@@ -207,4 +207,7 @@ test_that("occuTTD spatial works", {
 
   expect_is(fit_spat@submodels@submodels$state, "ubmsSubmodelSpatial")
   expect_equal(names(coef(fit_spat))[3], "state[RSR [tau]]")
+
+  ps <- plot_spatial(fit_spat)
+  expect_is(ps, "gg")
 })
