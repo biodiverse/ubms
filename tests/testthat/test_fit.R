@@ -1,8 +1,6 @@
 context("Build ubmsFit object")
 
-on_mac <- tolower(Sys.info()[["sysname"]]) == "darwin"
-on_cran <- !identical(Sys.getenv("NOT_CRAN"), "true")
-skip_if(on_mac & on_cran, "On CRAN mac")
+skip_on_cran()
 
 #Set up a submodel list
 covs <- data.frame(x1=rnorm(3), x2=factor(c("a","b","c")),
