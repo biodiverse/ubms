@@ -1,8 +1,6 @@
 context("ubmsFit ranef method")
 
-on_mac <- tolower(Sys.info()[["sysname"]]) == "darwin"
-on_cran <- !identical(Sys.getenv("NOT_CRAN"), "true")
-skip_if(on_mac & on_cran, "On CRAN mac")
+skip_on_cran()
 
 #Setup umf
 set.seed(123)

@@ -242,7 +242,11 @@ setMethod("get_elapsed_time", "ubmsFit", function(object, ...){
 get_runtime <- function(object){
   units <- 'sec'
   chain_time <- get_elapsed_time(object)
-  total_time <- max(apply(chain_time, 1, sum))
+  if(was_parallel(object)){
+    total_time <- max(apply(chain_time, 1, sum))
+  } else {
+    total_time <- sum(chain_time)
+  }
   if(total_time > 100){
     units <- 'min'
     total_time <- total_time / 60
@@ -251,5 +255,12 @@ get_runtime <- function(object){
     units <- 'hr'
     total_time <- total_time / 60
   }
-  paste(round(total_time, 3), units)
+  paste(sprintf("%.3f", round(total_time, 3)), units)
+}
+
+# Check if chains were run in parallel
+was_parallel <- function(object){
+  if(!is.null(object@call$cores) && object@call$cores > 1) return(TRUE)
+  if(getOption("mc.cores", 1L) > 1) return(TRUE)
+  FALSE
 }

@@ -1,8 +1,6 @@
 context("ubmsFit methods")
 
-on_mac <- tolower(Sys.info()[["sysname"]]) == "darwin"
-on_cran <- !identical(Sys.getenv("NOT_CRAN"), "true")
-skip_if(on_mac & on_cran, "On CRAN mac")
+skip_on_cran()
 
 #Setup umf
 set.seed(123)
@@ -127,13 +125,20 @@ test_that("get_elapsed_time method works for ubmsFit",{
 
 test_that("get_runtime calculates runtime for display",{
   fit2 <- fit
+  options(mc.cores=2)
   attr(fit2@stanfit@sim$samples[[1]],"elapsed_time") <- c(warmup=49,sample=50)
   rt <- get_runtime(fit2)
-  expect_equal(rt, "99 sec")
+  expect_equal(rt, "99.000 sec")
   attr(fit2@stanfit@sim$samples[[1]],"elapsed_time") <- c(warmup=100,sample=50)
-  expect_equal(get_runtime(fit2), "2.5 min")
+  expect_equal(get_runtime(fit2), "2.500 min")
   attr(fit2@stanfit@sim$samples[[1]],"elapsed_time") <- c(warmup=10000,sample=50)
   expect_equal(get_runtime(fit2), "2.792 hr")
+
+  # non-parallel
+  options(mc.cores=1)
+  attr(fit2@stanfit@sim$samples[[1]],"elapsed_time") <- c(warmup=10,sample=10)
+  attr(fit2@stanfit@sim$samples[[2]],"elapsed_time") <- c(warmup=10,sample=10)
+  expect_equal(get_runtime(fit2), "40.000 sec")
 })
 
 test_that("plot_effects creates gg or grid object",{

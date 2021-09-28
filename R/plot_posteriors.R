@@ -25,7 +25,7 @@ setGeneric("plot_posteriors", function(object, ...) standardGeneric("plot_poster
 #' @export
 setMethod("plot_posteriors", "ubmsFit", function(object, pars=NULL, density=FALSE, ...){
 
-  if(is.null(pars)) pars <- names(object)
+  if(is.null(pars)) pars <- names(object)[!grepl("b_", names(object))]
 
   not_in_mod <- ! pars %in% names(object@stanfit)
   if(any(not_in_mod)){
