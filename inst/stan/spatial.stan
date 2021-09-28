@@ -7,6 +7,7 @@ functions{
 #include /include/functions_distsamp.stan
 #include /include/functions_multinomPois.stan
 #include /include/functions_occuTTD.stan
+#include /include/functions_priors.stan
 
 // Source for this function:
 // Clark A, Altwegg R. 2019. Efficient Bayesian analysis of occupancy models
@@ -53,15 +54,11 @@ transformed data{
 
 matrix[M+n_aug_sites,n_fixed_state] X_state_all;
 vector[M+n_aug_sites] offset_state_all;
-int ind_state;
-int ind_det;
 int include_scale;
 int include_shape;
 
 X_state_all = append_row(X_state, X_aug);
 offset_state_all = append_row(offset_state, offset_aug);
-ind_state = prior_dist_state[1] == 0 ? 1 : 2;
-ind_det = prior_dist_det[1] == 0 ? 1 : 2;
 
 include_scale = prior_dist_scale[1] == 0 ? 0 : 1;
 include_shape = prior_dist_shape[1] == 0 ? 0 : 1;

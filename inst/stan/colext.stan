@@ -1,5 +1,7 @@
 functions{
 
+#include /include/functions_priors.stan
+
 //can shortcut here I think
 vector get_pY(int[] y, vector logit_p, int nd){
   vector[2] out;
@@ -106,10 +108,6 @@ matrix[3, n_fixed_ext] prior_pars_ext;
 transformed data{
 
 int no_detects[M, T];
-int ind_state;
-int ind_det;
-int ind_col;
-int ind_ext;
 int include_scale;
 int include_shape;
 
@@ -118,11 +116,6 @@ for (m in 1:M){
     no_detects[m, t] = 1 - Kmin[m, t];
   }
 }
-
-ind_state = prior_dist_state[1] == 0 ? 1 : 2;
-ind_det = prior_dist_det[1] == 0 ? 1 : 2;
-ind_col = prior_dist_col[1] == 0 ? 1 : 2;
-ind_ext = prior_dist_ext[1] == 0 ? 1 : 2;
 
 include_scale = 0;
 include_shape = 0;
@@ -203,6 +196,7 @@ model{
 
 #include /include/rand_priors_single_season.stan
 
+idx = 1;
 if(has_random_col){
   for (i in 1:n_group_vars_col){
     b_col[idx:(n_random_col[i]+idx-1)] ~ normal(0, sigma_col[i]);
@@ -218,60 +212,9 @@ if(has_random_ext){
   }
 }
 
-
 #include /include/fixed_priors_single_season.stan
-
-if(prior_dist_col[1] == 1){
-  beta_col[1] ~ normal(prior_pars_col[1,1], prior_pars_col[2,1]);
-} else if(prior_dist_col[1] == 2){
-  beta_col[1] ~ uniform(prior_pars_col[1,1], prior_pars_col[2,1]);
-} else if(prior_dist_col[1] == 3){
-  beta_col[1] ~ student_t(prior_pars_col[3,1], prior_pars_col[1,1],
-                          prior_pars_col[2,1]);
-} else if(prior_dist_col[1] == 4){
-  beta_col[1] ~ logistic(prior_pars_col[1,1], prior_pars_col[2,1]);
-}
-
-if(prior_dist_col[2] == 1){
-  beta_col[ind_col:n_fixed_col] ~ normal(prior_pars_col[1,ind_col:n_fixed_col],
-                                           prior_pars_col[2,ind_col:n_fixed_col]);
-} else if(prior_dist_col[2] == 2){
-  beta_col[ind_col:n_fixed_col] ~ uniform(prior_pars_col[1,ind_col:n_fixed_col],
-                                          prior_pars_col[2,ind_col:n_fixed_col]);
-} else if(prior_dist_col[2] == 3){
-  beta_col[ind_col:n_fixed_col] ~ student_t(prior_pars_col[3,ind_col:n_fixed_col],
-                                            prior_pars_col[1,ind_col:n_fixed_col],
-                                            prior_pars_col[2,ind_col:n_fixed_col]);
-} else if(prior_dist_col[2] == 4){
-  beta_col[ind_col:n_fixed_col] ~ logistic(prior_pars_col[1,ind_col:n_fixed_col],
-                                           prior_pars_col[2,ind_col:n_fixed_col]);
-}
-
-if(prior_dist_ext[1] == 1){
-  beta_ext[1] ~ normal(prior_pars_ext[1,1], prior_pars_ext[2,1]);
-} else if(prior_dist_ext[1] == 2){
-  beta_ext[1] ~ uniform(prior_pars_ext[1,1], prior_pars_ext[2,1]);
-} else if(prior_dist_ext[1] == 3){
-  beta_ext[1] ~ student_t(prior_pars_ext[3,1], prior_pars_ext[1,1],
-                          prior_pars_ext[2,1]);
-} else if(prior_dist_ext[1] == 4){
-  beta_ext[1] ~ logistic(prior_pars_ext[1,1], prior_pars_ext[2,1]);
-}
-
-if(prior_dist_ext[2] == 1){
-  beta_ext[ind_ext:n_fixed_ext] ~ normal(prior_pars_ext[1,ind_ext:n_fixed_ext],
-                                         prior_pars_ext[2,ind_ext:n_fixed_ext]);
-} else if(prior_dist_ext[2] == 2){
-  beta_ext[ind_ext:n_fixed_ext] ~ uniform(prior_pars_ext[1,ind_ext:n_fixed_ext],
-                                          prior_pars_ext[2,ind_ext:n_fixed_ext]);
-} else if(prior_dist_ext[2] == 3){
-  beta_ext[ind_ext:n_fixed_ext] ~ student_t(prior_pars_ext[3,ind_ext:n_fixed_ext],
-                                            prior_pars_ext[1,ind_ext:n_fixed_ext],
-                                            prior_pars_ext[2,ind_ext:n_fixed_ext]);
-} else if(prior_dist_ext[2] == 4){
-  beta_ext[ind_ext:n_fixed_ext] ~ logistic(prior_pars_ext[1,ind_ext:n_fixed_ext],
-                                           prior_pars_ext[2,ind_ext:n_fixed_ext]);
-}
+target += lp_priors(beta_col, prior_dist_col, prior_pars_col);
+target += lp_priors(beta_ext, prior_dist_ext, prior_pars_ext);
 
 target += sum(log_lik);
 

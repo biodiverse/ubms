@@ -1,0 +1,34 @@
+real lp_single_prior(vector x, int dist, row_vector pars1,
+                     row_vector pars2, row_vector pars3){
+  real out = 0.0;
+  if(dist == 1){
+    out += normal_lpdf(x | pars1, pars2);
+  } else if(dist == 2){
+    out += uniform_lpdf(x | pars1, pars2);
+  } else if(dist == 3){
+    out += student_t_lpdf(x | pars1, pars2, pars3);
+  } else if(dist == 4){
+    out += logistic_lpdf(x | pars1, pars2);
+  }
+  return out;
+}
+
+
+real lp_priors(vector beta, int[] dist, matrix pars){
+
+  int idx;
+  real out = 0.0;
+  int nb = num_elements(beta);
+  if(nb == 0) return out;
+  idx = dist[1] == 0 ? 1 : 2;
+
+  // intercept
+  out += lp_single_prior(beta[1:1], dist[1], pars[1,1:1],
+                         pars[2,1:1], pars[3,1:1]);
+
+  // regression coefficients
+  out += lp_single_prior(beta[idx:nb], dist[2], pars[1,idx:nb],
+                         pars[2,idx:nb], pars[3,idx:nb]);
+
+  return out;
+}
