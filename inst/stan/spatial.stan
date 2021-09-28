@@ -103,8 +103,7 @@ if(include_shape){
 
 model{
 
-#include /include/rand_priors_single_season.stan
-#include /include/fixed_priors_single_season.stan
+#include /include/priors_single_season.stan
 
 tau ~ gamma(0.5, 0.005);
 b_state ~ theta(tau, Qalpha, n_eigen);

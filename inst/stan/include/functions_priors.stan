@@ -32,3 +32,16 @@ real lp_priors(vector beta, int[] dist, matrix pars){
 
   return out;
 }
+
+real lp_random_prior(int has_random, int n_group_vars, vector b,
+                     int[] n_random, vector sigma){
+  int idx = 1;
+  real out = 0;
+  if(has_random){
+    for (i in 1:n_group_vars){
+      out += normal_lpdf(b[idx:(n_random[i]+idx-1)] | 0, sigma[i]);
+      idx += n_random[i];
+    }
+  }
+  return out;
+}
