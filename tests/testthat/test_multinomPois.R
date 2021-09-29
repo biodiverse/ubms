@@ -82,7 +82,7 @@ test_that("stan_multinomPois produces accurate results",{
   #similar to trutih
   expect_RMSE(coef(fit_double_long), b, 0.2)
   #similar to unmarked
-  expect_RMSE(coef(fit_double_long), coef(um_double), 0.01)
+  expect_RMSE(coef(fit_double_long), coef(um_double), 0.05)
   #similar to previous known values
   expect_RMSE(coef(fit_double_long), c(2.2268,0.1133,0.1853,-0.5620), 0.05)
 

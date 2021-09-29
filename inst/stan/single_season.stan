@@ -7,6 +7,7 @@ functions{
 #include /include/functions_distsamp.stan
 #include /include/functions_multinomPois.stan
 #include /include/functions_occuTTD.stan
+#include /include/functions_priors.stan
 
 }
 
@@ -18,13 +19,8 @@ data{
 
 transformed data{
 
-int ind_state;
-int ind_det;
 int include_scale;
 int include_shape;
-
-ind_state = prior_dist_state[1] == 0 ? 1 : 2;
-ind_det = prior_dist_det[1] == 0 ? 1 : 2;
 
 include_scale = prior_dist_scale[1] == 0 ? 0 : 1;
 include_shape = prior_dist_shape[1] == 0 ? 0 : 1;
@@ -73,8 +69,7 @@ if(include_shape){
 
 model{
 
-#include /include/rand_priors_single_season.stan
-#include /include/fixed_priors_single_season.stan
+#include /include/priors_single_season.stan
 
 target += sum(log_lik);
 
