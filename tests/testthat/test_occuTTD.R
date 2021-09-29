@@ -76,9 +76,9 @@ test_that("stan_occuTTD produces accurate results",{
   #similar to truth
   expect_RMSE(coef(fit_long), c(beta_psi, beta_lam), 0.4)
   #similar to unmarked
-  expect_RMSE(coef(fit_long), coef(fit_unm), 0.05)
+  expect_RMSE(coef(fit_long), coef(fit_unm), 0.1)
   #similar to previous known values
-  expect_RMSE(coef(fit_long), c(-0.811,0.7002,-1.6653,0.5581), 0.05)
+  expect_RMSE(coef(fit_long), c(-0.805,0.714,-1.759,0.694), 0.05)
 })
 
 test_that("stan_occuTTD handles NA values",{
