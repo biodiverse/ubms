@@ -99,10 +99,10 @@ vector[Zdim_ext[3]] Zw_ext;
 int Zv_ext[Zdim_ext[4]];
 int Zu_ext[Zdim_ext[5]];
 
-int prior_dist_col[2];
-int prior_dist_ext[2];
-matrix[3, n_fixed_col] prior_pars_col;
-matrix[3, n_fixed_ext] prior_pars_ext;
+int prior_dist_col[3];
+int prior_dist_ext[3];
+matrix[3, (n_fixed_col+1)] prior_pars_col;
+matrix[3, (n_fixed_ext+1)] prior_pars_ext;
 }
 
 transformed data{
@@ -200,9 +200,11 @@ target += lp_priors(beta_col, prior_dist_col, prior_pars_col);
 target += lp_priors(beta_ext, prior_dist_ext, prior_pars_ext);
 
 target += lp_random_prior(has_random_col, n_group_vars_col, b_col,
-                          n_random_col, sigma_col);
+                          n_random_col, sigma_col, prior_dist_col[3],
+                          prior_pars_col);
 target += lp_random_prior(has_random_ext, n_group_vars_ext, b_ext,
-                          n_random_ext, sigma_ext);
+                          n_random_ext, sigma_ext, prior_dist_ext[3],
+                          prior_pars_ext);
 
 target += sum(log_lik);
 

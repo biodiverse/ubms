@@ -7,16 +7,17 @@ covs <- data.frame(x1=rnorm(3), x2=factor(c("a","b","c")),
                    x3=factor(c("a","b","c")))
 pint <- uniform(-5,5)
 pcof <- normal(0,2.5)
-sm1 <- ubmsSubmodel("Det", "det", covs, ~x1+(1|x2), "plogis", pint, pcof)
-sm2 <- ubmsSubmodel("Occ", "state", covs, ~x1, "plogis", pint, pcof)
-sm3 <- ubmsSubmodel("Occ", "state", covs, ~x1+(1|x2), "plogis", pint, pcof)
-sm4 <- ubmsSubmodel("Occ", "state", covs, ~(1|x2)+(1|x3), "plogis", pint, pcof)
+psig <- gamma(1,1)
+sm1 <- ubmsSubmodel("Det", "det", covs, ~x1+(1|x2), "plogis", pint, pcof, psig)
+sm2 <- ubmsSubmodel("Occ", "state", covs, ~x1, "plogis", pint, pcof, psig)
+sm3 <- ubmsSubmodel("Occ", "state", covs, ~x1+(1|x2), "plogis", pint, pcof, psig)
+sm4 <- ubmsSubmodel("Occ", "state", covs, ~(1|x2)+(1|x3), "plogis", pint, pcof, psig)
 
 #Set up response and stan inputs
 umf <- unmarkedFrameOccu(y=matrix(c(1,0,0,1,1,0,0,1,0), nrow=3))
 umf <- process_umf(umf)
-dm <- ubmsSubmodel("Det", "det", obsCovs(umf), ~1, "plogis", pint, pcof)
-sm <- ubmsSubmodel("Occ", "state", siteCovs(umf), ~1, "plogis", pint, pcof)
+dm <- ubmsSubmodel("Det", "det", obsCovs(umf), ~1, "plogis", pint, pcof, psig)
+sm <- ubmsSubmodel("Occ", "state", siteCovs(umf), ~1, "plogis", pint, pcof, psig)
 sl <- ubmsSubmodelList(sm,dm)
 resp <- ubmsResponse(umf@y,"binomial","binomial",max_primary=1)
 

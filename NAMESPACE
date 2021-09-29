@@ -2,6 +2,7 @@
 
 export(RSR)
 export(cauchy)
+export(gamma)
 export(gof)
 export(logistic)
 export(normal)

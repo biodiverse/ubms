@@ -15,6 +15,7 @@ stan_distsamp(
   prior_intercept_det = normal(0, 5),
   prior_coef_det = normal(0, 2.5),
   prior_intercept_scale = normal(0, 2.5),
+  prior_sigma = gamma(1, 1),
   ...
 )
 }
@@ -47,6 +48,8 @@ the detection model}
 
 \item{prior_intercept_scale}{Prior distribution for the intercept of the
 scale parameter (i.e., log(scale)) for Hazard-rate models}
+
+\item{prior_sigma}{Prior distribution on random effect standard deviations}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}

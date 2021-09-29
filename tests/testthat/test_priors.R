@@ -57,6 +57,16 @@ test_that("cauchy prior can be specified",{
   expect_error(cauchy(0.5, -0.2))
 })
 
+test_that("gamma prior can be specified",{
+  g <- gamma()
+  expect_equal(g, list(dist=5, par1=1, par2=1, par3=0, autoscale=FALSE))
+  g <- gamma(2,2)
+  expect_equal(g, list(dist=5, par1=2, par2=2, par3=0, autoscale=FALSE))
+  expect_error(gamma(c(-1,1), c(-1,1)))
+  expect_error(gamma(-1,1))
+  expect_error(gamma(1,-1))
+})
+
 test_that("null prior can be specified",{
   expect_equal(null_prior(), list(dist=0, par1=0, par2=0, par3=0, autoscale=FALSE))
 })
@@ -113,6 +123,8 @@ test_that("process_coef_prior can expand and scale priors",{
   Xmat <- Xmat[,-2,drop=FALSE]
   expect_equal(process_coef_prior(normal(), Xmat),
                list(dist=0, par1=NA, par2=NA, par3=NA, autoscale=TRUE))
+
+  expect_error(process_coef_prior(gamma(), Xmat))
 })
 
 test_that("process_int_prior identifies when there is no intercept",{
@@ -127,40 +139,53 @@ test_that("process_int_prior identifies when there is no intercept",{
                list(dist=0, par1=NA, par2=NA, par3=NA, autoscale=FALSE))
 
   expect_error(process_int_prior(normal(c(0,0), 2.5), Xmat))
+  expect_error(process_int_prior(gamma(), Xmat))
+})
+
+test_that("process_sigma_prior returns unmodified prior",{
+  g <- gamma()
+  expect_equal(g, process_sigma_prior(g))
 })
 
 test_that("process_priors ubmsSubmodel method works",{
   sm <- ubmsSubmodel("Det", "det", data.frame(x1=c(1,3,5)), ~x1, "plogis",
-                     prior_intercept=normal(0,10), prior_coef=normal(0,2.5))
+                     prior_intercept=normal(0,10), prior_coef=normal(0,2.5),
+                     prior_sigma=gamma(1,1))
   expect_equal(process_priors(sm),
-               list(prior_dist=c(1,1), prior_pars=matrix(c(0,10,0,0,1.25,0),nrow=3)))
+               list(prior_dist=c(1,1,5),
+                    prior_pars=matrix(c(0,10,0,0,1.25,0,1,1,0),nrow=3)))
 
   sm <- ubmsSubmodel("Det", "det", data.frame(x1=c(1,3,5)), ~x1, "plogis",
-                     prior_intercept=normal(0,10), prior_coef=uniform(0,2.5))
+                     prior_intercept=normal(0,10), prior_coef=uniform(0,2.5),
+                     prior_sigma=gamma(1,1))
   expect_equal(process_priors(sm),
-               list(prior_dist=c(1,2), prior_pars=matrix(c(0,10,0,0,2.5,0),nrow=3)))
+               list(prior_dist=c(1,2,5),
+                    prior_pars=matrix(c(0,10,0,0,2.5,0,1,1,0),nrow=3)))
 
   sm <- ubmsSubmodel("Det", "det", data.frame(x1=c(1,3,5)), ~x1, "plogis",
-                     prior_intercept=normal(0,10), prior_coef=student_t(1,0,2.5))
+                     prior_intercept=normal(0,10), prior_coef=student_t(1,0,2.5),
+                     prior_sigma=gamma(1,1))
   expect_equal(process_priors(sm),
-               list(prior_dist=c(1,3), prior_pars=matrix(c(0,10,0,0,1.25,1),nrow=3)))
+               list(prior_dist=c(1,3,5), prior_pars=matrix(c(0,10,0,0,1.25,1,1,1,0),nrow=3)))
 
   # when no covariates
   sm <- ubmsSubmodel("Det", "det", data.frame(x1=c(1,3,5)), ~1, "plogis",
-                     prior_intercept=normal(0,10), prior_coef=student_t(1,0,2.5))
+                     prior_intercept=normal(0,10), prior_coef=student_t(1,0,2.5),
+                     prior_sigma=gamma(1,1))
   expect_equal(process_priors(sm),
-               list(prior_dist=c(1,0), prior_pars=matrix(c(0,10,0),nrow=3)))
+               list(prior_dist=c(1,0,5), prior_pars=matrix(c(0,10,0,1,1,0),nrow=3)))
 
   # when no intercept
   sm <- ubmsSubmodel("Det", "det", data.frame(x1=c(1,3,5)), ~x1-1, "plogis",
-                     prior_intercept=normal(0,10), prior_coef=student_t(1,0,2.5))
+                     prior_intercept=normal(0,10), prior_coef=student_t(1,0,2.5),
+                     prior_sigma=gamma(1,1))
   expect_equal(process_priors(sm),
-               list(prior_dist=c(0,3), prior_pars=matrix(c(0,1.25,1),nrow=3)))
+               list(prior_dist=c(0,3,5), prior_pars=matrix(c(0,1.25,1,1,1,0),nrow=3)))
 
 })
 
 test_that("process_prior ubmsSubmodelScalar method works",{
   sm <- ubmsSubmodelScalar("Det", "det", "exp", prior_intercept=normal(0,10))
   expect_equal(process_priors(sm),
-               list(prior_dist=c(1,0), prior_pars=matrix(c(0,10,0), nrow=3)))
+               list(prior_dist=c(1,0,0), prior_pars=matrix(c(0,10,0,0,0,0), nrow=3)))
 })

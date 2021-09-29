@@ -18,6 +18,7 @@
 #'  detection probability model
 #' @param prior_coef_det Prior distribution for the regression coefficients of
 #'  the detection model
+#' @param prior_sigma Prior distribution on random effect standard deviations
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
@@ -45,6 +46,7 @@ stan_occuRN <- function(formula,
                         prior_coef_state = normal(0, 2.5),
                         prior_intercept_det = logistic(0, 1),
                         prior_coef_det = logistic(0, 1),
+                        prior_sigma = gamma(1, 1),
                         ...){
 
   forms <- split_formula(formula)
@@ -55,15 +57,16 @@ stan_occuRN <- function(formula,
     umf <- split_umf$umf
     state <- ubmsSubmodelSpatial("Abundance", "state", siteCovs(umf), forms[[2]],
                                  "exp", prior_intercept_state, prior_coef_state,
+                                 prior_sigma,
                                  split_umf$sites_augment, split_umf$data_aug)
   } else {
     state <- ubmsSubmodel("Abundance", "state", siteCovs(umf), forms[[2]], "exp",
-                          prior_intercept_state, prior_coef_state)
+                          prior_intercept_state, prior_coef_state, prior_sigma)
   }
 
   response <- ubmsResponse(getY(umf), y_dist="binomial", z_dist="P", K=K)
   det <- ubmsSubmodel("Detection", "det", obsCovs(umf), forms[[1]], "plogis",
-                      prior_intercept_det, prior_coef_det)
+                      prior_intercept_det, prior_coef_det, prior_sigma)
   submodels <- ubmsSubmodelList(state, det)
 
   ubmsFit("occuRN", match.call(), data, response, submodels, ...)
