@@ -25,7 +25,7 @@
 #'  detection probability model
 #' @param prior_coef_det Prior distribution for the regression coefficients of
 #'  the detection model
-
+#' @param prior_sigma Prior distribution on random effect standard deviations
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
@@ -59,6 +59,7 @@ stan_colext <- function(psiformula = ~1,
                         prior_coef_eps = logistic(0, 1),
                         prior_intercept_det = logistic(0, 1),
                         prior_coef_det = logistic(0, 1),
+                        prior_sigma = gamma(1, 1),
                         ...){
 
   umf <- process_umf(data)
@@ -68,15 +69,15 @@ stan_colext <- function(psiformula = ~1,
 
   response <- ubmsResponse(getY(umf), "binomial", "binomial", umf@numPrimary)
   state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), psiformula, "plogis",
-                       prior_intercept_psi, prior_coef_psi)
+                       prior_intercept_psi, prior_coef_psi, prior_sigma)
   col <- ubmsSubmodelTransition("Colonization", "col", yearlySiteCovs(umf),
                       gammaformula, "plogis", T=umf@numPrimary,
-                      prior_intercept_gamma, prior_coef_gamma)
+                      prior_intercept_gamma, prior_coef_gamma, prior_sigma)
   ext <- ubmsSubmodelTransition("Extinction", "ext", yearlySiteCovs(umf),
                       epsilonformula, "plogis", T=umf@numPrimary,
-                      prior_intercept_eps, prior_coef_eps)
+                      prior_intercept_eps, prior_coef_eps, prior_sigma)
   det <- ubmsSubmodel("Detection", "det", obsCovs(umf), pformula, "plogis",
-                      prior_intercept_det, prior_coef_det)
+                      prior_intercept_det, prior_coef_det, prior_sigma)
   submodels <- ubmsSubmodelList(state, col, ext, det)
 
   ubmsFit("colext", match.call(), data, response, submodels, ...)

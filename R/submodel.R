@@ -7,7 +7,8 @@ setClass("ubmsSubmodel",
     link = "character",
     missing = "logical",
     prior_intercept = "list",
-    prior_coef = "list"
+    prior_coef = "list",
+    prior_sigma = "list"
   ),
   prototype = list(
     name = NA_character_,
@@ -17,15 +18,16 @@ setClass("ubmsSubmodel",
     link = NA_character_,
     missing = logical(0),
     prior_intercept = list(),
-    prior_coef = list()
+    prior_coef = list(),
+    prior_sigma = list()
   )
 )
 
 ubmsSubmodel <- function(name, type, data, formula, link,
-                         prior_intercept, prior_coef){
+                         prior_intercept, prior_coef, prior_sigma){
   out <- new("ubmsSubmodel", name=name, type=type, data=data,
              formula=formula, link=link, prior_intercept=prior_intercept,
-             prior_coef=prior_coef)
+             prior_coef=prior_coef, prior_sigma=prior_sigma)
   out@missing <- apply(model.matrix(out), 1, function(x) any(is.na(x)))
   out
 }
@@ -34,10 +36,10 @@ setClass("ubmsSubmodelTransition", contains = "ubmsSubmodel")
 
 #' @importFrom methods as
 ubmsSubmodelTransition <- function(name, type, data, formula, link, T,
-                                   prior_intercept, prior_coef){
+                                   prior_intercept, prior_coef, prior_sigma){
   data <- drop_final_year(data, T)
   out <- ubmsSubmodel(name, type, data, formula, link, prior_intercept,
-                      prior_coef)
+                      prior_coef, prior_sigma)
   out <- as(out, "ubmsSubmodelTransition")
   if(any(out@missing)){
     stop("Missing values are not allowed in yearlySiteCovs", call.=FALSE)
@@ -55,13 +57,13 @@ setClass("ubmsSubmodelScalar", contains = "ubmsSubmodel")
 
 ubmsSubmodelScalar <- function(name, type, link, prior_intercept){
   out <- ubmsSubmodel(name, type, data.frame(1), ~1, link,
-                      prior_intercept, null_prior())
+                      prior_intercept, null_prior(), null_prior())
   as(out, "ubmsSubmodelScalar")
 }
 
 placeholderSubmodel <- function(type){
   ubmsSubmodel("Placeholder", type, data.frame(), ~1, "identity",
-                null_prior(), null_prior())
+                null_prior(), null_prior(), null_prior())
 }
 
 is_placeholder <- function(submodel){
@@ -94,7 +96,7 @@ setMethod("model.matrix", "ubmsSubmodel",
   if(na.rm) out <- out[!object@missing,,drop=FALSE]
   if(warn){
     max_cov <- max(out, na.rm=TRUE)
-    if(max_cov > 3){
+    if(max_cov > 4){
       warning(paste0("Covariates possibly not standardized (max value = ", max_cov,
                     ").\nStandardizing covariates is highly recommended."), call.=FALSE)
     }

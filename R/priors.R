@@ -12,6 +12,8 @@
 #' @param lower The lower bound for the uniform distribution
 #' @param upper The upper bound for the uniform distribution
 #' @param df The number of degrees of freedom for the Student-t distribution
+#' @param shape The gamma distribution shape parameter
+#' @param rate The gamma distribution rate parameter (1/scale)
 #' @param autoscale If \code{TRUE}, ubms will automatically adjust priors
 #'  for each regression coefficient relative to its corresponding covariate x.
 #'  Specifically, the prior for a given coefficient will be divided by
@@ -78,6 +80,14 @@ cauchy <- function(location=0, scale=2.5, autoscale=TRUE){
   list(dist=3, par1=location, par2=scale, par3=1, autoscale=autoscale)
 }
 
+#' @rdname priors
+#' @export
+gamma <- function(shape=1, rate=1){
+  stopifnot(length(shape==1) & length(rate==1))
+  stopifnot(shape > 0 & rate > 0)
+  list(dist=5, par1=shape, par2=rate, par3=0, autoscale=FALSE)
+}
+
 null_prior <- function(){
   list(dist=0, par1=0, par2=0, par3=0, autoscale=FALSE)
 }
@@ -109,6 +119,9 @@ autoscale_prior <- function(prior, Xmat){
 }
 
 process_coef_prior <- function(prior, Xmat){
+  if(prior$dist == 5){
+    stop("gamma distribution can only be used with prior_sigma")
+  }
   # remove intercept
   if("(Intercept)" %in% colnames(Xmat)) Xmat <- Xmat[,-1,drop=FALSE]
   # if no coefs
@@ -125,12 +138,19 @@ process_coef_prior <- function(prior, Xmat){
 
 process_int_prior <- function(prior, Xmat){
   stopifnot(length(unlist(prior[c("par1","par2","par3")])) == 3)
+  if(prior$dist == 5){
+    stop("gamma distribution can only be used with prior_sigma")
+  }
   prior$autoscale <- FALSE
   # If there's an intercept, don't do anything
   if("(Intercept)" %in% colnames(Xmat)) return(prior)
 
   prior$dist <- 0
   prior$par1 <- prior$par2 <- prior$par3 <- NA
+  prior
+}
+
+process_sigma_prior <- function(prior){
   prior
 }
 
@@ -141,7 +161,8 @@ setMethod("process_priors", "ubmsSubmodel", function(submodel){
   Xmat <- model.matrix(submodel)
   coef_prior <- process_coef_prior(submodel@prior_coef, Xmat)
   int_prior <- process_int_prior(submodel@prior_intercept, Xmat)
-  out <- mapply(function(x,y) c(x,y), int_prior, coef_prior, SIMPLIFY=FALSE)
+  sigma_prior <- process_sigma_prior(submodel@prior_sigma)
+  out <- mapply(function(x,y,z) c(x,y,z), int_prior, coef_prior, sigma_prior, SIMPLIFY=FALSE)
   prior_pars <- matrix(unlist(out[paste0("par",1:3)]), nrow=3, byrow=TRUE)
   drop_cols <- apply(prior_pars, 2, function(x) any(is.na(x)))
   prior_pars <- prior_pars[,!drop_cols,drop=FALSE]
@@ -151,6 +172,7 @@ setMethod("process_priors", "ubmsSubmodel", function(submodel){
 setMethod("process_priors", "ubmsSubmodelScalar", function(submodel){
   Xmat <- model.matrix(submodel)
   int_prior <- process_int_prior(submodel@prior_intercept, Xmat)
-  prior_pars <- matrix(unlist(int_prior[paste0("par",1:3)]), nrow=3, byrow=TRUE)
-  list(prior_dist = c(int_prior$dist,0), prior_pars = prior_pars)
+  prior_pars <- matrix(c(unlist(int_prior[paste0("par",1:3)]), rep(0,3)),
+                       nrow=3)
+  list(prior_dist = c(int_prior$dist,0,0), prior_pars = prior_pars)
 })

@@ -27,12 +27,12 @@ name_to_modelcode <- function(name){
 add_placeholder_priors <- function(submodel_data, types){
   # this is hacky
   if(! "shape" %in% types){
-    submodel_data$prior_dist_shape <- c(0,0)
-    submodel_data$prior_pars_shape <- matrix(c(0,0,0), nrow=3)
+    submodel_data$prior_dist_shape <- c(0,0,0)
+    submodel_data$prior_pars_shape <- matrix(rep(0,6), nrow=3)
   }
   if(! "scale" %in% types){
-    submodel_data$prior_dist_scale <- c(0,0)
-    submodel_data$prior_pars_scale <- matrix(c(0,0,0), nrow=3)
+    submodel_data$prior_dist_scale <- c(0,0,0)
+    submodel_data$prior_pars_scale <- matrix(rep(0,6), nrow=3)
   }
   submodel_data
 }

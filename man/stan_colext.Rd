@@ -18,6 +18,7 @@ stan_colext(
   prior_coef_eps = logistic(0, 1),
   prior_intercept_det = logistic(0, 1),
   prior_coef_det = logistic(0, 1),
+  prior_sigma = gamma(1, 1),
   ...
 )
 }
@@ -56,6 +57,8 @@ detection probability model}
 
 \item{prior_coef_det}{Prior distribution for the regression coefficients of
 the detection model}
+
+\item{prior_sigma}{Prior distribution on random effect standard deviations}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}

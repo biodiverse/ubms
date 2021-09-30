@@ -23,6 +23,7 @@
 #'  the detection model
 #' @param prior_intercept_scale Prior distribution for the intercept of the
 #'  scale parameter (i.e., log(scale)) for Hazard-rate models
+#' @param prior_sigma Prior distribution on random effect standard deviations
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
@@ -66,6 +67,7 @@ stan_distsamp <- function(formula,
                           prior_intercept_det = normal(0, 5),
                           prior_coef_det = normal(0, 2.5),
                           prior_intercept_scale = normal(0,2.5),
+                          prior_sigma = gamma(1, 1),
                           ...){
 
   forms <- split_formula(formula)
@@ -82,15 +84,16 @@ stan_distsamp <- function(formula,
     umf <- split_umf$umf
     state <- ubmsSubmodelSpatial(state_param, "state", siteCovs(umf), forms[[2]],
                                  "exp", prior_intercept_state, prior_coef_state,
+                                 prior_sigma,
                                  split_umf$sites_augment, split_umf$data_aug)
   } else {
     state <- ubmsSubmodel(state_param, "state", siteCovs(umf), forms[[2]],
-                          "exp", prior_intercept_state, prior_coef_state)
+                          "exp", prior_intercept_state, prior_coef_state, prior_sigma)
   }
 
   response <- ubmsResponseDistsamp(data, keyfun, "P", output, unitsOut)
   det <- ubmsSubmodel(det_param, "det", siteCovs(umf), forms[[1]],
-                      "exp", prior_intercept_det, prior_coef_det)
+                      "exp", prior_intercept_det, prior_coef_det, prior_sigma)
 
   scale <- placeholderSubmodel("scale")
   if(keyfun=="hazard"){

@@ -145,11 +145,12 @@ setClass("ubmsSubmodelSpatial", contains = "ubmsSubmodel",
                   spatial="formula"))
 
 ubmsSubmodelSpatial <- function(name, type, data, formula, link, prior_intercept,
-                                prior_coef, sites_aug, data_aug){
+                                prior_coef, prior_sigma, sites_aug, data_aug){
   form_no_rsr <- remove_RSR(formula)
   out <- new("ubmsSubmodelSpatial", name=name, type=type, data=data,
              formula=form_no_rsr, link=link,
              prior_intercept=prior_intercept, prior_coef=prior_coef,
+             prior_sigma=prior_sigma,
              data_aug=data_aug, sites_aug=sites_aug, spatial=formula)
   out@missing <- apply(model.matrix(out), 1, function(x) any(is.na(x)))
   out

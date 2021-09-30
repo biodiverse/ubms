@@ -7,6 +7,7 @@
 \alias{student_t}
 \alias{logistic}
 \alias{cauchy}
+\alias{gamma}
 \title{Prior distributions}
 \usage{
 normal(location = 0, scale = 2.5, autoscale = TRUE)
@@ -18,6 +19,8 @@ student_t(df = 1, location = 0, scale = 2.5, autoscale = TRUE)
 logistic(location = 0, scale = 1)
 
 cauchy(location = 0, scale = 2.5, autoscale = TRUE)
+
+gamma(shape = 1, rate = 1)
 }
 \arguments{
 \item{location}{The mean of the distribution. If setting the priors for
@@ -41,6 +44,10 @@ approximately 1. Standardizing your covariates is highly recommended.}
 \item{upper}{The upper bound for the uniform distribution}
 
 \item{df}{The number of degrees of freedom for the Student-t distribution}
+
+\item{shape}{The gamma distribution shape parameter}
+
+\item{rate}{The gamma distribution rate parameter (1/scale)}
 }
 \value{
 A \code{list} containing prior settings used internally by \code{ubms}.

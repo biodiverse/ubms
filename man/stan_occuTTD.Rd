@@ -17,6 +17,7 @@ stan_occuTTD(
   prior_intercept_det = normal(0, 5),
   prior_coef_det = normal(0, 2.5),
   prior_intercept_shape = normal(0, 2.5),
+  prior_sigma = gamma(1, 1),
   ...
 )
 }
@@ -57,6 +58,8 @@ the time-to-detection model}
 
 \item{prior_intercept_shape}{Prior distribution for the intercept of the
 shape parameter (i.e., log(shape)) for Weibull TTD models}
+
+\item{prior_sigma}{Prior distribution on random effect standard deviations}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}

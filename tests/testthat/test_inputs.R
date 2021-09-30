@@ -3,9 +3,9 @@ context("Stan input generation")
 test_that("stan inputs are built correctly", {
   sc <- data.frame(x1=rnorm(5), group=factor(c("a","b","a","b","a")))
   state <- ubmsSubmodel("Occ", "state", sc, ~x1+(1|group), "plogis",
-                        uniform(-5,5), normal(0,2.5))
+                        uniform(-5,5), normal(0,2.5), gamma(1,1))
   det <- ubmsSubmodel("Det", "det", sc, ~x1, "plogis",
-                      uniform(-5,5), normal(0,2.5))
+                      uniform(-5,5), normal(0,2.5), gamma(1,1))
   sl <- ubmsSubmodelList(state, det)
   y <- matrix(c(1,0,0,1,1,1,0,0,1), nrow=3, byrow=T)
   resp <- ubmsResponse(y, "binomial", "P")
@@ -18,8 +18,8 @@ test_that("stan inputs are built correctly", {
   gs2 <- get_stan_data(resp)
   gs3 <- get_stan_data(state)
   gs4 <- get_stan_data(det)
-  gs5 <- list(prior_dist_shape=c(0,0), prior_pars_shape=matrix(rep(0,3),nrow=3),
-              prior_dist_scale=c(0,0), prior_pars_scale=matrix(rep(0,3),nrow=3))
+  gs5 <- list(prior_dist_shape=c(0,0,0), prior_pars_shape=matrix(rep(0,6),nrow=3),
+              prior_dist_scale=c(0,0,0), prior_pars_scale=matrix(rep(0,6),nrow=3))
   gs_all <- c(gs1,gs2,gs3,gs4,gs5)
   expect_equal(inp$stan_data, gs_all)
 })
@@ -27,9 +27,9 @@ test_that("stan inputs are built correctly", {
 test_that("parameter list for stan is generated correctly",{
   sc <- data.frame(x1=rnorm(5), group=factor(c("a","b","a","b","a")))
   state <- ubmsSubmodel("Occ", "state", sc, ~x1+(1|group), "plogis",
-                       uniform(-5,5), normal(0,2.5))
+                       uniform(-5,5), normal(0,2.5), gamma(1,1))
   det <- ubmsSubmodel("Det", "det", sc, ~x1, "plogis",
-                      uniform(-5,5), normal(0,2.5))
+                      uniform(-5,5), normal(0,2.5), gamma(1,1))
   sl <- ubmsSubmodelList(state, det)
   expect_equal(get_pars(det), "beta_det")
   expect_equal(get_pars(state), c("beta_state", "b_state", "sigma_state"))
@@ -65,7 +65,7 @@ test_that("dist_code returns integer code for distribution", {
 test_that("get_stan_data pulls necessary info from submodel",{
   sc <- data.frame(x1=-1:3)
   submod <- ubmsSubmodel("Occ", "state", sc, ~x1, "plogis",
-                         uniform(-5,5), normal(0,2.5))
+                         uniform(-5,5), normal(0,2.5), gamma(1,1))
   dat <- get_stan_data(submod)
   expect_is(dat, "list")
   expect_equal(names(dat),
@@ -80,8 +80,8 @@ test_that("get_stan_data pulls necessary info from submodel",{
   expect_equal(dat[[5]], get_group_vars(submod@formula))
   expect_equal(dat[[6]], has_random(submod))
   expect_equivalent(dat[8:11], get_sparse_Z(Z_matrix(submod)))
-  expect_equivalent(dat[[12]], c(2,1))
-  expect_equivalent(dat[[13]], matrix(c(-5,5,0,0,1.581139,0),nrow=3), tol=1e-6)
+  expect_equivalent(dat[[12]], c(2,1,5))
+  expect_equivalent(dat[[13]], matrix(c(-5,5,0,0,1.581139,0,1,1,0),nrow=3), tol=1e-6)
 })
 
 test_that("get_stan_data pulls only priors from scalar submodel",{
