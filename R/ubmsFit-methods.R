@@ -264,3 +264,24 @@ was_parallel <- function(object){
   if(getOption("mc.cores", 1L) > 1) return(TRUE)
   FALSE
 }
+
+#' Get Stan Code From Model
+#'
+#' Get the Stan code used to run a model as a character string
+#'
+#' @param object A \code{ubmsFit} object
+#' @param ... Arguments passed to \code{rstan::get_stancode}
+#'
+#' @return A character string with the model code
+#'
+#' @details Pass the result of \code{get_stancode} to \code{cat} to get the
+#'  code in a more readable format. Note that the output in most cases
+#'  is Stan code that can be used to fit several types of models, and not
+#'  all Stan code will be used in all models.
+#'
+#' @importFrom rstan get_stancode
+#'
+#' @export
+setMethod("get_stancode", "ubmsFit", function(object, ...){
+  rstan::get_stancode(object@stanfit, ...)
+})

@@ -23,7 +23,7 @@ set.seed(456)
 # Introduction
 
 One of the key features of `ubms` is the ability to include random effects in model formulas.
-This is not possible in `unmarked`, but it is possible with custom models using [JAGS](http://mcmc-jags.sourceforge.net/).
+This is not possible in `unmarked`, but it is possible with custom models using [JAGS](https://mcmc-jags.sourceforge.io/).
 To explore how estimates of parameters and uncertainty intervals compared between `ubms` and `JAGS`, I simulated a basic occupancy dataset with known parameter values and fit models with both.
 In this simulation, individual sites were nested within groups, and I estimated group-level random intercepts.
 This is a common scenario for so-called [stacked](https://groups.google.com/forum/#!topic/unmarked/OHkk98y09Zo) data from multiple years, where the "groups" are unique sites and "sites" represent unique site-year combinations.

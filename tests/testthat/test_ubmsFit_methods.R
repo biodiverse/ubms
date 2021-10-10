@@ -153,3 +153,8 @@ test_that("plot_effects creates gg or grid object",{
   expect_error(plot_posteriors(fit, pars="fake"))
   dev.off()
 })
+
+test_that("get_stancode method works",{
+  out <- get_stancode(fit)
+  expect_is(out, "character")
+})
