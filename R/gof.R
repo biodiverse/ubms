@@ -45,6 +45,7 @@ setMethod("plot", "ubmsGOF", function(x, ...){
 #'
 #' @return An object of class \code{ubmsGOF} containing statistics calculated
 #' from the posterior predictive distribution.
+#' @importFrom pbapply pboptions pblapply
 #' @export
 setGeneric("gof", function(object, draws=NULL, ...){
              standardGeneric("gof")})
@@ -69,18 +70,20 @@ setMethod("sim_gof", "ubmsFit", function(object, draws, func, name, quiet=FALSE,
   ysim <- array(ysim, c(draws,R,M))
   ysim <- aperm(ysim, c(3,2,1))
 
-  stat_obs <- stat_sim <- rep(NA, draws)
-  if(!quiet) pb <- utils::txtProgressBar(min = 0, max = draws, style = 3)
   object_star <- object
-  for (i in 1:draws){
-    stat_obs[i] <- func(object, state[i,], p[i,])
+  op <- pbapply::pboptions()
+  if(quiet) pbapply::pboptions(type = "none")
+  out <- pbapply::pblapply(1:draws, function(i){
+    stat_obs <- func(object, state[i,], p[i,])
     object_star@response <- ubmsResponse(ysim[,,i], object@response@y_dist,
                                          object@response@z_dist, max_primary=T)
-    stat_sim[i] <- func(object_star, state[i,], p[i,])
-    if(!quiet) utils::setTxtProgressBar(pb, i)
-  }
-  if(!quiet) close(pb)
-  ubmsGOF(name, data.frame(obs=stat_obs, sim=stat_sim))
+    stat_sim <- func(object_star, state[i,], p[i,])
+    c(stat_obs, stat_sim)
+  })
+  pbapply::pboptions(op)
+  out <- do.call(rbind, out)
+
+  ubmsGOF(name, data.frame(obs=out[,1], sim=out[,2]))
 })
 
 # N-mixture Chi-square test for abundance models-------------------------------
