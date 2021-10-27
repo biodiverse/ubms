@@ -414,7 +414,7 @@ group2 <- rowMeans(zpost[,51:100], na.rm=TRUE)
 
 plot_dat <- rbind(data.frame(group="group1", occ=mean(group1),
                              lower=quantile(group1, 0.025),
-                             upper=quantile(group2, 0.975)),
+                             upper=quantile(group1, 0.975)),
                   data.frame(group="group2", occ=mean(group2),
                              lower=quantile(group2, 0.025),
                              upper=quantile(group2, 0.975)))
