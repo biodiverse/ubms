@@ -113,11 +113,17 @@ test_that("get_group_vars returns number of grouping variables",{
 })
 
 test_that("get_nrandom returns number of levels of each grouping variable",{
-  dat <- data.frame(x=factor(c("a","b","c")), y=factor("d","e"))
+  dat <- data.frame(x=factor(c("a","b","c")), y=factor(c("d","e","e")))
   expect_equal(get_nrandom(~x, dat), as.array(0))
   expect_equal(get_nrandom(~(1|x), dat), as.array(3))
   form <- ~(1|x) + (1|y)
-  expect_equal(get_nrandom(form, dat), as.array(c(3,1)))
+  expect_equal(get_nrandom(form, dat), as.array(c(3,2)))
+  form <- ~(1|x/y)
+  expect_error(get_nrandom(form, dat),
+               "Nested random effects (using / and :) are not supported", fixed=TRUE)
+  form <- ~(1|x:y)
+  expect_error(get_nrandom(form, dat),
+               "Nested random effects (using / and :) are not supported", fixed=TRUE)
 })
 
 test_that("split_formula works",{

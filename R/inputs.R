@@ -131,6 +131,7 @@ get_group_vars <- function(formula){
 }
 
 get_nrandom <- function(formula, data){
+  check_formula(formula, data)
   rand <- lme4::findbars(formula)
   if(length(rand)==0) return(as.array(0))
 
