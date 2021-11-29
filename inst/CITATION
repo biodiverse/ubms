@@ -1,0 +1,18 @@
+#citHeader("To cite ubms in publications use:")
+
+bibentry(bibtype = "Article",
+  title        = "{ubms}: An {R} package for fitting hierarchical occupancy and N-mixture abundance models in a Bayesian framework",
+  author       = c(person("Kenneth F.", "Kellner"),
+                   person("Nicholas L.", "Fowler"),
+                   person("Tyler R.", "Petroelje"),
+                   person("Todd M.", "Kautz"),
+                   person("Dean E.", "Beyer"),
+                   person("Jerrold L.", "Belant")),
+  journal      = "Methods in Ecology and Evolution",
+  year         = "2021"#,
+  #volume       = "1",
+  #number       = "10",
+  #pages        = "1--20",
+  #url          = ""
+)
+
