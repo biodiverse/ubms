@@ -19,6 +19,11 @@ were sampled on the map and if had a detection of the species}
 in the same units as the coordinates. If \code{NULL}, \code{ubms} will try
 to pick a reasonable cell size for you}
 }
+
+\value{
+A \code{ggplot} object
+}
+
 \description{
-Plot A Map of the State Parameter Based on a Spatial ubms Model
+Plot a map of occupancy or the spatial random effect across the landscape.
 }

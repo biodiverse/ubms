@@ -54,20 +54,6 @@ Github:
 devtools::install_github("kenkellner/ubms")
 ```
 
-If you are on Windows, you can download and install a pre-compiled
-binary package of the latest release:
-
-``` r
-# Install dependencies
-install.packages(c("unmarked", "ggplot2", "gridExtra", "lme4", "loo",
-                   "Matrix", "Rcpp", "rstan", "rstantools"))
-
-# Download and install ubms
-download.file("https://github.com/kenkellner/ubms/releases/download/v1.0.2/ubms_1.0.2.zip",
-              destfile="ubms_1.0.2.zip")
-install.packages("ubms_1.0.2.zip", repos=NULL)
-```
-
 ## Example
 
 Simulate occupancy data including a random effect on occupancy:

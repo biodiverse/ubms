@@ -1,3 +1,11 @@
+# ubms v1.1.0
+
+* Support for restricted spatial regression (RSR)
+* Add vignette for RSR
+* Update default priors and allow setting custom priors
+* Support for offsets
+* New utility functions and bugfixes
+
 # ubms v1.0.2
 
 * Make default priors less informative
