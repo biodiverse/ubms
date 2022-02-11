@@ -3,12 +3,14 @@
 \name{fitList,ubmsFit-method}
 \alias{fitList,ubmsFit-method}
 \alias{fitList}
+\alias{fitList,list-method}
 \title{Create a List of ubmsFit Models}
 \usage{
 \S4method{fitList}{ubmsFit}(...)
 }
 \arguments{
-\item{...}{\code{ubmsFit} model objects, preferably named}
+\item{...}{\code{ubmsFit} model objects, preferably named, or a list
+of such models}
 }
 \value{
 An object of class \code{ubmsFitList} containing the list of models

@@ -37,6 +37,28 @@ test_that("fitList of ubmsFit objects is created correctly",{
   expect_equal(names(fl2@models), c("mod1", "mod2"))
 })
 
+test_that("fitlist can be created from a list",{
+  mod_list <- list(fit=fit, fit_null=fit_null)
+  fl <- fitList(fit, fit_null)
+  fl2 <- fitList(mod_list)
+  expect_is(fl2, "ubmsFitList")
+  expect_equal(fl, fl2)
+  mod_list2 <- list(fit, fit_null)
+  fl3 <- fitList(mod_list2)
+  expect_equal(names(fl3@models), c("mod1","mod2"))
+  fl4 <- fitList(fits=mod_list)
+  expect_equal(fl4, fl)
+})
+
+test_that("fitList for unmarkedFits passes through to unmarked",{
+  unm_mod <- occu(~1~1, umf)
+  unm_list <- list(mod1=unm_mod, mod2=unm_mod)
+  ufl <- fitList(fits=unm_list)
+  expect_is(ufl, "unmarkedFitList")
+  ufl2 <- expect_warning(fitList(unm_mod, unm_mod))
+  expect_is(ufl2, "unmarkedFitList")
+})
+
 test_that("modSel creates selection table for ubmsFitList",{
   fl1 <- fitList(fit, fit_null)
   ms <- suppressWarnings(modSel(fl1))
