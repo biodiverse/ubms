@@ -387,6 +387,32 @@ test_that("check_formula identifies unsupported formulas",{
   expect_error(check_formula(~(1|x1 : x2), dat))
 })
 
+test_that("check_formula handles very long formulas",{
+  dat <- data.frame(y=rnorm(10), longcovariate1=rnorm(10), longcovariate2=rnorm(10),
+                    longcovariate3=rnorm(10), longcovariate4=rnorm(10),
+                    group=sample(letters[1:5], 10, replace=T))
+
+  form_long <- formula("~ (longcovariate1 + longcovariate2 + longcovariate3 + longcovariate4 || group)")
+  expect_error(check_formula(form_long, dat), NA)
+  expect_warning(check_formula(form_long, dat), NA)
+
+  form_long2 <- formula("~ (longcovariate1 + longcovariate2 + longcovariate3 + longcovariate4 | group)")
+  expect_error(check_formula(form_long2, dat))
+})
+
+test_that("check_formula errors when there are R factors specified as random slopes",{
+  dat <- data.frame(y=rnorm(10), cov1=rnorm(10),
+                    cov2=sample(c("ag","for"), 10, replace=T),
+                    group=sample(letters[1:5], 10, replace=T))
+  dat$cov2for <- ifelse(dat$cov2=="ag",0,1)
+  expect_error(check_formula(~(cov2||group), dat))
+  expect_error(check_formula(~cov2+(cov2||group), dat))
+  expect_error(check_formula(~(cov2-1||group), dat))
+  expect_error(check_formula(~(cov1+cov2||group), dat))
+  expect_error(check_formula(~cov2+(cov1||group), dat), NA)
+  expect_error(check_formula(~(cov1+cov2for||group), dat), NA)
+})
+
 test_that("submodel list creation works", {
   covs <- data.frame(x1=rnorm(3), x2=factor(c("a","b","c")))
   sm1 <- ubmsSubmodel("Det", "det", covs, ~x1+(1|x2), "plogis", pri, prc, prs)

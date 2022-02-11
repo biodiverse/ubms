@@ -164,14 +164,17 @@ check_formula <- function(formula, data){
   rand <- lme4::findbars(formula)
   if(is.null(rand)) return(invisible())
 
-  char <- paste(deparse(formula))
+  char <- paste(formula, collapse=" ")
   if(grepl(":|/", char)){
     stop("Nested random effects (using / and :) are not supported",
          call.=FALSE)
   }
   theta <- get_reTrms(formula, data)$theta
   if(0 %in% theta){
-    stop("Correlated slopes and intercepts are not supported. Use || instead of |.",
+    stop("Failed to create random effects model matrix.\n
+Possible reasons:\n
+(1) Correlated slopes and intercepts are not supported. Replace | with || in your formula(s).\n
+(2) You have specified random slopes for an R factor variable. Try converting the variable to a series of indicator variables instead.",
          call.=FALSE)
   }
 }
