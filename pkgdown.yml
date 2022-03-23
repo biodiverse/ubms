@@ -1,0 +1,10 @@
+pandoc: 2.7.1
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  JAGS-comparison: JAGS-comparison.html
+  random-effects: random-effects.html
+  spatial-models: spatial-models.html
+  ubms: ubms.html
+last_built: 2022-03-23T13:05Z
+
