@@ -2,17 +2,15 @@ setGeneric("mb_chisq", function(object, ...) standardGeneric("mb_chisq"))
 
 #' @include fit.R
 setMethod("mb_chisq", "ubmsFitOccu", function(object, state, p){
-
   cohorts <- get_cohorts(object)
   dat <- cohorts$data
   inds <- cohorts$inds
-  #site_idx <- rep(1:nrow(getY(object@data)), each=ncol(getY(object@data)))
-  site_idx <- rep(1:ncol(t(object@response)), each=object@response@max_obs)
-
   chisq <- 0
+  J <- object@response@max_obs
   for (i in 1:length(inds)){
     state_sub <- state[inds[[i]]]
-    p_sub <- p[which(site_idx %in% inds[[i]])]
+    idx <- c(sapply(inds[[i]], function(k) seq.int((k - 1) * J + 1, length.out=J)))
+    p_sub <- p[idx]
     N <- length(state_sub)
     obs <- get_obs_counts(dat[[i]])
     expect <- get_exp_counts(object, obs, state_sub, p_sub)

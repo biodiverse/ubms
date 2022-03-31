@@ -20,3 +20,4 @@ LICENSE$
 ^pkgdown$
 ^\.github$
 cran-comments.md
+^tests/testthat/_snaps$
