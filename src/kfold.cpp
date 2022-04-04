@@ -83,3 +83,41 @@ arma::mat get_loglik_pcount(arma::vec y, int M, arma::imat si,
 
   return out;
 }
+
+// [[Rcpp::export]]
+arma::mat get_loglik_occuRN(arma::vec y, int M, arma::imat si,
+                            arma::mat lammat, arma::mat rmat, int K,
+                            arma::ivec Kmin){
+
+  int S = lammat.n_cols;
+  mat out(S,M);
+  vec r_s(rmat.n_rows);
+  vec ysub, qsub;
+  int J;
+  double f, g, p, lik;
+
+  for (int s = 0; s < S; s++){
+
+    r_s = rmat.col(s);
+
+    for (int m = 0; m < M; m++){
+      lik = 0.0;
+      ysub = y.subvec(si(m,0), si(m,1));
+      qsub = 1 - r_s.subvec(si(m,0), si(m,1));
+      J = ysub.size();
+      for (int k=Kmin(m); k < (K+1); k++){
+        f = Rf_dpois(k, lammat(m, s), false);
+        g = 0.0;
+        for (int j = 0; j < J; j++){
+          p = 1 - pow(qsub(j), k);
+          g += Rf_dbinom(ysub(j), 1, p, true);
+        }
+        lik += f * exp(g);
+      }
+      out(s,m) = log(lik + DBL_MIN);
+    }
+  }
+
+  return out;
+
+}

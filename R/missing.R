@@ -88,3 +88,8 @@ get_row_reps <- function(submodel, response){
   if(yl %% n != 0) stop("Invalid model matrix dimensions", call.=FALSE)
   yl / n
 }
+
+#' @include fit.R
+removed_sites <- function(object){
+  object['state']@missing
+}
