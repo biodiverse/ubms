@@ -139,7 +139,7 @@ get_xlev <- function(data, model_frame){
 get_reTrms <- function(formula, data, newdata=NULL){
   fb <- lme4::findbars(formula)
   mf <- model.frame(lme4::subbars(formula), data, na.action=stats::na.pass)
-  if(is.null(newdata)) return(lme4::mkReTrms(fb, mf))
+  if(is.null(newdata)) return(lme4::mkReTrms(fb, mf, drop.unused.levels=FALSE))
   new_mf <- model.frame(stats::terms(mf), newdata, na.action=stats::na.pass,
                         xlev=get_xlev(data, mf))
   lme4::mkReTrms(fb, new_mf, drop.unused.levels=FALSE)

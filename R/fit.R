@@ -26,6 +26,8 @@ ubmsFit <- function(model, call, data, response, submodels, ...){
 
   #Fit model
   fit <- fit_model(model, response, submodels, ...)
+  # Exit early if just returning Stan inputs
+  if(check_return_inputs(...)) return(fit)
 
   #Remove placeholder submodels
   submodels <- remove_placeholders(submodels)
@@ -41,6 +43,17 @@ remove_placeholders <- function(submodels){
   submodels
 }
 
+# Function to check if just Stan inputs should be returned
+# Used by kfold method
+# Pass return_inputs=TRUE in ... when calling stan_*
+check_return_inputs <- function(...){
+  args <- list(...)
+  if("return_inputs" %in% names(args)){
+    if(args$return_inputs) return(TRUE)
+  }
+  FALSE
+}
+
 fit_class <- function(mod){
   cap <- paste0(toupper(substr(mod,1,1)), substr(mod,2,nchar(mod)))
   paste0("ubmsFit",cap)
@@ -51,6 +64,11 @@ fit_class <- function(mod){
 fit_model <- function(name, response, submodels, ...){
   model <- name_to_stanmodel(name, submodels)
   inp <- build_stan_inputs(name, response, submodels)
+  # Should just Stan inputs be returned?
+  if(check_return_inputs(...)){
+    inp$submodels <- submodels
+    return(inp)
+  }
   mod <- stanmodels[[model]]
   mod@model_name <- name
   fit <- sampling(mod, data=inp$stan_data, pars=inp$pars, ...)

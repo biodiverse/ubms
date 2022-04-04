@@ -9,6 +9,10 @@ exp_counts_occuRN <- function(obs, Kmin, lam, r) {
     .Call(`_ubms_exp_counts_occuRN`, obs, Kmin, lam, r)
 }
 
+get_loglik_occu <- function(y, M, si, psimat, pmat, Kmin) {
+    .Call(`_ubms_get_loglik_occu`, y, M, si, psimat, pmat, Kmin)
+}
+
 simz_pcount <- function(y, lam_post, p_post, K, Kmin, kvals) {
     .Call(`_ubms_simz_pcount`, y, lam_post, p_post, K, Kmin, kvals)
 }

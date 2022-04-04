@@ -60,6 +60,7 @@ Collate:
     'missing.R'
     'distsamp.R'
     'fitlist.R'
+    'kfold.R'
     'occuRN.R'
     'mb_chisq.R'
     'multinomPois.R'
