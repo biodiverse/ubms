@@ -13,6 +13,10 @@ get_loglik_occu <- function(y, M, si, psimat, pmat, Kmin) {
     .Call(`_ubms_get_loglik_occu`, y, M, si, psimat, pmat, Kmin)
 }
 
+get_loglik_pcount <- function(y, M, si, lammat, pmat, K, Kmin) {
+    .Call(`_ubms_get_loglik_pcount`, y, M, si, lammat, pmat, K, Kmin)
+}
+
 simz_pcount <- function(y, lam_post, p_post, K, Kmin, kvals) {
     .Call(`_ubms_simz_pcount`, y, lam_post, p_post, K, Kmin, kvals)
 }

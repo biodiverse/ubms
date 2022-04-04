@@ -57,3 +57,9 @@ setMethod("get_loglik", "ubmsFitOccu", function(object, inps, ...){
   p <- t(posterior_linpred(object, submodel="det", transform=TRUE))
   get_loglik_occu(inps$y, inps$M, inps$si-1, psi, p, inps$Kmin)
 })
+
+setMethod("get_loglik", "ubmsFitPcount", function(object, inps, ...){
+  lam <- t(posterior_linpred(object, submodel="state", transform=TRUE))
+  p <- t(posterior_linpred(object, submodel="det", transform=TRUE))
+  get_loglik_pcount(inps$y, inps$M, inps$si-1, lam, p, inps$K, inps$Kmin)
+})
