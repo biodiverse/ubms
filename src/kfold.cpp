@@ -121,3 +121,67 @@ arma::mat get_loglik_occuRN(arma::vec y, int M, arma::imat si,
   return out;
 
 }
+
+// pi functions
+arma::vec pi_removal(arma::vec p){
+  int J = p.size();
+  vec pi_out(J);
+  pi_out(0) = p(0);
+  for (int j = 1; j < J; j++){
+    pi_out(j) = pi_out(j-1) / p(j-1) * (1-p(j-1)) * p(j);
+  }
+  return pi_out;
+}
+
+arma::vec pi_double(arma::vec p){
+  vec pi_out(3);
+  pi_out(0) = p(0) * (1 - p(1));
+  pi_out(1) = p(1) * (1 - p(0));
+  pi_out(2) = p(0) * p(1);
+  return pi_out;
+}
+
+arma::vec pi_fun(int pi_type, arma::vec p, int J){
+  vec out(J);
+  if(pi_type == 0){
+    out = pi_double(p);
+  } else if(pi_type == 1){
+    out = pi_removal(p);
+  } else{
+    Rcpp::stop("Invalid pi function");
+  }
+  return out;
+}
+
+// [[Rcpp::export]]
+arma::mat get_loglik_multinomPois(arma::vec y, int M, arma::imat si,
+                                  arma::mat lammat, arma::mat pmat, int pi_type){
+
+  int S = lammat.n_cols;
+  mat out = zeros(S,M);
+  vec p_s(pmat.n_rows);
+  vec ysub, psub;
+  int R = pmat.n_rows / M;
+  int pstart, pend, J;
+  vec cp;
+
+  for (int s = 0; s < S; s++){
+
+    p_s = pmat.col(s);
+    pstart = 0;
+
+    for (int m = 0; m < M; m++){
+      pend = pstart + R - 1;
+      ysub = y.subvec(si(m,0), si(m,1));
+      psub = p_s.subvec(pstart, pend);
+      J = ysub.size();
+      cp = pi_fun(pi_type, psub, J);
+
+      for (int j = 0; j < J; j++){
+        out(s, m) += Rf_dpois(ysub(j), lammat(m, s) * cp(j), true);
+      }
+      pstart += R;
+    }
+  }
+  return out;
+}

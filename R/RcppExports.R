@@ -21,6 +21,10 @@ get_loglik_occuRN <- function(y, M, si, lammat, rmat, K, Kmin) {
     .Call(`_ubms_get_loglik_occuRN`, y, M, si, lammat, rmat, K, Kmin)
 }
 
+get_loglik_multinomPois <- function(y, M, si, lammat, pmat, pi_type) {
+    .Call(`_ubms_get_loglik_multinomPois`, y, M, si, lammat, pmat, pi_type)
+}
+
 simz_pcount <- function(y, lam_post, p_post, K, Kmin, kvals) {
     .Call(`_ubms_simz_pcount`, y, lam_post, p_post, K, Kmin, kvals)
 }

@@ -79,3 +79,9 @@ setMethod("get_loglik", "ubmsFitOccuRN", function(object, inps, ...){
   p <- t(posterior_linpred(object, submodel="det", transform=TRUE))
   get_loglik_occuRN(inps$y, inps$M, inps$si-1, lam, p, inps$K, inps$Kmin)
 })
+
+setMethod("get_loglik", "ubmsFitMultinomPois", function(object, inps, ...){
+  lam <- t(posterior_linpred(object, submodel="state", transform=TRUE))
+  p <- t(posterior_linpred(object, submodel="det", transform=TRUE))
+  get_loglik_multinomPois(inps$y, inps$M, inps$si-1, lam, p, inps$y_dist)
+})
