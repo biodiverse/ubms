@@ -26,32 +26,21 @@ ubmsFit <- function(model, call, data, response, submodels, ...){
 
   #Fit model
   fit <- fit_model(model, response, submodels, ...)
-  # Exit early if just returning Stan inputs
-  if(check_return_inputs(...)) return(fit)
 
   #Remove placeholder submodels
   submodels <- remove_placeholders(submodels)
 
   #Construct output
-  new(fit_class(model), call=call, data=data, stanfit=fit,
-      response=response, submodels=submodels, loo=get_loo(fit))
+  out <- new(fit_class(model), call=call, data=data, stanfit=fit,
+             response=response, submodels=submodels, loo=empty_loo())
+  out@loo <- get_loo(out)
+  out
 }
 
 remove_placeholders <- function(submodels){
   not_place <- !sapply(submodels@submodels, is_placeholder)
   submodels@submodels <- submodels@submodels[not_place]
   submodels
-}
-
-# Function to check if just Stan inputs should be returned
-# Used by kfold method
-# Pass return_inputs=TRUE in ... when calling stan_*
-check_return_inputs <- function(...){
-  args <- list(...)
-  if("return_inputs" %in% names(args)){
-    if(args$return_inputs) return(TRUE)
-  }
-  FALSE
 }
 
 fit_class <- function(mod){
@@ -64,11 +53,6 @@ fit_class <- function(mod){
 fit_model <- function(name, response, submodels, ...){
   model <- name_to_stanmodel(name, submodels)
   inp <- build_stan_inputs(name, response, submodels)
-  # Should just Stan inputs be returned?
-  if(check_return_inputs(...)){
-    inp$submodels <- submodels
-    return(inp)
-  }
   mod <- stanmodels[[model]]
   mod@model_name <- name
   fit <- sampling(mod, data=inp$stan_data, pars=inp$pars, ...)
@@ -110,9 +94,3 @@ setMethod("stanfit_names", "ubmsSubmodelList", function(object, ...){
   out <- unname(out)
   out
 })
-
-get_loo <- function(stanfit, cores=getOption("mc.cores", 1)){
-  loglik <- loo::extract_log_lik(stanfit, merge_chains=FALSE)
-  r_eff <- loo::relative_eff(exp(loglik), cores=cores)
-  loo::loo(loglik, r_eff=r_eff, cores=cores)
-}

@@ -95,7 +95,7 @@ test_that("stan_distsamp produces accurate results",{
   stan_mod <- suppressWarnings(stan_distsamp(~1~1, ltUMF_big, keyfun="exp",
                                              chains=2, iter=200, refresh=0))
   um_mod <- distsamp(~1~1, ltUMF_big, keyfun="exp")
-  expect_RMSE(coef(stan_mod), coef(um_mod), 0.01)
+  expect_RMSE(coef(stan_mod), coef(um_mod), 0.02)
 
   stan_mod <- suppressWarnings(stan_distsamp(~1~1, ltUMF_big, output="abund",
                             chains=2, iter=200, refresh=0))

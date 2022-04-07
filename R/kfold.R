@@ -13,9 +13,9 @@
 #' @export
 setMethod("kfold", "ubmsFit", function(x, K=10, folds=NULL, quiet=FALSE, ...){
   if(is.null(folds)){
-    folds <- loo::kfold_split_random(K, numSites(x@data))
+    folds <- loo::kfold_split_random(K, unmarked::numSites(x@data))
   } else {
-    stopifnot(length(folds) == numSites(x@data))
+    stopifnot(length(folds) == unmarked::numSites(x@data))
     stopifnot(max(folds) == K)
   }
 
@@ -40,12 +40,12 @@ ll_fold <- function(i, object, folds){
   train_data <- object@data[which(!folds==i),]
   cl$data <- train_data
   cl$refresh <- 0
-  refit <- suppressWarnings(eval(cl))
+  refit <- suppressWarnings(eval(cl, parent.frame(3)))
 
   test_data <- object@data[which(folds==i),]
   cl$data <- test_data
   cl$return_inputs <- TRUE
-  inps <- eval(cl)
+  inps <- eval(cl, parent.frame(3))
   refit@submodels <- inps$submodels
   ll <- get_loglik(refit, inps)
 
@@ -55,75 +55,3 @@ ll_fold <- function(i, object, folds){
   out[,not_missing] <- ll
   out
 }
-
-# Calculate parameter from X, Z, offset
-# Can't use posterior_linpred for this because it doesn't drop NAs
-# Inps are output from get_stan_inputs()
-calculate_par <- function(object, inps, submodel){
-  X <- inps$stan_data[[paste0("X_",submodel)]]
-  beta <- extract(object, paste0("beta_", submodel))[[1]]
-  lp <- X %*% t(beta)
-  if(inps$stan_data[[paste0("has_random_",submodel)]]){
-    Z <- Z_matrix(inps$submodels[submodel])
-    b <- extract(object, paste0("b_", submodel))[[1]]
-    lp <- lp + Z %*% t(b)
-  }
-  lp <- lp + inps$stan_data[[paste0("offset_",submodel)]]
-  do.call(inps$submodels[submodel]@link, list(lp))
-}
-
-setGeneric("get_loglik", function(object, ...) standardGeneric("get_loglik"))
-
-setMethod("get_loglik", "ubmsFit", function(object, inps, ...){
-  stop("Method not available for this fit type", call.=FALSE)
-})
-
-setMethod("get_loglik", "ubmsFitOccu", function(object, inps, ...){
-  psi <- calculate_par(object, inps, submodel="state")
-  p <- calculate_par(object, inps, submodel="det")
-  get_loglik_occu(inps$stan_data$y, inps$stan_data$M, inps$stan_data$si-1,
-                  psi, p, inps$stan_data$Kmin)
-})
-
-setMethod("get_loglik", "ubmsFitPcount", function(object, inps, ...){
-  lam <- calculate_par(object, inps, submodel="state")
-  p <- calculate_par(object, inps, submodel="det")
-  get_loglik_pcount(inps$stan_data$y, inps$stan_data$M, inps$stan_data$si-1,
-                    lam, p, inps$stan_data$K, inps$stan_data$Kmin)
-})
-
-setMethod("get_loglik", "ubmsFitOccuRN", function(object, inps, ...){
-  lam <- calculate_par(object, inps, submodel="state")
-  p <- calculate_par(object, inps, submodel="det")
-  get_loglik_occuRN(inps$stan_data$y, inps$stan_data$M, inps$stan_data$si-1,
-                    lam, p, inps$stan_data$K, inps$stan_data$Kmin)
-})
-
-setMethod("get_loglik", "ubmsFitMultinomPois", function(object, inps, ...){
-  lam <- calculate_par(object, inps, submodel="state")
-  p <- calculate_par(object, inps, submodel="det")
-  get_loglik_multinomPois(inps$stan_data$y, inps$stan_data$M, inps$stan_data$si-1,
-                          lam, p, inps$stan_data$y_dist)
-})
-
-setMethod("get_loglik", "ubmsFitColext", function(object, inps, ...){
-  psi <- calculate_par(object, inps, submodel="state")
-  psicube <- array(NA, c(dim(psi), 2))
-  psicube[,,1] <- 1 - psi
-  psicube[,,2] <- psi
-  psicube <- aperm(psicube, c(1,3,2))
-
-  col <- calculate_par(object, inps, submodel="col")
-  ext <- calculate_par(object, inps, submodel="ext")
-  phicube <- array(NA, c(dim(col), 4))
-  phicube[,,1] <- 1 - col
-  phicube[,,2] <- col
-  phicube[,,3] <- ext
-  phicube[,,4] <- 1 - ext
-  phicube <- aperm(phicube, c(1,3,2))
-  pmat <- calculate_par(object, inps, submodel="det")
-
-  get_loglik_colext(inps$stan_data$y, inps$stan_data$M, inps$stan_data$Tsamp-1,
-                     inps$stan_data$J, inps$stan_data$si-1, psicube,
-                     phicube, pmat, 1 - inps$stan_data$Kmin)
-})

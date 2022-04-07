@@ -3,7 +3,7 @@
   model_code <- name_to_modelcode(name)
   y_data <- get_stan_data(response)
 
-  pars <- get_pars(submodels)
+  pars <- get_pars(submodels, name %in% c("occuTTD","distsamp"))
   submodels <- unname(submodels@submodels)
   types <- sapply(submodels, function(x) x@type)
   submodel_data <- lapply(submodels, get_stan_data)
@@ -39,13 +39,14 @@ add_placeholder_priors <- function(submodel_data, types){
 
 setGeneric("get_pars", function(object, ...) standardGeneric("get_pars"))
 
-setMethod("get_pars", "ubmsSubmodelList", function(object, ...){
+setMethod("get_pars", "ubmsSubmodelList", function(object, keep_loglik=FALSE, ...){
   #Remove placeholder submodels - we don't want to save those parameters
   submodels <- object@submodels
   submodels <- submodels[!sapply(submodels, is_placeholder)]
   submodels <- unname(submodels)
   out <- unlist(lapply(submodels, get_pars))
-  c(out, "log_lik")
+  if(keep_loglik) out <- c(out, "log_lik")
+  out
 })
 
 setMethod("get_pars", "ubmsSubmodel", function(object, ...){

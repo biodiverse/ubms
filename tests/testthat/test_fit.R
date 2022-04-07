@@ -36,8 +36,9 @@ test <- process_stanfit(sf, sl)
 skip_if(!good_fit, "Test setup failed")
 
 test_that("ubmsFit object is constructed correctly",{
-
-  ufit <- suppressWarnings(ubmsFit("occu", call("dummy"), umf, resp, sl,
+  ufit <- suppressWarnings(ubmsFit("occu",
+                                   as.call(str2lang("stan_occu(formula = ~1 ~ 1, data = umf, chains = 2, iter = 40)")),
+                                   umf, resp, sl,
                                    chains=2, iter=40, refresh=0))
   expect_true(inherits(ufit, "ubmsFit"))
   expect_true(inherits(ufit@stanfit, "stanfit"))
@@ -58,10 +59,10 @@ test_that("remove_placeholders removes placeholder submodels from list",{
   expect_equal(list_remove, sl)
 })
 
-test_that("get_loo generates loo object from stanfit",{
-  loo_obj <- suppressWarnings(get_loo(sf))
-  expect_true(inherits(loo_obj, "psis_loo"))
-})
+#test_that("get_loo generates loo object from stanfit",{
+#  loo_obj <- suppressWarnings(get_loo(sf))
+#  expect_true(inherits(loo_obj, "psis_loo"))
+#})
 
 test_that("fit_model builds model correctly",{
   ufit <- suppressWarnings(

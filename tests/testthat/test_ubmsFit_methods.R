@@ -88,7 +88,7 @@ test_that("extract method works for ubmsFit",{
   ex_all <- extract(fit)
   expect_is(ex_all, "list")
   expect_equal(names(ex_all), c("beta_state","b_state","sigma_state",
-                                "beta_det","log_lik","lp__"))
+                                "beta_det","lp__"))
 })
 
 test_that("traceplot method works for ubmsFit",{

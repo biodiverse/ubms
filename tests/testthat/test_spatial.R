@@ -26,10 +26,11 @@ for (i in sample(1:500, 300, replace=FALSE)){
 }
 
 umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
-
+umf20 <- umf[1:20,]
+umf10 <- umf[1:10,]
 fit <- suppressMessages(suppressWarnings(stan_occu(~1~cov1+RSR(x,y,1),
-                              data=umf[1:20,], chains=2, iter=200, refresh=0)))
-fit2 <- suppressWarnings(stan_occu(~1~1, data=umf[1:10,], chains=2, iter=200, refresh=0))
+                              data=umf20, chains=2, iter=200, refresh=0)))
+fit2 <- suppressWarnings(stan_occu(~1~1, data=umf10, chains=2, iter=200, refresh=0))
 
 test_that("spatial model output structure", {
   expect_is(fit, "ubmsFitOccu")
