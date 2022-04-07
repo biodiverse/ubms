@@ -47,13 +47,29 @@ ll_fold <- function(i, object, folds){
   cl$return_inputs <- TRUE
   inps <- eval(cl)
   refit@submodels <- inps$submodels
-  ll <- get_loglik(refit, inps$stan_data)
+  ll <- get_loglik(refit, inps)
 
   # Handle missing sites
   out <- matrix(NA, nrow=nrow(ll), ncol=sum(folds==i))
   not_missing <- which(folds==i) %in% which(!removed_sites(object))
   out[,not_missing] <- ll
   out
+}
+
+# Calculate parameter from X, Z, offset
+# Can't use posterior_linpred for this because it doesn't drop NAs
+# Inps are output from get_stan_inputs()
+calculate_par <- function(object, inps, submodel){
+  X <- inps$stan_data[[paste0("X_",submodel)]]
+  beta <- extract(object, paste0("beta_", submodel))[[1]]
+  lp <- X %*% t(beta)
+  if(inps$stan_data[[paste0("has_random_",submodel)]]){
+    Z <- Z_matrix(inps$submodels[submodel])
+    b <- extract(object, paste0("b_", submodel))[[1]]
+    lp <- lp + Z %*% t(b)
+  }
+  lp <- lp + inps$stan_data[[paste0("offset_",submodel)]]
+  do.call(inps$submodels[submodel]@link, list(lp))
 }
 
 setGeneric("get_loglik", function(object, ...) standardGeneric("get_loglik"))
@@ -63,25 +79,51 @@ setMethod("get_loglik", "ubmsFit", function(object, inps, ...){
 })
 
 setMethod("get_loglik", "ubmsFitOccu", function(object, inps, ...){
-  psi <- t(posterior_linpred(object, submodel="state", transform=TRUE))
-  p <- t(posterior_linpred(object, submodel="det", transform=TRUE))
-  get_loglik_occu(inps$y, inps$M, inps$si-1, psi, p, inps$Kmin)
+  psi <- calculate_par(object, inps, submodel="state")
+  p <- calculate_par(object, inps, submodel="det")
+  get_loglik_occu(inps$stan_data$y, inps$stan_data$M, inps$stan_data$si-1,
+                  psi, p, inps$stan_data$Kmin)
 })
 
 setMethod("get_loglik", "ubmsFitPcount", function(object, inps, ...){
-  lam <- t(posterior_linpred(object, submodel="state", transform=TRUE))
-  p <- t(posterior_linpred(object, submodel="det", transform=TRUE))
-  get_loglik_pcount(inps$y, inps$M, inps$si-1, lam, p, inps$K, inps$Kmin)
+  lam <- calculate_par(object, inps, submodel="state")
+  p <- calculate_par(object, inps, submodel="det")
+  get_loglik_pcount(inps$stan_data$y, inps$stan_data$M, inps$stan_data$si-1,
+                    lam, p, inps$stan_data$K, inps$stan_data$Kmin)
 })
 
 setMethod("get_loglik", "ubmsFitOccuRN", function(object, inps, ...){
-  lam <- t(posterior_linpred(object, submodel="state", transform=TRUE))
-  p <- t(posterior_linpred(object, submodel="det", transform=TRUE))
-  get_loglik_occuRN(inps$y, inps$M, inps$si-1, lam, p, inps$K, inps$Kmin)
+  lam <- calculate_par(object, inps, submodel="state")
+  p <- calculate_par(object, inps, submodel="det")
+  get_loglik_occuRN(inps$stan_data$y, inps$stan_data$M, inps$stan_data$si-1,
+                    lam, p, inps$stan_data$K, inps$stan_data$Kmin)
 })
 
 setMethod("get_loglik", "ubmsFitMultinomPois", function(object, inps, ...){
-  lam <- t(posterior_linpred(object, submodel="state", transform=TRUE))
-  p <- t(posterior_linpred(object, submodel="det", transform=TRUE))
-  get_loglik_multinomPois(inps$y, inps$M, inps$si-1, lam, p, inps$y_dist)
+  lam <- calculate_par(object, inps, submodel="state")
+  p <- calculate_par(object, inps, submodel="det")
+  get_loglik_multinomPois(inps$stan_data$y, inps$stan_data$M, inps$stan_data$si-1,
+                          lam, p, inps$stan_data$y_dist)
+})
+
+setMethod("get_loglik", "ubmsFitColext", function(object, inps, ...){
+  psi <- calculate_par(object, inps, submodel="state")
+  psicube <- array(NA, c(dim(psi), 2))
+  psicube[,,1] <- 1 - psi
+  psicube[,,2] <- psi
+  psicube <- aperm(psicube, c(1,3,2))
+
+  col <- calculate_par(object, inps, submodel="col")
+  ext <- calculate_par(object, inps, submodel="ext")
+  phicube <- array(NA, c(dim(col), 4))
+  phicube[,,1] <- 1 - col
+  phicube[,,2] <- col
+  phicube[,,3] <- ext
+  phicube[,,4] <- 1 - ext
+  phicube <- aperm(phicube, c(1,3,2))
+  pmat <- calculate_par(object, inps, submodel="det")
+
+  get_loglik_colext(inps$stan_data$y, inps$stan_data$M, inps$stan_data$Tsamp-1,
+                     inps$stan_data$J, inps$stan_data$si-1, psicube,
+                     phicube, pmat, 1 - inps$stan_data$Kmin)
 })

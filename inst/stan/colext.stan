@@ -42,15 +42,15 @@ real lp_colext(int[] y, int[] Tsamp, int[] J, row_vector psi, matrix phi_raw,
   if(T > 1){
     for (t in 1:(T-1)){
       phi = get_phi(phi_raw, Tsamp[t], Tsamp[t+1]);
-      end = idx + J[t] - 1;
-      Dpt = get_pY(y[idx:end], logit_p[idx:end], nd[t]);
+      end = idx + J[Tsamp[t]] - 1;
+      Dpt = get_pY(y[idx:end], logit_p[idx:end], nd[Tsamp[t]]);
       phi_prod *= diag_pre_multiply(Dpt, phi);
-      idx += J[t];
+      idx += J[Tsamp[t]];
     }
   }
 
-  end = idx + J[T] - 1;
-  Dpt = get_pY(y[idx:end], logit_p[idx:end], nd[T]);
+  end = idx + J[Tsamp[T]] - 1;
+  Dpt = get_pY(y[idx:end], logit_p[idx:end], nd[Tsamp[T]]);
 
   return log(dot_product(psi * phi_prod, Dpt));
 }

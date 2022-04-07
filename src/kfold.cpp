@@ -185,3 +185,103 @@ arma::mat get_loglik_multinomPois(arma::vec y, int M, arma::imat si,
   }
   return out;
 }
+
+
+arma::vec get_pY(arma::vec y, arma::vec p, int nd){
+
+  vec out(2);
+  int J = y.size();
+  out(0) = nd;
+  out(1) = 1.0;
+  for (int j = 0; j < J; j++){
+    out(1) *= Rf_dbinom(y(j), 1, p(j), false);
+  }
+  return out;
+}
+
+arma::mat phi_matrix(arma::rowvec phi_raw){
+  mat out(2,2);
+  out(0,0) = phi_raw(0);
+  out(0,1) = phi_raw(1);
+  out(1,0) = phi_raw(2);
+  out(1,1) = phi_raw(3);
+  return out;
+}
+
+arma::mat get_phi(arma::mat phi_raw, int Tstart, int Tnext){
+  mat phi = eye(2,2);
+  int delta = Tnext - Tstart;
+  if(delta == 1){
+    return phi_matrix(phi_raw.row(Tstart));
+  }
+
+  for (int d = 1; d < (delta + 1); d++){
+    phi = phi * phi_matrix(phi_raw.row(Tstart + d - 1));
+  }
+  return phi;
+}
+
+
+
+// [[Rcpp::export]]
+arma::mat get_loglik_colext(arma::vec y, int M, arma::ivec Tsamp, arma::imat J,
+                            arma::imat si, arma::cube psicube, arma::cube phicube,
+                            arma::mat pmat, arma::imat nd){
+
+  int S = pmat.n_cols;
+  mat out(S,M);
+  vec p_s(pmat.n_rows);
+  mat psi_s(psicube.n_rows, psicube.n_cols);
+  mat phi_s(phicube.n_rows, phicube.n_cols);
+
+  rowvec psi_m;
+  mat phi_m;
+  ivec Tsamp_m;
+  irowvec J_m, nd_m;
+  vec y_m, p_m;
+  int T;
+  mat phi_prod(2,2);
+  mat phi(2,2);
+  vec Dpt(2);
+  int idx, end;
+
+  for (int s = 0; s < S; s++){
+
+    p_s = pmat.col(s);
+    psi_s = psicube.slice(s);
+    phi_s = phicube.slice(s);
+
+    for (int m = 0; m < M; m++){
+      idx = 0;
+      y_m = y.subvec(si(m,0), si(m,1));
+      Tsamp_m = Tsamp.subvec(si(m,2), si(m,3));
+      J_m = J.row(m);
+
+      psi_m = psi_s.row(m);
+      phi_m = phi_s.rows(si(m,4),si(m,5));
+      p_m = p_s.subvec(si(m,0), si(m,1));
+      nd_m = nd.row(m);
+
+      T = Tsamp_m.size();
+      phi_prod = eye(2,2);
+
+      if(T > 1){
+        for (int t = 0; t < (T-1); t++){
+          phi = get_phi(phi_m, Tsamp_m(t), Tsamp_m(t+1));
+          end = idx + J_m(Tsamp_m(t)) - 1;
+          Dpt = get_pY(y_m.subvec(idx, end), p_m.subvec(idx, end),
+                       nd_m(Tsamp_m(t)));
+
+          phi_prod *= diagmat(Dpt) * phi;
+          idx += J_m(Tsamp_m(t));
+        }
+      }
+
+      end = idx + J_m(Tsamp_m(T-1)) - 1;
+      Dpt = get_pY(y_m.subvec(idx,end), p_m.subvec(idx,end), nd_m(Tsamp_m(T-1)));
+      out(s, m) = log(dot(psi_m * phi_prod, Dpt));
+    }
+  }
+
+  return out;
+}

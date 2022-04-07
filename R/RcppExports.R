@@ -25,6 +25,10 @@ get_loglik_multinomPois <- function(y, M, si, lammat, pmat, pi_type) {
     .Call(`_ubms_get_loglik_multinomPois`, y, M, si, lammat, pmat, pi_type)
 }
 
+get_loglik_colext <- function(y, M, Tsamp, J, si, psicube, phicube, pmat, nd) {
+    .Call(`_ubms_get_loglik_colext`, y, M, Tsamp, J, si, psicube, phicube, pmat, nd)
+}
+
 simz_pcount <- function(y, lam_post, p_post, K, Kmin, kvals) {
     .Call(`_ubms_simz_pcount`, y, lam_post, p_post, K, Kmin, kvals)
 }
