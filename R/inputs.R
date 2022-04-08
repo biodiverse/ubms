@@ -3,7 +3,7 @@
   model_code <- name_to_modelcode(name)
   y_data <- get_stan_data(response)
 
-  pars <- get_pars(submodels, name %in% c("occuTTD","distsamp"))
+  pars <- get_pars(submodels, name %in% c("distsamp"))
   submodels <- unname(submodels@submodels)
   types <- sapply(submodels, function(x) x@type)
   submodel_data <- lapply(submodels, get_stan_data)

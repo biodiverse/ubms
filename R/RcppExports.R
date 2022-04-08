@@ -29,6 +29,10 @@ get_loglik_colext <- function(y, M, Tsamp, J, si, psicube, phicube, pmat, nd) {
     .Call(`_ubms_get_loglik_colext`, y, M, Tsamp, J, si, psicube, phicube, pmat, nd)
 }
 
+get_loglik_occuTTD <- function(y, M, si, psimat, lammat, k, delta, ydist) {
+    .Call(`_ubms_get_loglik_occuTTD`, y, M, si, psimat, lammat, k, delta, ydist)
+}
+
 simz_pcount <- function(y, lam_post, p_post, K, Kmin, kvals) {
     .Call(`_ubms_simz_pcount`, y, lam_post, p_post, K, Kmin, kvals)
 }

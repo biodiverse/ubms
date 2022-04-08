@@ -40,12 +40,12 @@ ll_fold <- function(i, object, folds){
   train_data <- object@data[which(!folds==i),]
   cl$data <- train_data
   cl$refresh <- 0
-  refit <- suppressWarnings(eval(cl, parent.frame(3)))
+  refit <- suppressWarnings(eval(cl))
 
   test_data <- object@data[which(folds==i),]
   cl$data <- test_data
   cl$return_inputs <- TRUE
-  inps <- eval(cl, parent.frame(3))
+  inps <- eval(cl)
   refit@submodels <- inps$submodels
   ll <- get_loglik(refit, inps)
 

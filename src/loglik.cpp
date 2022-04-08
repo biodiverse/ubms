@@ -285,3 +285,62 @@ arma::mat get_loglik_colext(arma::vec y, int M, arma::ivec Tsamp, arma::imat J,
 
   return out;
 }
+
+
+arma::vec ttd_prob_exp(arma::vec y, arma::vec lam, arma::ivec delta){
+  int J = y.size();
+  vec e_lamt(J);
+
+  for (int j=0; j < J; j++){
+    e_lamt(j) = pow(lam(j), delta(j)) * exp(-lam(j)*y(j));
+  }
+  return e_lamt;
+}
+
+arma::vec ttd_prob_weib(arma::vec y, arma::vec lam, arma::ivec delta, double k){
+  int J = y.size();
+  vec e_lamt(J);
+  for (int j = 0; j < J; j++){
+    e_lamt(j) = pow(k*lam(j)*pow(lam(j)*y(j), (k-1)), delta(j)) *
+                exp(-1*pow(lam(j)*y(j), k));
+  }
+  return e_lamt;
+}
+
+
+// [[Rcpp::export]]
+arma::mat get_loglik_occuTTD(arma::vec y, int M, arma::imat si, arma::mat psimat,
+                             arma::mat lammat, arma::vec k,
+                             arma::ivec delta, int ydist){
+
+  int S = psimat.n_cols;
+  mat out(S,M);
+  vec lam_s(lammat.n_rows);
+  vec e_lamt;
+  int J;
+  vec y_m, lam_m;
+  ivec delta_m;
+  double lik;
+
+  for (int s = 0; s < S; s++){
+
+    lam_s = lammat.col(s);
+
+    for (int m = 0; m < M; m++){
+      y_m = y.subvec(si(m,0), si(m,1));
+      lam_m = lam_s.subvec(si(m,0), si(m,1));
+      delta_m = delta.subvec(si(m,0), si(m,1));
+
+      if(ydist == 1){
+        e_lamt = ttd_prob_exp(y_m, lam_m, delta_m);
+      } else if(ydist == 3){
+        e_lamt = ttd_prob_weib(y_m, lam_m, delta_m, k(s));
+      }
+
+      lik = psimat(m,s) * prod(e_lamt) + (1-psimat(m,s)) * (1-max(delta_m));
+      out(s,m) = log(lik);
+    }
+  }
+
+  return out;
+}

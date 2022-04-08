@@ -85,6 +85,18 @@ setMethod("get_loglik", "ubmsFitColext", function(object, inps, ...){
                      phicube, pmat, 1 - inps$stan_data$Kmin)
 })
 
+#' @include occuTTD.R
+setMethod("get_loglik", "ubmsFitOccuTTD", function(object, inps, ...){
+  psi <- calculate_par(object, inps, submodel="state")
+  lam <- calculate_par(object, inps, submodel="det")
+  k <- rep(0, ncol(psi))
+  if(inps$stan_data$y_dist == 3){
+    k <- extract(object, "beta_shape", permute=FALSE)
+    k <- exp(as.vector(k))
+  }
+  get_loglik_occuTTD(inps$stan_data$aux2, inps$stan_data$M, inps$stan_data$si-1,
+                     psi, lam, k, inps$stan_data$aux1, inps$stan_data$y_dist)
+})
 
 #' Extract Pointwise Log-likelihood From Model
 #'
@@ -124,12 +136,6 @@ setMethod("extract_log_lik", "ubmsFit",
     ll <- array(ll, c(niter, nchain, ncol(ll)))
   }
   ll
-})
-
-#' @include occuTTD.R
-setMethod("extract_log_lik", "ubmsFitOccuTTD",
-          function(object, parameter_name = "log_lik", merge_chains=TRUE){
-  loo::extract_log_lik(object@stanfit, parameter_name, merge_chains)
 })
 
 #' @include distsamp.R
