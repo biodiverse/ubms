@@ -300,7 +300,7 @@ names <- list(
 fit_stocc <- spatial.occupancy(
   detection.model = ~ detCov1 + detCov2,
   occupancy.model = ~ habCov1 + habCov2,
-  spatial.model = list(model="rsr", threshold=1, moran.cut=0.1*nrow(habData)),
+  spatial.model = list(model="rsr", threshold=1.01, moran.cut=0.1*nrow(habData)),
   so.data = make.so.data(visitData, habData, names),
   prior = list(a.tau=0.5, b.tau=0.00005, Q.b=0.1, Q.g=0.1),
   control = list(burnin=1000/5, iter=4000/5, thin=5)
@@ -320,7 +320,7 @@ if(file.exists("fit_stocc.Rds")){
   nul <- capture.output(fit_stocc <- spatial.occupancy(
     detection.model = ~ detCov1 + detCov2,
     occupancy.model = ~ habCov1 + habCov2,
-    spatial.model = list(model="rsr", threshold=1, moran.cut=0.1*nrow(habData)),
+    spatial.model = list(model="rsr", threshold=1.01, moran.cut=0.1*nrow(habData)),
     so.data = make.so.data(visitData, habData, names),
     prior = list(a.tau=0.5, b.tau=0.00005, Q.b=0.1, Q.g=0.1),
     control = list(burnin=1000/5, iter=4000/5, thin=5)
