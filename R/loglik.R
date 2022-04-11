@@ -128,6 +128,10 @@ setGeneric("extract_log_lik",
 
 setMethod("extract_log_lik", "ubmsFit",
           function(object, parameter_name = "log_lik", merge_chains=TRUE){
+  #if log_lik was saved as an output parameter, just return that
+  if(loglik_saved(object)){
+    return(loo::extract_log_lik(object@stanfit, parameter_name, merge_chains))
+  }
   inps <- rebuild_inputs(object)
   ll <- get_loglik(object, inps, merge_chains)
   if(!merge_chains){
@@ -138,8 +142,6 @@ setMethod("extract_log_lik", "ubmsFit",
   ll
 })
 
-#' @include distsamp.R
-setMethod("extract_log_lik", "ubmsFitDistsamp",
-          function(object, parameter_name = "log_lik", merge_chains=TRUE){
-  loo::extract_log_lik(object@stanfit, parameter_name, merge_chains)
-})
+loglik_saved <- function(fit){
+  "log_lik" %in% fit@stanfit@sim$pars_oi
+}
