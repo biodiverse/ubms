@@ -181,3 +181,15 @@ test_that("Fitted/residual methods work with ubmsFitOccu",{
   expect_is(rp3, "gtable")
   expect_is(mp, "gg")
 })
+
+test_that("stan_occu kfold method works",{
+
+set.seed(123)
+kf <- kfold(fit, K=2, quiet=TRUE)
+expect_is(kf, "elpd_generic")
+expect_equal(kf$estimates[1,1], -37.3802, tol=1e-4)
+
+expect_error(kfold(fit, K=2, folds=rep(3,10)))
+expect_error(kfold(fit, K=2, folds=rep(1,5)))
+
+})

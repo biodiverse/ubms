@@ -118,8 +118,7 @@ setMethod("get_loglik", "ubmsFitOccuTTD", function(object, inps, ...){
 #'
 #' @return A matrix (samples x sites) or array (samples x chains x sites)
 #'
-#' @aliases extract_log_lik,ubmsFit-method extract_log_lik,ubmsFitOccuTTD-method
-#' @aliases extract_log_lik,ubmsFitDistsamp-method
+#' @aliases extract_log_lik,ubmsFit-method extract_log_lik,ubmsFitDistsamp-method
 #' @export
 setGeneric("extract_log_lik",
            function(object, parameter_name="log_lik", merge_chains=TRUE){
@@ -143,15 +142,3 @@ setMethod("extract_log_lik", "ubmsFitDistsamp",
           function(object, parameter_name = "log_lik", merge_chains=TRUE){
   loo::extract_log_lik(object@stanfit, parameter_name, merge_chains)
 })
-
-get_loo <- function(object, cores=getOption("mc.cores", 1)){
-  loglik <- extract_log_lik(object, merge_chains=FALSE)
-  r_eff <- loo::relative_eff(exp(loglik), cores=cores)
-  loo::loo(loglik, r_eff=r_eff, cores=cores)
-}
-
-empty_loo <- function(){
-  out <- list()
-  class(out) <- "psis_loo"
-  out
-}

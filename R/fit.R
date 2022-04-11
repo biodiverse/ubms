@@ -45,6 +45,18 @@ remove_placeholders <- function(submodels){
   submodels
 }
 
+empty_loo <- function(){
+  out <- list()
+  class(out) <- "psis_loo"
+  out
+}
+
+get_loo <- function(object, cores=getOption("mc.cores", 1)){
+  loglik <- extract_log_lik(object, merge_chains=FALSE)
+  r_eff <- loo::relative_eff(exp(loglik), cores=cores)
+  loo::loo(loglik, r_eff=r_eff, cores=cores)
+}
+
 # Function to check if just Stan inputs should be returned
 # Used by kfold method
 # Pass return_inputs=TRUE in ... when calling stan_*
