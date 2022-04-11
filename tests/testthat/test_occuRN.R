@@ -68,6 +68,13 @@ test_that("stan_occuRN handles NA values",{
   expect_is(coef(fit_na), "numeric")
 })
 
+test_that("extract_log_lik method works",{
+  ll <- extract_log_lik(fit)
+  expect_is(ll, "matrix")
+  expect_equal(dim(ll), c(100/2 * 2, numSites(fit@data))) 
+  expect_between(sum(ll), -3000, -2700) 
+})
+
 test_that("ubmsFitOccuRN gof method works",{
   set.seed(123)
   g <- gof(fit, draws=5, quiet=TRUE)

@@ -121,6 +121,13 @@ test_that("stan_distsamp handles NA values",{
   expect_error(stan_distsamp(~1~1, ltUMF_na))
 })
 
+test_that("extract_log_lik method works",{
+  ll <- extract_log_lik(fit_pt_hn)
+  expect_is(ll, "matrix")
+  expect_equal(dim(ll), c(200/2 * 2, numSites(fit_pt_hn@data))) 
+  expect_between(sum(ll), -39000, -38000) 
+})
+
 test_that("ubmsFitDistsamp gof method works",{
   set.seed(123)
   g <- lapply(line_mods, function(x) gof(x, draws=5, quiet=TRUE))

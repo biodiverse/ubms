@@ -197,3 +197,10 @@ test_that("plot_spatial returns ggplot", {
   expect_error(plot_spatial(umf))
   expect_error(plot_spatial(fit2))
 })
+
+test_that("extract_log_lik method works",{
+  ll <- extract_log_lik(fit)
+  expect_is(ll, "matrix")
+  expect_equal(dim(ll), c(200/2 * 2, numSites(fit@data)-7)) 
+  expect_between(sum(ll), -7000, -6500) 
+})

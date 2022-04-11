@@ -68,6 +68,13 @@ test_that("stan_occu handles NA values",{
   expect_RMSE(coef(fit), coef(fit_na), 2)
 })
 
+test_that("extract_log_lik method works",{
+  ll <- extract_log_lik(fit)
+  expect_is(ll, "matrix")
+  expect_equal(dim(ll), c(100/2 * 2, numSites(fit@data))) 
+  expect_between(sum(ll), -3500, -3200) 
+})
+
 test_that("ubmsFitOccu gof method works",{
   set.seed(123)
   g <- gof(fit, draws=5, quiet=TRUE)

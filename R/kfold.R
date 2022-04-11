@@ -1,5 +1,10 @@
 #' K-fold Cross-validation of a ubmsFit Model
 #'
+#' Randomly partition data into K subsets of equal size (by site). Re-fit the model
+#' K times, each time leaving out one of the subsets. Calculate the log-likelihood
+#' for each of the sites that was left out. This function is an alternative
+#' to \code{loo} (leave-one-out cross validation).
+#'
 #' @param x A \code{ubmsFit} model
 #' @param K Number of folds into which the data will be partitioned
 #' @param folds An optional vector with length equal to the number of sites in the data and containing integers from 1 to K, to manually assign sites to folds. You should use this if you plan to compare multiple models, since the folds for each model should be identical. You can use \code{loo::kfold_split_random} to generate this vector

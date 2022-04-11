@@ -96,6 +96,13 @@ test_that("stan_multinomPois handles NA values",{
   expect_is(coef(fit_rem_na), "numeric")
 })
 
+test_that("extract_log_lik method works",{
+  ll <- extract_log_lik(fit_double)
+  expect_is(ll, "matrix")
+  expect_equal(dim(ll), c(100/2 * 2, numSites(fit_double@data))) 
+  expect_between(sum(ll), -5000, -4600) 
+})
+
 test_that("ubmsFitMultinomPois gof method works",{ ##here
   set.seed(123)
   g <- gof(fit_double, draws=5, quiet=TRUE)

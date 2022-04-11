@@ -1,6 +1,7 @@
 # Calculate parameter from X, Z, offset
 # Can't use posterior_linpred for this because it doesn't drop NAs
 # Inps are output from get_stan_inputs()
+# Right now the permute argument isn't used
 calculate_par <- function(object, inps, submodel, permute=FALSE){
   X <- inps$stan_data[[paste0("X_",submodel)]]
   beta <- extract_posterior(object, paste0("beta_", submodel))
