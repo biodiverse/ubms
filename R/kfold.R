@@ -23,6 +23,9 @@ setMethod("kfold", "ubmsFit", function(x, K=10, folds=NULL, quiet=FALSE, ...){
     stopifnot(length(folds) == unmarked::numSites(x@data))
     stopifnot(max(folds) == K)
   }
+  if(has_spatial(x)){
+    stop("kfold does not work with spatial models", call.=FALSE)
+  }
 
   op <- pbapply::pboptions()
   if(quiet) pbapply::pboptions(type = "none")

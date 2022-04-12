@@ -126,6 +126,11 @@ test_that("has_spatial works on lists of formulas", {
   expect_error(has_spatial(list(det=~1,state=~RSR(x,y,1)),support=FALSE))
 })
 
+test_that("has_spatial works on ubmsFit objects",{
+  expect_true(has_spatial(fit))
+  expect_false(has_spatial(fit2))
+})
+
 test_that("construction of ubmsSubmodelSpatial objects", {
   ex <- extract_missing_sites(umf)
   sm <- ubmsSubmodelSpatial("Test","test", ex$umf@siteCovs, ~1+RSR(x,y,1), "plogis",
@@ -201,6 +206,10 @@ test_that("plot_spatial returns ggplot", {
 test_that("extract_log_lik method works",{
   ll <- extract_log_lik(fit)
   expect_is(ll, "matrix")
-  expect_equal(dim(ll), c(200/2 * 2, numSites(fit@data)-7)) 
-  expect_between(sum(ll), -7000, -6500) 
+  expect_equal(dim(ll), c(200/2 * 2, numSites(fit@data)-7))
+  expect_between(sum(ll), -7000, -6500)
+})
+
+test_that("kfold errors when used on spatial model",{
+  expect_error(kfold(fit))
 })
