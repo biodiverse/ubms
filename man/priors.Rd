@@ -8,6 +8,7 @@
 \alias{logistic}
 \alias{cauchy}
 \alias{gamma}
+\alias{laplace}
 \title{Prior distributions}
 \usage{
 normal(location = 0, scale = 2.5, autoscale = TRUE)
@@ -21,6 +22,8 @@ logistic(location = 0, scale = 1)
 cauchy(location = 0, scale = 2.5, autoscale = TRUE)
 
 gamma(shape = 1, rate = 1)
+
+laplace(location = 0, scale = 2.5, autoscale = TRUE)
 }
 \arguments{
 \item{location}{The mean of the distribution. If setting the priors for
