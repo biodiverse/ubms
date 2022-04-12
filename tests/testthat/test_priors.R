@@ -67,6 +67,18 @@ test_that("gamma prior can be specified",{
   expect_error(gamma(1,-1))
 })
 
+test_that("laplace prior can be specified",{
+  lp <- laplace()
+  expect_equal(lp, list(dist=6, par1=0, par2=2.5, par3=0, autoscale=TRUE))
+  lp <- laplace(2, 0.5, autoscale=FALSE)
+  expect_equal(lp, list(dist=6, par1=2, par2=0.5, par3=0, autoscale=FALSE))
+  lp <- laplace(c(0.5,1), c(0.1,0.2))
+  expect_equal(lp, list(dist=6, par1=c(0.5,1), par2=c(0.1,0.2), par3=0, autoscale=TRUE))
+  lp <- laplace(c(0.5,1), 0.1) # no error
+  expect_error(laplace(c(0.5,1), c(0.1,0.2,0.3)))
+  expect_error(laplace(0.5, -0.2))
+})
+
 test_that("null prior can be specified",{
   expect_equal(null_prior(), list(dist=0, par1=0, par2=0, par3=0, autoscale=FALSE))
 })

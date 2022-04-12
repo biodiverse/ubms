@@ -11,6 +11,8 @@ real lp_single_prior(vector x, int dist, row_vector pars1,
     out += logistic_lpdf(x | pars1, pars2);
   } else if(dist == 5){
     out += gamma_lpdf(x | pars1, pars2);
+  } else if(dist == 6){
+    out += double_exponential_lpdf(x | pars1, pars2);
   }
   return out;
 }
