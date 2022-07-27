@@ -164,7 +164,7 @@ check_formula <- function(formula, data){
   rand <- lme4::findbars(formula)
   if(is.null(rand)) return(invisible())
 
-  char <- paste(formula, collapse=" ")
+  char <- paste(lme4::findbars(formula)[[1]], collapse=" ")
   if(grepl(":|/", char)){
     stop("Nested random effects (using / and :) are not supported",
          call.=FALSE)

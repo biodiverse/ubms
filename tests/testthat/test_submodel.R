@@ -387,6 +387,15 @@ test_that("check_formula identifies unsupported formulas",{
   expect_error(check_formula(~(1|x1 : x2), dat))
 })
 
+test_that("check_formula allows : in non-random effects part of formula",{
+  dat <- data.frame(y=rnorm(10), x1=rnorm(10), x2=rnorm(10),
+                    x3=sample(letters[1:3], 10, replace=T),
+                    x4=sample(letters[4:6], 10, replace=T))
+  expect_error(check_formula(~x1*x2 + (1|x3), dat), NA)
+  expect_error(check_formula(~x1:x2 + (1|x3), dat), NA)
+  expect_error(check_formula(~x1:x2 + (1|x3:x2), dat))
+})
+
 test_that("check_formula handles very long formulas",{
   dat <- data.frame(y=rnorm(10), longcovariate1=rnorm(10), longcovariate2=rnorm(10),
                     longcovariate3=rnorm(10), longcovariate4=rnorm(10),
