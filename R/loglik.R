@@ -7,7 +7,7 @@ calculate_par <- function(object, inps, submodel, permute=FALSE){
   beta <- extract_posterior(object, paste0("beta_", submodel))
   lp <- X %*% t(beta)
   if(inps$stan_data[[paste0("has_random_",submodel)]]){
-    Z <- Z_matrix(inps$submodels[submodel])
+    Z <- Z_matrix(inps$submodels[submodel], na.rm=TRUE)
     b <- extract_posterior(object, paste0("b_", submodel))
     lp <- lp + Z %*% t(b)
   }

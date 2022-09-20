@@ -71,8 +71,21 @@ test_that("stan_occu handles NA values",{
 test_that("extract_log_lik method works",{
   ll <- extract_log_lik(fit)
   expect_is(ll, "matrix")
-  expect_equal(dim(ll), c(100/2 * 2, numSites(fit@data))) 
-  expect_between(sum(ll), -3500, -3200) 
+  expect_equal(dim(ll), c(100/2 * 2, numSites(fit@data)))
+  expect_between(sum(ll), -3500, -3200)
+})
+
+test_that("extract_log_lik works when there are missing values and random effects",{
+  skip_on_cran()
+  skip_on_ci()
+  umf3 <- umf2
+  umf3@siteCovs$group <- sample(letters[1:5], nrow(umf2@siteCovs), replace=TRUE)
+  fit_na <- suppressWarnings(stan_occu(~x2+(1|group)~1, umf3[1:10,], chains=2,
+                                     iter=50, refresh=0))
+  expect_is(fit_na, "ubmsFitOccu")
+  ll <- extract_log_lik(fit_na)
+  expect_is(ll, "matrix")
+  expect_equal(dim(ll), c(50,9))
 })
 
 test_that("ubmsFitOccu gof method works",{
