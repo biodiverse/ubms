@@ -1,9 +1,9 @@
- build_stan_inputs <- function(name, response, submodels, ...){
+ build_stan_inputs <- function(name, response, submodels, log_lik, ...){
 
   model_code <- name_to_modelcode(name)
   y_data <- get_stan_data(response)
 
-  pars <- get_pars(submodels, name)
+  pars <- get_pars(submodels, name, log_lik)
   submodels <- unname(submodels@submodels)
   types <- sapply(submodels, function(x) x@type)
   submodel_data <- lapply(submodels, get_stan_data)
@@ -39,18 +39,17 @@ add_placeholder_priors <- function(submodel_data, types){
 
 setGeneric("get_pars", function(object, ...) standardGeneric("get_pars"))
 
-setMethod("get_pars", "ubmsSubmodelList", function(object, model_name, ...){
+setMethod("get_pars", "ubmsSubmodelList", function(object, model_name, log_lik, ...){
   #Remove placeholder submodels - we don't want to save those parameters
   submodels <- object@submodels
   submodels <- submodels[!sapply(submodels, is_placeholder)]
   submodels <- unname(submodels)
   out <- unlist(lapply(submodels, get_pars))
 
-  keep_loglik <- FALSE
-  if(model_name == "distsamp") keep_loglik <- TRUE
-  if(any(sapply(submodels, has_spatial))) keep_loglik <- TRUE
+  if(model_name == "distsamp") log_lik <- TRUE
+  if(any(sapply(submodels, has_spatial))) log_lik <- TRUE
 
-  if(keep_loglik) out <- c(out, "log_lik")
+  if(log_lik) out <- c(out, "log_lik")
   out
 })
 

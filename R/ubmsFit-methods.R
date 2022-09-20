@@ -288,8 +288,8 @@ setMethod("get_stancode", "ubmsFit", function(object, ...){
 
 # Re-create inputs
 rebuild_inputs <- function(object){
-  inps <- build_stan_inputs(object@stanfit@model_name,
-                            object@response, object@submodels)
+  inps <- build_stan_inputs(object@stanfit@model_name, object@response,
+                            object@submodels, loglik_saved(object))
   inps$submodels <- object@submodels
   inps
 }

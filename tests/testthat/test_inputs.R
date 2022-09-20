@@ -10,7 +10,7 @@ test_that("stan inputs are built correctly", {
   y <- matrix(c(1,0,0,1,1,1,0,0,1), nrow=3, byrow=T)
   resp <- ubmsResponse(y, "binomial", "P")
 
-  inp <- build_stan_inputs("occu", resp, sl)
+  inp <- build_stan_inputs("occu", resp, sl, log_lik=FALSE)
   expect_is(inp, "list")
   expect_equal(names(inp), c("stan_data", "pars"))
 
@@ -33,6 +33,10 @@ test_that("parameter list for stan is generated correctly",{
   sl <- ubmsSubmodelList(state, det)
   expect_equal(get_pars(det), "beta_det")
   expect_equal(get_pars(state), c("beta_state", "b_state", "sigma_state"))
+  expect_equal(get_pars(sl, "occu", log_lik=FALSE),
+               c("beta_state", "b_state", "sigma_state", "beta_det"))
+  expect_equal(get_pars(sl, "occu", log_lik=TRUE),
+               c("beta_state", "b_state", "sigma_state", "beta_det", "log_lik"))
 })
 
 test_that("get_stan_data pulls necessary info from response object",{

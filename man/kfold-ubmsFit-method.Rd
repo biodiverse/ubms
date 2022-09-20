@@ -21,5 +21,8 @@
 An object of class \code{elpd_generic} that is compatible with \code{loo::loo_compare}
 }
 \description{
-K-fold Cross-validation of a ubmsFit Model
+Randomly partition data into K subsets of equal size (by site). Re-fit the model
+K times, each time leaving out one of the subsets. Calculate the log-likelihood
+for each of the sites that was left out. This function is an alternative
+to \code{loo} (leave-one-out cross validation).
 }

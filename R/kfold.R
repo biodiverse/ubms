@@ -26,6 +26,9 @@ setMethod("kfold", "ubmsFit", function(x, K=10, folds=NULL, quiet=FALSE, ...){
   if(has_spatial(x)){
     stop("kfold does not work with spatial models", call.=FALSE)
   }
+  if(inherits(x, "ubmsFitDistsamp")){
+    stop("kfold method not yet supported for stan_distsamp models", call.=FALSE)
+  }
 
   op <- pbapply::pboptions()
   if(quiet) pbapply::pboptions(type = "none")

@@ -3,7 +3,6 @@
 \name{extract_log_lik}
 \alias{extract_log_lik}
 \alias{extract_log_lik,ubmsFit-method}
-\alias{extract_log_lik,ubmsFitOccuTTD-method}
 \alias{extract_log_lik,ubmsFitDistsamp-method}
 \title{Extract Pointwise Log-likelihood From Model}
 \usage{

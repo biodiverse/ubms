@@ -124,8 +124,8 @@ test_that("stan_distsamp handles NA values",{
 test_that("extract_log_lik method works",{
   ll <- extract_log_lik(fit_pt_hn)
   expect_is(ll, "matrix")
-  expect_equal(dim(ll), c(200/2 * 2, numSites(fit_pt_hn@data))) 
-  expect_between(sum(ll), -39000, -38000) 
+  expect_equal(dim(ll), c(200/2 * 2, numSites(fit_pt_hn@data)))
+  expect_between(sum(ll), -39000, -38000)
 })
 
 test_that("ubmsFitDistsamp gof method works",{
@@ -317,4 +317,9 @@ test_that("distsamp spatial works", {
 
   ps <- plot_spatial(fit_spat)
   expect_is(ps, "gg")
+})
+
+test_that("kfold errors when used on a stan_distsamp model", {
+  expect_error(kfold(fit_line_hn),
+               "kfold method not yet supported for stan_distsamp models")
 })

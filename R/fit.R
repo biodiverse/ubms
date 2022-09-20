@@ -19,13 +19,13 @@ setClass("ubmsFitOccu", contains = "ubmsFit")
 # Child class for abundance/N-mixture type models
 setClass("ubmsFitAbun", contains = "ubmsFit")
 
-ubmsFit <- function(model, call, data, response, submodels, ...){
+ubmsFit <- function(model, call, data, response, submodels, log_lik=TRUE, ...){
   #Find missing
   response <- update_missing(response, submodels)
   submodels <- update_missing(submodels, response)
 
   #Fit model
-  fit <- fit_model(model, response, submodels, ...)
+  fit <- fit_model(model, response, submodels, log_lik, ...)
   # Exit early if just returning Stan inputs
   if(check_return_inputs(...)) return(fit)
 
@@ -75,9 +75,9 @@ fit_class <- function(mod){
 
 #Fit stan model
 #' @include inputs.R
-fit_model <- function(name, response, submodels, ...){
+fit_model <- function(name, response, submodels, log_lik, ...){
   model <- name_to_stanmodel(name, submodels)
-  inp <- build_stan_inputs(name, response, submodels)
+  inp <- build_stan_inputs(name, response, submodels, log_lik)
   # Should just Stan inputs be returned?
   if(check_return_inputs(...)){
     inp$submodels <- submodels

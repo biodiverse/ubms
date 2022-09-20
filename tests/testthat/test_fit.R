@@ -23,7 +23,7 @@ resp <- ubmsResponse(umf@y,"binomial","binomial",max_primary=1)
 
 #Build a stanfit object
 set.seed(123)
-inp <- build_stan_inputs("occu", resp, sl)
+inp <- build_stan_inputs("occu", resp, sl, log_lik=FALSE)
 
 good_fit <- TRUE
 tryCatch({
@@ -66,7 +66,7 @@ test_that("remove_placeholders removes placeholder submodels from list",{
 
 test_that("fit_model builds model correctly",{
   ufit <- suppressWarnings(
-    fit_model("occu", resp, sl, chains=2, iter=20, refresh=0))
+    fit_model("occu", resp, sl, log_lik=FALSE, chains=2, iter=20, refresh=0))
   expect_true(inherits(ufit, "stanfit"))
   nms <- stanfit_names(sl)
   expect_equal(ufit@sim$fnames_oi[1:length(nms)], nms)
@@ -81,7 +81,7 @@ test_that("fit_model builds model correctly",{
 test_that("specific model name is shown in console output",{
   # e.g. 'occu' instead of 'single_season'
   out <- capture.output(ufit <- suppressWarnings(
-    fit_model("occu", resp, sl, chains=2, iter=20)))
+    fit_model("occu", resp, sl, log_lik=FALSE, chains=2, iter=20)))
   expect_true(any(grepl("occu", out)))
   expect_false(any(grepl("single_season", out)))
 })
