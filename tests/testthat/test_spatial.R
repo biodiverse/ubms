@@ -26,10 +26,11 @@ for (i in sample(1:500, 300, replace=FALSE)){
 }
 
 umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
-
+umf20 <- umf[1:20,]
+umf10 <- umf[1:10,]
 fit <- suppressMessages(suppressWarnings(stan_occu(~1~cov1+RSR(x,y,1),
-                              data=umf[1:20,], chains=2, iter=200, refresh=0)))
-fit2 <- suppressWarnings(stan_occu(~1~1, data=umf[1:10,], chains=2, iter=200, refresh=0))
+                              data=umf20, chains=2, iter=200, refresh=0)))
+fit2 <- suppressWarnings(stan_occu(~1~1, data=umf10, chains=2, iter=200, refresh=0))
 
 test_that("spatial model output structure", {
   expect_is(fit, "ubmsFitOccu")
@@ -125,6 +126,11 @@ test_that("has_spatial works on lists of formulas", {
   expect_error(has_spatial(list(det=~1,state=~RSR(x,y,1)),support=FALSE))
 })
 
+test_that("has_spatial works on ubmsFit objects",{
+  expect_true(has_spatial(fit))
+  expect_false(has_spatial(fit2))
+})
+
 test_that("construction of ubmsSubmodelSpatial objects", {
   ex <- extract_missing_sites(umf)
   sm <- ubmsSubmodelSpatial("Test","test", ex$umf@siteCovs, ~1+RSR(x,y,1), "plogis",
@@ -195,4 +201,15 @@ test_that("plot_spatial returns ggplot", {
   dev.off()
   expect_error(plot_spatial(umf))
   expect_error(plot_spatial(fit2))
+})
+
+test_that("extract_log_lik method works",{
+  ll <- extract_log_lik(fit)
+  expect_is(ll, "matrix")
+  expect_equal(dim(ll), c(200/2 * 2, numSites(fit@data)-7))
+  expect_between(sum(ll), -7000, -6500)
+})
+
+test_that("kfold errors when used on spatial model",{
+  expect_error(kfold(fit))
 })

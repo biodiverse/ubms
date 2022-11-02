@@ -19,26 +19,53 @@ setClass("ubmsFitOccu", contains = "ubmsFit")
 # Child class for abundance/N-mixture type models
 setClass("ubmsFitAbun", contains = "ubmsFit")
 
-ubmsFit <- function(model, call, data, response, submodels, ...){
+ubmsFit <- function(model, call, data, response, submodels, log_lik=TRUE, ...){
   #Find missing
   response <- update_missing(response, submodels)
   submodels <- update_missing(submodels, response)
 
   #Fit model
-  fit <- fit_model(model, response, submodels, ...)
+  fit <- fit_model(model, response, submodels, log_lik, ...)
+  # Exit early if just returning Stan inputs
+  if(check_return_inputs(...)) return(fit)
 
   #Remove placeholder submodels
   submodels <- remove_placeholders(submodels)
 
   #Construct output
-  new(fit_class(model), call=call, data=data, stanfit=fit,
-      response=response, submodels=submodels, loo=get_loo(fit))
+  out <- new(fit_class(model), call=call, data=data, stanfit=fit,
+             response=response, submodels=submodels, loo=empty_loo())
+  out@loo <- get_loo(out)
+  out
 }
 
 remove_placeholders <- function(submodels){
   not_place <- !sapply(submodels@submodels, is_placeholder)
   submodels@submodels <- submodels@submodels[not_place]
   submodels
+}
+
+empty_loo <- function(){
+  out <- list()
+  class(out) <- "psis_loo"
+  out
+}
+
+get_loo <- function(object, cores=getOption("mc.cores", 1)){
+  loglik <- extract_log_lik(object, merge_chains=FALSE)
+  r_eff <- loo::relative_eff(exp(loglik), cores=cores)
+  loo::loo(loglik, r_eff=r_eff, cores=cores)
+}
+
+# Function to check if just Stan inputs should be returned
+# Used by kfold method
+# Pass return_inputs=TRUE in ... when calling stan_*
+check_return_inputs <- function(...){
+  args <- list(...)
+  if("return_inputs" %in% names(args)){
+    if(args$return_inputs) return(TRUE)
+  }
+  FALSE
 }
 
 fit_class <- function(mod){
@@ -48,9 +75,14 @@ fit_class <- function(mod){
 
 #Fit stan model
 #' @include inputs.R
-fit_model <- function(name, response, submodels, ...){
+fit_model <- function(name, response, submodels, log_lik, ...){
   model <- name_to_stanmodel(name, submodels)
-  inp <- build_stan_inputs(name, response, submodels)
+  inp <- build_stan_inputs(name, response, submodels, log_lik)
+  # Should just Stan inputs be returned?
+  if(check_return_inputs(...)){
+    inp$submodels <- submodels
+    return(inp)
+  }
   mod <- stanmodels[[model]]
   mod@model_name <- name
   fit <- sampling(mod, data=inp$stan_data, pars=inp$pars, ...)
@@ -92,9 +124,3 @@ setMethod("stanfit_names", "ubmsSubmodelList", function(object, ...){
   out <- unname(out)
   out
 })
-
-get_loo <- function(stanfit, cores=getOption("mc.cores", 1)){
-  loglik <- loo::extract_log_lik(stanfit, merge_chains=FALSE)
-  r_eff <- loo::relative_eff(exp(loglik), cores=cores)
-  loo::loo(loglik, r_eff=r_eff, cores=cores)
-}

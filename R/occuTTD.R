@@ -30,6 +30,9 @@
 #' @param prior_intercept_shape Prior distribution for the intercept of the
 #'  shape parameter (i.e., log(shape)) for Weibull TTD models
 #' @param prior_sigma Prior distribution on random effect standard deviations
+#' @param log_lik If \code{TRUE}, Stan will save pointwise log-likelihood values
+#'  in the output. This can greatly increase the size of the model. If
+#'  \code{FALSE}, the values are calculated post-hoc from the posteriors
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
@@ -88,6 +91,7 @@ stan_occuTTD <- function(psiformula=~1,
                          prior_coef_det = normal(0, 2.5),
                          prior_intercept_shape = normal(0,2.5),
                          prior_sigma = gamma(1, 1),
+                         log_lik = TRUE,
                          ...){
 
   if(data@numPrimary > 1) stop("Dynamic models not yet supported", call.=FALSE)
@@ -119,7 +123,7 @@ stan_occuTTD <- function(psiformula=~1,
 
   submodels <- ubmsSubmodelList(state, det, shape)
 
-  ubmsFit("occuTTD", match.call(), data, response, submodels, ...)
+  ubmsFit("occuTTD", match.call(), data, response, submodels, log_lik, ...)
 }
 
 

@@ -9,6 +9,30 @@ exp_counts_occuRN <- function(obs, Kmin, lam, r) {
     .Call(`_ubms_exp_counts_occuRN`, obs, Kmin, lam, r)
 }
 
+get_loglik_occu <- function(y, M, si, psimat, pmat, Kmin) {
+    .Call(`_ubms_get_loglik_occu`, y, M, si, psimat, pmat, Kmin)
+}
+
+get_loglik_pcount <- function(y, M, si, lammat, pmat, K, Kmin) {
+    .Call(`_ubms_get_loglik_pcount`, y, M, si, lammat, pmat, K, Kmin)
+}
+
+get_loglik_occuRN <- function(y, M, si, lammat, rmat, K, Kmin) {
+    .Call(`_ubms_get_loglik_occuRN`, y, M, si, lammat, rmat, K, Kmin)
+}
+
+get_loglik_multinomPois <- function(y, M, si, lammat, pmat, pi_type) {
+    .Call(`_ubms_get_loglik_multinomPois`, y, M, si, lammat, pmat, pi_type)
+}
+
+get_loglik_colext <- function(y, M, Tsamp, J, si, psicube, phicube, pmat, nd) {
+    .Call(`_ubms_get_loglik_colext`, y, M, Tsamp, J, si, psicube, phicube, pmat, nd)
+}
+
+get_loglik_occuTTD <- function(y, M, si, psimat, lammat, k, delta, ydist) {
+    .Call(`_ubms_get_loglik_occuTTD`, y, M, si, psimat, lammat, k, delta, ydist)
+}
+
 simz_pcount <- function(y, lam_post, p_post, K, Kmin, kvals) {
     .Call(`_ubms_simz_pcount`, y, lam_post, p_post, K, Kmin, kvals)
 }

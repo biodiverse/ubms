@@ -85,6 +85,13 @@ test_that("stan_occuTTD handles NA values",{
   expect_is(coef(fit_na), "numeric")
 })
 
+test_that("extract_log_lik method works",{
+  ll <- extract_log_lik(fit)
+  expect_is(ll, "matrix")
+  expect_equal(dim(ll), c(100/2 * 2, numSites(fit@data))) 
+  expect_between(sum(ll), -700, -400) 
+})
+
 test_that("ubmsFitOccuTTD gof method gives error",{
   expect_error(gof(fit, draws=5, quiet=TRUE))
 })

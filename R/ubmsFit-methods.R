@@ -160,7 +160,7 @@ setMethod("getY", "ubmsFit", function(object){
 #' @importFrom loo loo
 #' @export
 setMethod("loo", "ubmsFit", function(x, ..., cores=getOption("mc.cores", 1)){
-  loglik <- loo::extract_log_lik(x@stanfit, merge_chains=FALSE)
+  loglik <- extract_log_lik(x, merge_chains=FALSE)
   r_eff <- loo::relative_eff(exp(loglik), cores=cores)
   loo::loo(loglik, r_eff=r_eff, cores=cores)
 })
@@ -178,7 +178,7 @@ setMethod("loo", "ubmsFit", function(x, ..., cores=getOption("mc.cores", 1)){
 #' @importFrom loo waic
 #' @export
 setMethod("waic", "ubmsFit", function(x, ...){
-  loglik <- loo::extract_log_lik(x@stanfit)
+  loglik <- extract_log_lik(x)
   loo::waic(loglik)
 })
 
@@ -285,3 +285,11 @@ was_parallel <- function(object){
 setMethod("get_stancode", "ubmsFit", function(object, ...){
   rstan::get_stancode(object@stanfit, ...)
 })
+
+# Re-create inputs
+rebuild_inputs <- function(object){
+  inps <- build_stan_inputs(object@stanfit@model_name, object@response,
+                            object@submodels, loglik_saved(object))
+  inps$submodels <- object@submodels
+  inps
+}

@@ -49,7 +49,8 @@ setMethod("fitList", "list", function(...){
 #' @importFrom unmarked modSel
 #' @export
 setMethod("modSel", "ubmsFitList", function(object, ...){
-  loos <- lapply(object@models, loo, ...)
+  #loos <- lapply(object@models, loo, ...)
+  loos <- lapply(object@models, function(x) x@loo)
   elpd <- sapply(loos, function(x) x$estimates[1])
   p_loo <- sapply(loos, function(x) x$estimates[2])
   compare <- loo::loo_compare(loos)[names(elpd),]

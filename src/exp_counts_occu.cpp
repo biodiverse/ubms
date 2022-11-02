@@ -28,7 +28,6 @@ arma::vec exp_counts_occu(arma::mat obs, arma::ivec no_detects,
   int n_eh = obs.n_cols;
 
   vec counts_expect = zeros(n_eh);
-  int idx = 0;
   int pstart, pend;
   for (int i=0; i < n_eh; i++){
     pstart = 0;
@@ -73,7 +72,6 @@ arma::vec exp_counts_occuRN(arma::mat obs, arma::ivec Kmin,
   int n_eh = obs.n_cols;
 
   vec counts_expect = zeros(n_eh);
-  int idx = 0;
   int pstart, pend;
   for (int i=0; i < n_eh; i++){
     pstart = 0;

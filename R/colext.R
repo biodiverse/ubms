@@ -26,6 +26,9 @@
 #' @param prior_coef_det Prior distribution for the regression coefficients of
 #'  the detection model
 #' @param prior_sigma Prior distribution on random effect standard deviations
+#' @param log_lik If \code{TRUE}, Stan will save pointwise log-likelihood values
+#'  in the output. This can greatly increase the size of the model. If
+#'  \code{FALSE}, the values are calculated post-hoc from the posteriors
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
@@ -60,6 +63,7 @@ stan_colext <- function(psiformula = ~1,
                         prior_intercept_det = logistic(0, 1),
                         prior_coef_det = logistic(0, 1),
                         prior_sigma = gamma(1, 1),
+                        log_lik = TRUE,
                         ...){
 
   umf <- process_umf(data)
@@ -80,7 +84,7 @@ stan_colext <- function(psiformula = ~1,
                       prior_intercept_det, prior_coef_det, prior_sigma)
   submodels <- ubmsSubmodelList(state, col, ext, det)
 
-  ubmsFit("colext", match.call(), data, response, submodels, ...)
+  ubmsFit("colext", match.call(), data, response, submodels, log_lik, ...)
 }
 
 

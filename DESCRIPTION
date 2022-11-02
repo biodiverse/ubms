@@ -1,6 +1,6 @@
 Package: ubms
-Version: 1.1.9006
-Date: 2022-09-20
+Version: 1.1.9007
+Date: 2022-11-02
 Title: Bayesian Models for Data from Unmarked Animals using 'Stan'
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))
@@ -12,7 +12,7 @@ Imports:
     gridExtra,
     lme4,
     loo,
-    Matrix (>= 1.5-0),
+    Matrix,
     methods,
     pbapply,
     Rcpp (>= 0.12.0),
@@ -34,7 +34,7 @@ License: GPL (>=3)
 URL: https://kenkellner.com/ubms/
 BugReports: https://github.com/kenkellner/ubms/issues
 Encoding: UTF-8
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Biarch: true
 LinkingTo: 
     BH (>= 1.66.0),
@@ -60,11 +60,13 @@ Collate:
     'missing.R'
     'distsamp.R'
     'fitlist.R'
-    'occuRN.R'
-    'mb_chisq.R'
-    'multinomPois.R'
+    'kfold.R'
     'occuTTD.R'
+    'multinomPois.R'
+    'occuRN.R'
     'pcount.R'
+    'loglik.R'
+    'mb_chisq.R'
     'plot_effects.R'
     'plot_posteriors.R'
     'predict.R'

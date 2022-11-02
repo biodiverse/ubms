@@ -84,6 +84,13 @@ test_that("stan_pcount handles NA values",{
   expect_true(is.numeric(coef(fit_na)))
 })
 
+test_that("extract_log_lik method works",{
+  ll <- extract_log_lik(fit)
+  expect_is(ll, "matrix")
+  expect_equal(dim(ll), c(100/2 * 2, numSites(fit@data))) 
+  expect_between(sum(ll), -7000, -6000) 
+})
+
 test_that("ubmsFitPcount gof method works",{
   set.seed(123)
   g <- gof(fit, draws=5, quiet=TRUE)

@@ -68,6 +68,41 @@ test_that("stan_occu handles NA values",{
   expect_RMSE(coef(fit), coef(fit_na), 2)
 })
 
+test_that("extract_log_lik method works",{
+  ll <- extract_log_lik(fit)
+  expect_is(ll, "matrix")
+  expect_equal(dim(ll), c(100/2 * 2, numSites(fit@data)))
+  expect_between(sum(ll), -3500, -3200)
+})
+
+test_that("extract_log_lik works when there are missing values and random effects",{
+  skip_on_cran()
+  skip_on_ci()
+  umf3 <- umf2
+  umf3@siteCovs$group <- sample(letters[1:5], nrow(umf2@siteCovs), replace=TRUE)
+  fit_na <- suppressWarnings(stan_occu(~x2+(1|group)~1, umf3[1:10,], chains=2,
+                                     iter=50, refresh=0))
+  expect_is(fit_na, "ubmsFitOccu")
+  ll <- extract_log_lik(fit_na)
+  expect_is(ll, "matrix")
+  expect_equal(dim(ll), c(50,9))
+})
+
+test_that("log_lik argument controls saving log_lik parameter", {
+  skip_on_cran()
+  set.seed(123)
+  fit <- suppressWarnings(stan_occu(~x2~x1, umf[1:10,], chains=2,
+                                  iter=100, refresh=0))
+  set.seed(123)
+  fit2 <- suppressWarnings(stan_occu(~x2~x1, umf[1:10,], chains=2,
+                                  iter=100, refresh=0, log_lik=FALSE))
+
+  expect_equal(fit@loo$estimates, fit2@loo$estimates)
+  expect_true("log_lik" %in% fit@stanfit@sim$pars_oi)
+  expect_false("log_lik" %in% fit2@stanfit@sim$pars_oi)
+
+})
+
 test_that("ubmsFitOccu gof method works",{
   set.seed(123)
   g <- gof(fit, draws=5, quiet=TRUE)
@@ -180,4 +215,16 @@ test_that("Fitted/residual methods work with ubmsFitOccu",{
   expect_is(rp2, "gg")
   expect_is(rp3, "gtable")
   expect_is(mp, "gg")
+})
+
+test_that("stan_occu kfold method works",{
+
+set.seed(123)
+kf <- kfold(fit, K=2, quiet=TRUE)
+expect_is(kf, "elpd_generic")
+expect_equal(kf$estimates[1,1], -37.3802, tol=1e-4)
+
+expect_error(kfold(fit, K=2, folds=rep(3,10)))
+expect_error(kfold(fit, K=2, folds=rep(1,5)))
+
 })

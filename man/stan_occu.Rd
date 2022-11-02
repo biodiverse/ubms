@@ -12,6 +12,7 @@ stan_occu(
   prior_intercept_det = logistic(0, 1),
   prior_coef_det = logistic(0, 1),
   prior_sigma = gamma(1, 1),
+  log_lik = TRUE,
   ...
 )
 }
@@ -34,6 +35,10 @@ detection probability model}
 the detection model}
 
 \item{prior_sigma}{Prior distribution on random effect standard deviations}
+
+\item{log_lik}{If \code{TRUE}, Stan will save pointwise log-likelihood values
+in the output. This can greatly increase the size of the model. If
+\code{FALSE}, the values are calculated post-hoc from the posteriors}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}

@@ -140,6 +140,10 @@ setMethod("has_spatial", "ubmsSubmodel", function(object, ...){
   methods::.hasSlot(object, "spatial")
 })
 
+setMethod("has_spatial", "ubmsFit", function(object, ...){
+  any(sapply(object@submodels@submodels, has_spatial))
+})
+
 setClass("ubmsSubmodelSpatial", contains = "ubmsSubmodel",
           slots=c(data_aug="data.frame", sites_aug="logical",
                   spatial="formula"))

@@ -158,3 +158,28 @@ test_that("get_stancode method works",{
   out <- get_stancode(fit)
   expect_is(out, "character")
 })
+
+test_that("rebuild_inputs can get Stan inputs from fitted model",{
+  inps <- rebuild_inputs(fit)
+  cl <- fit@call
+  cl$return_inputs <- TRUE
+  refit <- eval(cl)
+  expect_equal(names(inps), c("stan_data", "pars", "submodels"))
+  expect_equal(inps, refit)
+})
+
+# Functions in loglik.R
+test_that("calculate_par works",{
+  inps <- rebuild_inputs(fit)
+  cp <- calculate_par(fit, inps, 'state')
+  expect_equal(dim(cp), c(3,40))
+  cp_mean <- apply(cp, 1, mean)
+  pr <- predict(fit, 'state')
+  expect_equivalent(cp_mean, pr$Predicted)
+})
+
+test_that("extract_posterior works",{
+  post <- extract_posterior(fit, 'beta_state')
+  expect_is(post, "matrix")
+  expect_equal(dim(post), c(40, 2))
+})

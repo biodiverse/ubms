@@ -82,6 +82,13 @@ test_that("stan_colext handles NA values",{
   expect_RMSE(coef(fit_na), coef(fit), 1.5)
 })
 
+test_that("extract_log_lik method works",{
+  ll <- extract_log_lik(fit)
+  expect_is(ll, "matrix")
+  expect_equal(dim(ll), c(100/2 * 2, numSites(fit@data))) 
+  expect_between(sum(ll), -5700, -5500) 
+})
+
 test_that("ubmsFitColext gof method works",{
   set.seed(123)
   g <- gof(fit, draws=5, quiet=TRUE)

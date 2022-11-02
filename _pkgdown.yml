@@ -20,6 +20,7 @@ reference:
   - title: Model selection
     contents:
       - fitList
+      - kfold,ubmsFit-method
       - loo,ubmsFit-method
       - modSel,ubmsFitList-method
       - waic,ubmsFit-method
