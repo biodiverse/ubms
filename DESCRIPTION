@@ -12,7 +12,7 @@ Imports:
     gridExtra,
     lme4,
     loo,
-    Matrix (>= 1.5-0),
+    Matrix,
     methods,
     pbapply,
     Rcpp (>= 0.12.0),
