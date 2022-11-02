@@ -18,7 +18,7 @@ stan_occuTTD(
   prior_coef_det = normal(0, 2.5),
   prior_intercept_shape = normal(0, 2.5),
   prior_sigma = gamma(1, 1),
-  log_lik = FALSE,
+  log_lik = TRUE,
   ...
 )
 }

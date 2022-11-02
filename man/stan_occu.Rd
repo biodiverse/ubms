@@ -12,7 +12,7 @@ stan_occu(
   prior_intercept_det = logistic(0, 1),
   prior_coef_det = logistic(0, 1),
   prior_sigma = gamma(1, 1),
-  log_lik = FALSE,
+  log_lik = TRUE,
   ...
 )
 }
