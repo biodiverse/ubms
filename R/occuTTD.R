@@ -91,7 +91,7 @@ stan_occuTTD <- function(psiformula=~1,
                          prior_coef_det = normal(0, 2.5),
                          prior_intercept_shape = normal(0,2.5),
                          prior_sigma = gamma(1, 1),
-                         log_lik = FALSE,
+                         log_lik = TRUE,
                          ...){
 
   if(data@numPrimary > 1) stop("Dynamic models not yet supported", call.=FALSE)

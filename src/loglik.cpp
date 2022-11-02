@@ -317,7 +317,6 @@ arma::mat get_loglik_occuTTD(arma::vec y, int M, arma::imat si, arma::mat psimat
   mat out(S,M);
   vec lam_s(lammat.n_rows);
   vec e_lamt;
-  int J;
   vec y_m, lam_m;
   ivec delta_m;
   double lik;

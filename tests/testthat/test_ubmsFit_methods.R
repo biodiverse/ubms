@@ -88,7 +88,7 @@ test_that("extract method works for ubmsFit",{
   ex_all <- extract(fit)
   expect_is(ex_all, "list")
   expect_equal(names(ex_all), c("beta_state","b_state","sigma_state",
-                                "beta_det","lp__"))
+                                "beta_det","log_lik","lp__"))
 })
 
 test_that("traceplot method works for ubmsFit",{
@@ -172,13 +172,13 @@ test_that("rebuild_inputs can get Stan inputs from fitted model",{
 test_that("calculate_par works",{
   inps <- rebuild_inputs(fit)
   cp <- calculate_par(fit, inps, 'state')
-  expect_equal(dim(cp), c(3,40)) 
+  expect_equal(dim(cp), c(3,40))
   cp_mean <- apply(cp, 1, mean)
   pr <- predict(fit, 'state')
   expect_equivalent(cp_mean, pr$Predicted)
 })
 
-test_that("extract_posterior works",{  
+test_that("extract_posterior works",{
   post <- extract_posterior(fit, 'beta_state')
   expect_is(post, "matrix")
   expect_equal(dim(post), c(40, 2))

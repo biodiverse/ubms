@@ -95,11 +95,11 @@ test_that("log_lik argument controls saving log_lik parameter", {
                                   iter=100, refresh=0))
   set.seed(123)
   fit2 <- suppressWarnings(stan_occu(~x2~x1, umf[1:10,], chains=2,
-                                  iter=100, refresh=0, log_lik=TRUE))
+                                  iter=100, refresh=0, log_lik=FALSE))
 
   expect_equal(fit@loo$estimates, fit2@loo$estimates)
-  expect_false("log_lik" %in% fit@stanfit@sim$pars_oi)
-  expect_true("log_lik" %in% fit2@stanfit@sim$pars_oi)
+  expect_true("log_lik" %in% fit@stanfit@sim$pars_oi)
+  expect_false("log_lik" %in% fit2@stanfit@sim$pars_oi)
 
 })
 
