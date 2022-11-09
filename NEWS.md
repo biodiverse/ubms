@@ -1,3 +1,11 @@
+# ubms v1.2.0
+
+* New kfold function
+* Add ability to not save log likelihoods in posterior
+* Add new Laplace prior (thanks Justin Cally)
+* Fix CRAN clang warnings
+* Misc. bugfixes
+
 # ubms v1.1.0
 
 * Support for restricted spatial regression (RSR)
