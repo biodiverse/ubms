@@ -1,3 +1,7 @@
+# ubms v1.2.1
+
+* Fix broken URLs in vignettes
+
 # ubms v1.2.0
 
 * New kfold function
