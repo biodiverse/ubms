@@ -91,24 +91,18 @@ umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
 Fit a model with a random intercept, using 3 parallel cores:
 
 ```{r, eval=FALSE}
-(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3, cores=3))
+(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3, cores=3, seed=123))
 ```
 
 ```{r, echo=FALSE, warning=FALSE}
-set.seed(123)
-(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3, cores=3, refresh=0))
+(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3, cores=3, refresh=0, seed=123))
 ```
 
 
 Examine residuals for occupancy and detection submodels (following [Wright et al. 2019](https://doi.org/10.1002/ecy.2703)).
 Each panel represents a draw from the posterior distribution.
 
-```{r, eval=FALSE}
-plot(fm)
-```
-
-```{r resids, fig.height=7, echo=FALSE}
-set.seed(123)
+```{r resids, fig.height=7}
 plot(fm)
 ```
 
@@ -120,7 +114,6 @@ plot(fm_fit)
 ```
 
 ```{r gof, echo=FALSE}
-set.seed(123)
 fm_fit <- gof(fm, draws=500, quiet=TRUE)
 plot(fm_fit)
 ```

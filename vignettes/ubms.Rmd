@@ -160,12 +160,12 @@ Tell Stan how many parallel cores you want to use by assigning a value to the `c
 ```{r, eval=FALSE}
 library(ubms)
 
-(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300, cores=3))
+(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300, cores=3, seed=123))
 ```
 
 ```{r, echo=FALSE}
 library(ubms)
-(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300, refresh=0))
+(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300, refresh=0, seed=123))
 ```
 
 ### Compare results
@@ -236,7 +236,7 @@ This can help improve model convergence and is generally a good idea.
 fit_null <- fit_stan
 
 fit_global <- stan_occu(~scale(date)~scale(forest)+scale(ele), data=umf,
-                        chains=3, iter=300)
+                        chains=3, iter=300, seed=123)
 ```
 
 ```{r, echo=FALSE}
@@ -245,7 +245,7 @@ fit_null <- fit_stan
 
 ```{r, warning=TRUE, echo=FALSE}
 fit_global <- stan_occu(~scale(date)~scale(forest)+scale(ele), data=umf,
-                        chains=3, iter=300, refresh=0)
+                        chains=3, iter=300, refresh=0, seed=123)
 ```
 
 The `fit_global` model gave us some warnings about the effective sample size (`n_eff`) along with a suggested solution.

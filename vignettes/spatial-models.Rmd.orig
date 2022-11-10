@@ -189,14 +189,14 @@ We will then fit the model in Stan with `stan_occu()`, using 3 parallel cores.
 This will take Stan a few minutes with default MCMC settings.
 
 ```{r, eval=FALSE}
-fit_ubms <- stan_occu(form, umf, chains=3, cores=3)
+fit_ubms <- stan_occu(form, umf, chains=3, cores=3, seed=123)
 ```
 
 ```{r, message=FALSE, echo=FALSE, warning=FALSE}
 if(file.exists("fit_ubms.Rds")){
   fit_ubms <- readRDS("fit_ubms.Rds")
 } else {
-  fit_ubms <- stan_occu(form, umf, chains=3, refresh=0, cores=3)
+  fit_ubms <- stan_occu(form, umf, chains=3, refresh=0, cores=3, seed=123)
   saveRDS(fit_ubms, "fit_ubms.Rds")
 }
 ```
@@ -252,7 +252,8 @@ plot_spatial(fit_ubms, "eta")
 It is important to confirm that the spatial random effect is actually improving the predictive power of the model; if it isn't, we ought to remove it.
 To check this, first fit a similar model without the RSR:
 ```{r, eval=FALSE}
-fit_nonspatial <- stan_occu(~detCov1 + detCov2 ~habCov1 + habCov2, umf, chains=3)
+fit_nonspatial <- stan_occu(~detCov1 + detCov2 ~habCov1 + habCov2, umf,
+                            chains=3, seed=123)
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -261,7 +262,7 @@ if(file.exists("fit_nonspatial.Rds")){
 } else {
   options(mc.cores=3)
   fit_nonspatial <- stan_occu(~detCov1 + detCov2 ~habCov1 + habCov2, umf, 
-                              chains=3, refresh=0)
+                              chains=3, refresh=0, seed=123)
   saveRDS(fit_nonspatial, "fit_nonspatial.Rds")
 }
 ```
@@ -292,6 +293,7 @@ To show this, we will fit the same model in `stocc` and compare the occupancy pr
 The code for fitting the model in `stocc` is taken directly from the package demo.
 
 ```{r, eval=FALSE}
+set.seed(123)
 names <- list(
   visit=list(site="site",obs="obs"),
   site=list(site="site", coords=c("x","y"))
@@ -308,6 +310,7 @@ fit_stocc <- spatial.occupancy(
 ```
 
 ```{r, echo=FALSE,message=FALSE, warning=FALSE}
+set.seed(123)
 names <- list(
   visit=list(site="site",obs="obs"),
   site=list(site="site", coords=c("x","y"))

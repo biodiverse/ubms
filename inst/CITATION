@@ -9,10 +9,9 @@ bibentry(bibtype = "Article",
                    person("Dean E.", "Beyer"),
                    person("Jerrold L.", "Belant")),
   journal      = "Methods in Ecology and Evolution",
-  year         = "2021"#,
-  #volume       = "1",
-  #number       = "10",
-  #pages        = "1--20",
-  #url          = ""
+  year         = "2021",
+  volume       = "13",
+  pages        = "577--584",
+  url          = "https://doi.org/10.1111/2041-210X.13777"
 )
 

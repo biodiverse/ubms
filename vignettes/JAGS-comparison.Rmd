@@ -85,7 +85,7 @@ I probably did not use enough iterations but it's fine for this example.
 
 
 ```r
-ubms_fit <- stan_occu(~x2~x1+(1|group), umf, chains=3, iter=300, cores=3)
+ubms_fit <- stan_occu(~x2~x1+(1|group), umf, chains=3, iter=300, cores=3, seed=123)
 ```
 
 
@@ -153,6 +153,7 @@ Finally, I fit the model using the R package [jagsUI](https://cran.r-project.org
 
 
 ```r
+set.seed(123)
 library(jagsUI)
 jags_fit <- jags(jags_data, inits, params, modfile, n.chains=3, n.adapt=100, n.iter=2000,
                  n.burnin=1000, n.thin=2, parallel=TRUE, verbose=FALSE)

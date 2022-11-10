@@ -84,11 +84,11 @@ Using `stan_occu`, I fit a model with a random effect of group on occupancy (`(1
 I probably did not use enough iterations but it's fine for this example.
 
 ```{r, eval=FALSE}
-ubms_fit <- stan_occu(~x2~x1+(1|group), umf, chains=3, iter=300, cores=3)
+ubms_fit <- stan_occu(~x2~x1+(1|group), umf, chains=3, iter=300, cores=3, seed=123)
 ```
 
 ```{r, echo=FALSE}
-ubms_fit <- stan_occu(~x2~x1+(1|group), umf, chains=3, iter=300, cores=3, refresh=0)
+ubms_fit <- stan_occu(~x2~x1+(1|group), umf, chains=3, iter=300, cores=3, refresh=0, seed=123)
 ```
 
 
@@ -150,6 +150,7 @@ inits <- function(){list(z=apply(y, 1, max, na.rm=TRUE))}
 Finally, I fit the model using the R package [jagsUI](https://cran.r-project.org/package=jagsUI).
 
 ```{r}
+set.seed(123)
 library(jagsUI)
 jags_fit <- jags(jags_data, inits, params, modfile, n.chains=3, n.adapt=100, n.iter=2000,
                  n.burnin=1000, n.thin=2, parallel=TRUE, verbose=FALSE)

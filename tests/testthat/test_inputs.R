@@ -130,6 +130,11 @@ test_that("get_nrandom returns number of levels of each grouping variable",{
                "Nested random effects (using / and :) are not supported", fixed=TRUE)
 })
 
+test_that("get_nrandom handles situation where a factor level is missing in data",{
+  dat <- data.frame(x=factor(c("a","b","c"),levels=letters[1:4]))
+  expect_equivalent(get_nrandom(~(1|x), dat), 4)
+})
+
 test_that("split_formula works",{
   inp <- ~1~1
   expect_equal(split_formula(inp), list(det=~1, state=~1))

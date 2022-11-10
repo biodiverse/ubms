@@ -95,26 +95,27 @@ umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
 Fit a model with a random intercept, using 3 parallel cores:
 
 ``` r
-(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3, cores=3))
+(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3, cores=3, seed=123))
 ```
 
     ## 
     ## Call:
     ## stan_occu(formula = ~x2 ~ x1 + (1 | group), data = umf, chains = 3, 
-    ##     cores = 3, refresh = 0)
+    ##     cores = 3, refresh = 0, seed = 123)
     ## 
     ## Occupancy (logit-scale):
-    ##                 Estimate    SD   2.5%  97.5% n_eff Rhat
-    ## (Intercept)        0.317 0.294 -0.259  0.900   668    1
-    ## x1                -0.461 0.119 -0.693 -0.229  4502    1
-    ## sigma [1|group]    1.388 0.277  0.929  2.018  1982    1
+    ##                 Estimate    SD   2.5%  97.5% n_eff  Rhat
+    ## (Intercept)        0.318 0.290 -0.254  0.887   926 1.001
+    ## x1                -0.461 0.114 -0.683 -0.237  4428 0.999
+    ## sigma [1|group]    1.337 0.261  0.911  1.924  2112 1.002
     ## 
     ## Detection (logit-scale):
-    ##             Estimate     SD  2.5% 97.5% n_eff  Rhat
-    ## (Intercept)    0.382 0.0592 0.268 0.496  5380 1.000
-    ## x2             0.586 0.0615 0.469 0.710  4311 0.999
+    ##             Estimate     SD  2.5% 97.5% n_eff Rhat
+    ## (Intercept)    0.383 0.0607 0.265 0.503  4539    1
+    ## x2             0.586 0.0591 0.470 0.704  4963    1
     ## 
-    ## LOOIC: 2267.997
+    ## LOOIC: 2267.291
+    ## Runtime: 27.948 sec
 
 Examine residuals for occupancy and detection submodels (following
 [Wright et al. 2019](https://doi.org/10.1002/ecy.2703)). Each panel

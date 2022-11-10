@@ -142,7 +142,7 @@ get_nrandom <- function(formula, data){
 
   out <- sapply(rand, function(x){
     col_nm <- as.character(x[[3]])
-    length(unique(data[[col_nm]]))
+    length(levels(as.factor(data[[col_nm]])))
   })
   as.array(out)
 }

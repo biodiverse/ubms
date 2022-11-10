@@ -1,12 +1,10 @@
-# ubms v1.2.1
+# ubms v1.2.2
 
 * Fix broken URLs in vignettes
-
-# ubms v1.2.0
-
 * New kfold function
 * Add ability to not save log likelihoods in posterior
 * Add new Laplace prior (thanks Justin Cally)
+* Better handling of factors with levels that don't appear in data
 * Fix CRAN clang warnings
 * Misc. bugfixes
 
