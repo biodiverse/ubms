@@ -26,13 +26,17 @@ real lp_priors(vector beta, int[] dist, matrix pars){
   if(nb == 0) return out;
   idx = dist[1] == 0 ? 1 : 2;
 
-  // intercept
-  out += lp_single_prior(beta[1:1], dist[1], pars[1,1:1],
-                         pars[2,1:1], pars[3,1:1]);
+  // intercept prior, if intercept exists
+  if(dist[1] != 0){
+    out += lp_single_prior(beta[1:1], dist[1], pars[1,1:1],
+                          pars[2,1:1], pars[3,1:1]);
+  }
 
-  // regression coefficients
-  out += lp_single_prior(beta[idx:nb], dist[2], pars[1,idx:nb],
-                         pars[2,idx:nb], pars[3,idx:nb]);
+  // regression coefficients priors, if there are any
+  if(dist[2] != 0){
+    out += lp_single_prior(beta[idx:nb], dist[2], pars[1,idx:nb],
+                          pars[2,idx:nb], pars[3,idx:nb]);
+  }
 
   return out;
 }
