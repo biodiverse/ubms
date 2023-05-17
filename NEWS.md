@@ -1,3 +1,10 @@
+# ubms v1.2.3
+
+* Fix bug in Stan code revealed by new StanHeaders
+* Drop C++ specification per CRAN instructions
+* Remove deprecated ggplot2 functions
+* Small updates to overview vignette
+
 # ubms v1.2.2
 
 * Fix broken URLs in vignettes
