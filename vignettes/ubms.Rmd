@@ -149,10 +149,10 @@ Next, we fit the same model in `ubms`.
 The equivalent to `occu` in `ubms` is `stan_occu`.
 Functions in `ubms` generally use this `stan_` prefix, based on the approach used in package [rstanarm](https://cran.r-project.org/package=rstanarm) for GLMs.
 We need to provide the same arguments to `stan_occu`.
-In addition, we will specify that we want 3 MCMC chains (`chains=3`), with 300 iterations per chain (`iter=300`) of which the first half will be warmup iterations.
+In addition, we will specify that we want 3 MCMC chains (`chains=3`), with 500 iterations per chain (`iter=500`) of which the first half will be warmup iterations.
 It is beyond the scope of this vignette to discuss the appropriate number or length of chains; see [the Stan user's guide](https://mc-stan.org/docs/2_24/stan-users-guide/index.html) for more details.
 Generally 4 chains of 2000 iterations each is recommended (of which 1000 per chain are warmups).
-Thus, 300 iterations per chain is probably not enough, but to keep things running quickly it is sufficient for this vignette.
+Thus, 500 iterations per chain is probably not enough, but to keep things running quickly it is sufficient for this vignette.
 Note that if you are more familiar with BUGS or JAGS, Stan generally requires a smaller number of iterations to reach convergence thanks to its default NUTS sampler [@Hoffman_2014].
 If you have a good multi-core CPU, you can run chains in parallel.
 Tell Stan how many parallel cores you want to use by assigning a value to the `cores` argument.
@@ -160,12 +160,12 @@ Tell Stan how many parallel cores you want to use by assigning a value to the `c
 ```{r, eval=FALSE}
 library(ubms)
 
-(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300, cores=3, seed=123))
+(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=500, cores=3, seed=123))
 ```
 
 ```{r, echo=FALSE}
 library(ubms)
-(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300, refresh=0, seed=123))
+(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=500, refresh=0, seed=123))
 ```
 
 ### Compare results
@@ -236,7 +236,7 @@ This can help improve model convergence and is generally a good idea.
 fit_null <- fit_stan
 
 fit_global <- stan_occu(~scale(date)~scale(forest)+scale(ele), data=umf,
-                        chains=3, iter=300, seed=123)
+                        chains=3, iter=500, seed=123)
 ```
 
 ```{r, echo=FALSE}
@@ -245,7 +245,7 @@ fit_null <- fit_stan
 
 ```{r, warning=TRUE, echo=FALSE}
 fit_global <- stan_occu(~scale(date)~scale(forest)+scale(ele), data=umf,
-                        chains=3, iter=300, refresh=0, seed=123)
+                        chains=3, iter=500, refresh=0, seed=123)
 ```
 
 The `fit_global` model gave us some warnings about the effective sample size (`n_eff`) along with a suggested solution.
@@ -304,9 +304,10 @@ To visualize convergence, look at the traceplots:
 traceplot(fit_top, pars=c("beta_state", "beta_det"))
 ```
 
-Our effective sample size `n_eff` is lacking for some parameters as we were previously warned.
+The traceplots look a little messy.
+We may also get a warning that `n_eff` is lacking for some parameters.
 The rule of thumb is to have `n_eff` > 100 * number of chains (300).
-The easy solution would be to re-run this model with more iterations.
+The easy solution to both problems would be to re-run this model with more iterations.
 
 ### Model fit
 
