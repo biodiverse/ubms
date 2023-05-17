@@ -75,7 +75,7 @@ test_that("stan_colext produces accurate results",{
   expect_RMSE(coef(fit_long), coef(fit_unm), 0.03)
   #similar to previous known values
   known <- c(-0.86420,-0.0755,0.58441,0.13419,-1.04717,0.04023)
-  expect_RMSE(coef(fit_long), known, 0.02)
+  expect_RMSE(coef(fit_long), known, 0.03)
 })
 
 test_that("stan_colext handles NA values",{

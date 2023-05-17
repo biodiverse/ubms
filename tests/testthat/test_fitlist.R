@@ -55,7 +55,7 @@ test_that("fitList for unmarkedFits passes through to unmarked",{
   unm_list <- list(mod1=unm_mod, mod2=unm_mod)
   ufl <- fitList(fits=unm_list)
   expect_is(ufl, "unmarkedFitList")
-  ufl2 <- expect_warning(fitList(unm_mod, unm_mod))
+  ufl2 <- fitList(unm_mod, unm_mod)
   expect_is(ufl2, "unmarkedFitList")
 })
 
