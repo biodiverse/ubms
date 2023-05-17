@@ -75,10 +75,11 @@ plot_RSR <- function(coords, A, threshold, focal_site){
     neighbors$type <- "Neighbors"
     focal <- rbind(focal, neighbors)
   }
+  x <- sym("x"); y <- sym("y"); type <- sym("type")
 
-  ggplot(focal, aes_string(x="x",y="y")) +
+  ggplot(focal, aes(x={{x}},y={{y}})) +
     geom_point(data=plot_dat, alpha=0.3) +
-    geom_point(aes_string(col="type")) +
+    geom_point(aes(col={{type}})) +
     scale_color_manual(values=c("red","blue")) +
     plot_theme() +
     theme(legend.text=element_text(size=14),
@@ -278,9 +279,11 @@ plot_spatial <- function(object, param=c('state','eta'), sites=TRUE, cell_size=N
     est <- Kmat %*% colMeans(b)
   }
   plot_data <- cbind(as.data.frame(coords), est=est)
+  
+  x <- sym(nms[1]); y <- sym(nms[2]); est <- sym("est")
 
-  out <- ggplot(data=plot_data, aes_string(x=nms[1], y=nms[2])) +
-    geom_tile(aes_string(fill="est"), width=cell_size, height=cell_size) +
+  out <- ggplot(data=plot_data, aes(x={{x}}, y={{y}})) +
+    geom_tile(aes(fill={{est}}), width=cell_size, height=cell_size) +
     scale_fill_gradientn(colors=terrain.colors(10)) +
     labs(fill=param) +
     plot_theme() +
@@ -292,15 +295,17 @@ plot_spatial <- function(object, param=c('state','eta'), sites=TRUE, cell_size=N
     if(inherits(object, "ubmsFitOccuTTD")){
       coords_samp$obs <- as.numeric(coords_samp$obs < object@response@surveyLength)
     }
+    
+    obs <- sym("obs")
 
     if(inherits(object, c("ubmsFitOccu","ubmsFitOccuTTD","ubmsFitOccuRN"))){
       coords_samp$obs <- factor(coords_samp$obs)
-      out <- out + geom_point(data=coords_samp, aes_string(col="obs"),
+      out <- out + geom_point(data=coords_samp, aes(col={{obs}}),
                             size=1, pch=19) +
         scale_color_manual(values=c("gray","black")) +
         labs(color="Detected")
     } else {
-      out <- out + geom_point(data=coords_samp, aes_string(size="obs"), pch=19) +
+      out <- out + geom_point(data=coords_samp, aes(size={{obs}}), pch=19) +
         #scale_color_manual(values=c("gray","black")) +
         labs(size="Minimum\ncount")
     }

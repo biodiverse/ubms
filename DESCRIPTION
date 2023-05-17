@@ -12,15 +12,16 @@ Imports:
     gridExtra,
     lme4,
     loo,
-    Matrix,
+    Matrix (>= 1.5-0),
     methods,
     pbapply,
     Rcpp (>= 0.12.0),
+    rlang,
     RSpectra,
     rstan (>= 2.18.1),
     rstantools (>= 2.0.0),
     stats
-Suggests: covr, devtools, knitr, pkgdown, raster, rmarkdown, rlang, roxygen2, testthat
+Suggests: covr, devtools, knitr, pkgdown, raster, rmarkdown, roxygen2, testthat
 VignetteBuilder: knitr
 Description: Fit Bayesian hierarchical models of animal abundance and occurrence
     via the 'rstan' package, the R interface to the 'Stan' C++ library.
@@ -34,7 +35,7 @@ License: GPL (>=3)
 URL: https://kenkellner.com/ubms/
 BugReports: https://github.com/kenkellner/ubms/issues
 Encoding: UTF-8
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.2
 Biarch: true
 LinkingTo: 
     BH (>= 1.66.0),

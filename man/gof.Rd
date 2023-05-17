@@ -32,12 +32,12 @@ checks
 }
 \section{Functions}{
 \itemize{
-\item \code{gof,ubmsFitOccu-method}: Applies the MacKenzie-Bailey chi-square goodness of fit test for
+\item \code{gof(ubmsFitOccu)}: Applies the MacKenzie-Bailey chi-square goodness of fit test for
 ocupancy models (MacKenzie and Bailey 2004).
 
-\item \code{gof,ubmsFitAbun-method}: A goodness-of-fit test for N-mixture type models based on Pearson's chi-square.
-}}
+\item \code{gof(ubmsFitAbun)}: A goodness-of-fit test for N-mixture type models based on Pearson's chi-square.
 
+}}
 \references{
 MacKenzie, D. I., & Bailey, L. L. (2004). Assessing the
  fit of site-occupancy models. Journal of Agricultural, Biological,

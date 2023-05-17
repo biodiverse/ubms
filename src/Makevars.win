@@ -7,7 +7,7 @@ PKG_CXXFLAGS = $(shell "$(R_HOME)/bin$(R_ARCH_BIN)/Rscript" -e "RcppParallel::Cx
 PKG_LIBS = $(shell "$(R_HOME)/bin$(R_ARCH_BIN)/Rscript" -e "RcppParallel::RcppParallelLibs()") $(shell "$(R_HOME)/bin$(R_ARCH_BIN)/Rscript" -e "StanHeaders:::LdFlags()")
 PKG_LIBS+= $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 
-CXX_STD = CXX14
+# CXX_STD = CXX14
 
 all: $(SHLIB)
 

@@ -14,7 +14,7 @@ PKG_LIBS = $(shell "$(R_HOME)/bin$(R_ARCH_BIN)/Rscript" -e "RcppParallel::RcppPa
 PKG_LIBS+= $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 
 # COMMENT THIS OUT WHEN TESTING CLANG COMPILER
-CXX_STD = CXX14
+# CXX_STD = CXX14
 
 
 all: $(SHLIB)
