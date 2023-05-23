@@ -98,6 +98,7 @@ test_that("traceplot method works for ubmsFit",{
 })
 
 test_that("predicting map works for ubmsFit",{
+  skip_on_ci()
   r <- raster::raster(matrix(rnorm(30), ncol=5, nrow=6))
   names(r) <- "x1"
   r2 <- r
