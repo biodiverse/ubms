@@ -1,3 +1,7 @@
+# ubms v.1.2.4
+
+* Adjust Makevars to fix problems with clang 16
+
 # ubms v1.2.3
 
 * Fix bug in Stan code revealed by new StanHeaders
