@@ -1,3 +1,8 @@
+# ubms v.1.2.5
+
+* Fix issue with version number not being a string
+* Adding missing roxygen tag
+
 # ubms v.1.2.4
 
 * Adjust Makevars to fix problems with clang 16

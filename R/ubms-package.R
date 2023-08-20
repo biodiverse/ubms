@@ -13,4 +13,5 @@
 #' @importFrom stats as.formula model.frame rbinom dbinom
 #' @useDynLib "ubms", .registration = TRUE
 #' @name ubms
+#' @aliases ubms-package
 NULL
