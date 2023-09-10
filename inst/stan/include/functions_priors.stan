@@ -18,7 +18,7 @@ real lp_single_prior(vector x, int dist, row_vector pars1,
 }
 
 
-real lp_priors(vector beta, int[] dist, matrix pars){
+real lp_priors(vector beta, array[] int dist, matrix pars){
 
   int idx;
   real out = 0.0;
@@ -42,7 +42,7 @@ real lp_priors(vector beta, int[] dist, matrix pars){
 }
 
 real lp_random_prior(int has_random, int n_group_vars, vector b,
-                     int[] n_random, vector sigma, int dist, matrix pars){
+                     array[] int n_random, vector sigma, int dist, matrix pars){
   int idx = 1;
   real out = 0;
   int par_idx = cols(pars);
