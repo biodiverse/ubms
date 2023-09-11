@@ -39,23 +39,23 @@ real int_negexp(real log_rate, real a, real b, int point){
   return out;
 }
 
-//real p_hazard_line(real x, real xc, real[] theta, real[] x_r, int[] x_i){
+//real p_hazard_line(real x, real xc, array[] real theta, array[] real x_r, array[] int x_i){
 //  return(1 - exp(-1 * pow((x/theta[1]), (-1*theta[2]))));
 //}
 
-real p_hazard_line(real x, real[] theta){
+real p_hazard_line(real x, array[] real theta){
   return(1 - exp(-1 * pow((x/theta[1]), (-1*theta[2]))));
 }
 
-//real p_hazard_point(real x, real xc, real[] theta, real[] x_r, int[] x_i){
+//real p_hazard_point(real x, real xc, array[] real theta, array[] real x_r, array[] int x_i){
 //  return((1 - exp(-1 * pow(x/theta[1], -1*theta[2]))) * x);
 //}
 
-real p_hazard_point(real x, real[] theta){
+real p_hazard_point(real x, array[] real theta){
   return((1 - exp(-1 * pow(x/theta[1], -1*theta[2]))) * x);
 }
 
-real trap_rule_line(real[] theta, real a, real b){
+real trap_rule_line(array[] real theta, real a, real b){
   int n = 100;
   real h = (b - a) / n;
 
@@ -66,7 +66,7 @@ real trap_rule_line(real[] theta, real a, real b){
   return h/2 * (p_hazard_line(a, theta) + 2*int_sum + p_hazard_line(b, theta));
 }
 
-real trap_rule_point(real[] theta, real a, real b){
+real trap_rule_point(array[] real theta, real a, real b){
   int n = 100;
   real h = (b - a) / n;
 
@@ -83,7 +83,7 @@ real int_hazard(real log_shape, real log_scale, real a, real b, int point){
   real out;
   real shape = exp(log_shape);
   real scale = exp(log_scale);
-  real theta[2];
+  array[2] real theta;
   theta[1] = shape;
   theta[2] = scale;
 

@@ -3,7 +3,7 @@ functions{
 #include /include/functions_priors.stan
 
 //can shortcut here I think
-vector get_pY(int[] y, vector logit_p, int nd){
+vector get_pY(array[] int y, vector logit_p, int nd){
   vector[2] out;
   out[1] = nd;
   out[2] = exp(bernoulli_logit_lpmf(y | logit_p));
@@ -29,8 +29,8 @@ matrix get_phi(matrix phi_raw, int Tstart, int Tnext){
 }
 
 //Ts = indices of primary periods when site was sampled (eg not all NA)
-real lp_colext(int[] y, int[] Tsamp, int[] J, row_vector psi, matrix phi_raw,
-               vector logit_p, int[] nd){
+real lp_colext(array[] int y, array[] int Tsamp, array[] int J, row_vector psi, matrix phi_raw,
+               vector logit_p, array[] int nd){
 
   int T = size(Tsamp);
   matrix[2,2] phi_prod = diag_matrix(rep_vector(1, 2));
@@ -56,9 +56,9 @@ real lp_colext(int[] y, int[] Tsamp, int[] J, row_vector psi, matrix phi_raw,
 }
 
 //needs fixed
-vector get_loglik_colext(int[] y, int M, int[] Tsamp, int[,] J, int[,] si,
+vector get_loglik_colext(array[] int y, int M, array[] int Tsamp, array[,] int J, array[,] int si,
                          matrix psi_raw, matrix phi_raw, vector logit_p,
-                         int[,] nd){
+                         array[,] int nd){
   vector[M] out;
   for (i in 1:M){
     out[i] = lp_colext(y[si[i,1]:si[i,2]], Tsamp[si[i,3]:si[i,4]], J[i,],
@@ -82,32 +82,32 @@ int n_fixed_col;
 int n_fixed_ext;
 int n_group_vars_col;
 int n_group_vars_ext;
-int n_random_col[has_random_col ? n_group_vars_col : 1];
-int n_random_ext[has_random_ext ? n_group_vars_ext: 1];
+array[has_random_col ? n_group_vars_col : 1] int n_random_col;
+array[has_random_ext ? n_group_vars_ext: 1] int n_random_ext;
 matrix[M*(T-1), n_fixed_col] X_col;
 matrix[M*(T-1), n_fixed_ext] X_ext;
 vector[M*(T-1)] offset_col;
 vector[M*(T-1)] offset_ext;
 
-int Zdim_col[5];
+array[5] int Zdim_col;
 vector[Zdim_col[3]] Zw_col;
-int Zv_col[Zdim_col[4]];
-int Zu_col[Zdim_col[5]];
+array[Zdim_col[4]] int Zv_col;
+array[Zdim_col[5]] int Zu_col;
 
-int Zdim_ext[5];
+array[5] int Zdim_ext;
 vector[Zdim_ext[3]] Zw_ext;
-int Zv_ext[Zdim_ext[4]];
-int Zu_ext[Zdim_ext[5]];
+array[Zdim_ext[4]] int Zv_ext;
+array[Zdim_ext[5]] int Zu_ext;
 
-int prior_dist_col[3];
-int prior_dist_ext[3];
+array[3] int prior_dist_col;
+array[3] int prior_dist_ext;
 matrix[3, (n_fixed_col+1)] prior_pars_col;
 matrix[3, (n_fixed_ext+1)] prior_pars_ext;
 }
 
 transformed data{
 
-int no_detects[M, T];
+array[M, T] int no_detects;
 int include_scale;
 int include_shape;
 

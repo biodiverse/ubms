@@ -16,7 +16,7 @@ real theta_lpdf(vector theta, real tau, matrix Qalpha, int n_eigen){
   return 0.5*(n_eigen*log(tau) - tau*quad_form(Qalpha, theta));
 }
 
-//real lp_occu_probit(int[] y, real raw_psi, vector raw_p, int Kmin){
+//real lp_occu_probit(array[] int y, real raw_psi, vector raw_p, int Kmin){
 //  real out;
 //  real psi = Phi(raw_psi);
 //  int J = num_elements(raw_p);
@@ -28,8 +28,8 @@ real theta_lpdf(vector theta, real tau, matrix Qalpha, int n_eigen){
 //  return log(out);
 //}
 
-//vector get_loglik_occu_probit(int[] y, int M, int[,] J, int[,] si, vector raw_psi,
-//                  vector raw_p, int[] Kmin){
+//vector get_loglik_occu_probit(array[] int y, int M, array[,] int J, array[,] int si, vector raw_psi,
+//                  vector raw_p, array[] int Kmin){
 //  vector[M] out;
 //  for (i in 1:M){
 //    out[i] = lp_occu_probit(y[si[i,1]:si[i,2]], raw_psi[i],

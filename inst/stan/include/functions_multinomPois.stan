@@ -32,7 +32,7 @@ vector pi_fun(int pi_type, vector p, int J){
   return out;
 }
 
-real lp_multinomPois(int[] y, real log_lambda, vector logit_p, int pi_type){
+real lp_multinomPois(array[] int y, real log_lambda, vector logit_p, int pi_type){
 
   real loglik = 0.0;
   real lam = exp(log_lambda);
@@ -52,11 +52,11 @@ real lp_multinomPois(int[] y, real log_lambda, vector logit_p, int pi_type){
   return loglik;
 }
 
-vector get_loglik_multinomPois(int[] y, int M, int[,] si, vector log_lambda,
+vector get_loglik_multinomPois(array[] int y, int M, array[,] int si, vector log_lambda,
                                vector logit_p, int pi_type){
 
   vector[M] out;
-  int J = num_elements(logit_p) / M; // use %/% in future version of stan
+  int J = num_elements(logit_p) %/% M; // use %/% in future version of stan
   int pstart = 1;
   int pend;
   for (i in 1:M){

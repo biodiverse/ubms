@@ -1,4 +1,4 @@
-vector ttd_prob_exp(vector y, vector log_lam, int[] delta){
+vector ttd_prob_exp(vector y, vector log_lam, array[] int delta){
   int J = num_elements(y);
   vector[J] e_lamt;
   real lam;
@@ -9,7 +9,7 @@ vector ttd_prob_exp(vector y, vector log_lam, int[] delta){
   return e_lamt;
 }
 
-vector ttd_prob_weib(vector y, vector log_lam, int[] delta, real log_k){
+vector ttd_prob_weib(vector y, vector log_lam, array[] int delta, real log_k){
   int J = num_elements(y);
   vector[J] e_lamt;
   real k = exp(log_k);
@@ -23,7 +23,7 @@ vector ttd_prob_weib(vector y, vector log_lam, int[] delta, real log_k){
 }
 
 real lp_occuTTD(vector y, real logit_psi, vector log_lam,
-                real log_k, int[] delta, int ydist){
+                real log_k, array[] int delta, int ydist){
 
   int J = num_elements(y);
   vector[J] e_lamt;
@@ -40,8 +40,8 @@ real lp_occuTTD(vector y, real logit_psi, vector log_lam,
   return log(lik);
 }
 
-vector get_loglik_occuTTD(vector y, int M, int[,] si, vector logit_psi,
-                          vector log_lam, real log_k, int[] delta, int ydist){
+vector get_loglik_occuTTD(vector y, int M, array[,] int si, vector logit_psi,
+                          vector log_lam, real log_k, array[] int delta, int ydist){
   vector[M] out;
   for (i in 1:M){
     out[i] = lp_occuTTD(y[si[i,1]:si[i,2]], logit_psi[i], log_lam[si[i,1]:si[i,2]],
