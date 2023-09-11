@@ -1,3 +1,7 @@
+# ubms v.1.2.6
+
+* Fix deprecated Stan code
+
 # ubms v.1.2.5
 
 * Fix issue with version number not being a string
