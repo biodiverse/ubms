@@ -124,4 +124,4 @@ Look at the marginal effect of `x2` on detection:
 plot_effects(fm, "det")
 ```
 
-A more detailed vignette for the package is available [here](https://kenkellner.com/blog/ubms-vignette.html).
+A more detailed vignette for the package is available [here](https://kenkellner.com/ubms/articles/ubms.html).
