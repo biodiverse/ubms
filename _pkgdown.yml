@@ -7,11 +7,13 @@ reference:
     contents:
       - starts_with("stan_")
       - priors
+      - RSR
 
   - title: Model diagnostics
     contents:
       - fitted,ubmsFit-method
       - gof
+      - plot,ubmsFit,ANY-method
       - plot_residuals
       - plot_posteriors,ubmsFit-method
       - residuals,ubmsFit-method
@@ -19,14 +21,16 @@ reference:
 
   - title: Model selection
     contents:
+      - extract_log_lik
       - fitList
       - kfold,ubmsFit-method
       - loo,ubmsFit-method
       - modSel,ubmsFitList-method
       - waic,ubmsFit-method
-  
+
   - title: Inference
     contents:
+      - coef,ubmsFit-method
       - extract,ubmsFit-method
       - plot_marginal
       - plot_spatial
@@ -35,4 +39,21 @@ reference:
       - predict
       - projected
       - ranef
+      - summary,ubmsFit-method 
       - turnover
+
+  - title: Utility
+    contents:
+      - get_elapsed_time,ubmsFit-method
+      - get_stancode,ubmsFit-method
+
+  - title: internal
+    contents:
+      - "[,ubmsFit,character,missing,missing-method"
+      - "[,ubmsSubmodelList,character,missing,missing-method"
+      - getY,ubmsFit-method
+      - names,ubmsFit-method
+      - names,ubmsFitList-method
+      - nsamples,ubmsFit-method
+      - ubms
+      - ubmsFitList-extractors 
