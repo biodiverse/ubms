@@ -45,7 +45,7 @@ setMethod("fitList", "list", function(...){
 #'  order by expected log pointwise predictive density (\code{elpd}).
 #' @seealso \code{\link[loo]{loo}}, \code{\link[loo]{loo_compare}}
 #'
-#' @importFrom loo loo_compare loo_model_weights
+#' @importFrom loo loo_compare
 #' @importFrom unmarked modSel
 #' @export
 setMethod("modSel", "ubmsFitList", function(object, ...){
@@ -54,8 +54,7 @@ setMethod("modSel", "ubmsFitList", function(object, ...){
   elpd <- sapply(loos, function(x) x$estimates[1])
   p_loo <- sapply(loos, function(x) x$estimates[2])
   compare <- loo::loo_compare(loos)[names(elpd),]
-  wts <- as.vector(loo::loo_model_weights(loos))
   out <- data.frame(elpd=elpd, nparam=p_loo, elpd_diff=compare[,1],
-                    se_diff=compare[,2], weight=wts)
+                    se_diff=compare[,2])
   out[order(out$elpd_diff, decreasing=TRUE),]
 })

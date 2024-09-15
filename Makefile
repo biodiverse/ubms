@@ -19,7 +19,7 @@ test:
 document:
 	Rscript -e "devtools::document()"
 
-vignettes: vignettes/random-effects.Rmd vignettes/JAGS-comparison.Rmd vignettes/spatial-models.Rmd vignettes/grouse-example.Rmd
+vignettes: vignettes/random-effects.Rmd vignettes/JAGS-comparison.Rmd vignettes/spatial-models.Rmd
 	touch test.png; mv *.png vignettes; rm vignettes/test.png
 	Rscript -e "devtools::build_vignettes()"
 
@@ -47,6 +47,3 @@ vignettes/JAGS-comparison.Rmd: vignettes/JAGS-comparison.Rmd.orig
 
 vignettes/spatial-models.Rmd: vignettes/spatial-models.Rmd.orig
 	Rscript -e "knitr::knit('vignettes/spatial-models.Rmd.orig', output='vignettes/spatial-models.Rmd')"
-
-vignettes/grouse-example.Rmd: vignettes/grouse-example.Rmd.orig
-	Rscript -e "knitr::knit('vignettes/grouse-example.Rmd.orig', output='vignettes/grouse-example.Rmd')"

@@ -45,7 +45,7 @@ We will adapt the demo code and dataset available in R package `stocc` to fit a 
 The `stocc` package was an extremely valuable guide when implementing RSRs in `ubms`, and contains many other useful features related to spatial occupancy modeling.
 
 
-```r
+``` r
 library(ubms)
 library(stocc)
 ```
@@ -59,7 +59,7 @@ We need to convert it to the wide format that `unmarked` and `ubms` expect.
 
 
 
-```r
+``` r
 # Load datasets
 data(habData)   # site covariate data
 data(visitData) # observation cov data
@@ -99,7 +99,7 @@ These should be in some projected coordinate system.
 In this dataset, coordinates are contained in columns `x` and `y`:
 
 
-```r
+``` r
 head(site_cov)
 ```
 
@@ -117,7 +117,7 @@ Site and observation covariates are otherwise handled the same way as normal for
 Here's a quick visualization of how `habCov2` varies across the study area.
 
 
-```r
+``` r
 library(ggplot2)
 #Which sites were sampled at least once?
 sampled <- apply(y, 1, function(x) any(!is.na(x)))
@@ -141,7 +141,7 @@ As you'd expect, you simply include these by including a row of all missing valu
 For example, in this dataset, sites 1 and 2 were sampled but site 3 was not:
 
 
-```r
+``` r
 y[1:3,]
 ```
 
@@ -152,7 +152,7 @@ y[1:3,]
 ## [3,]   NA   NA   NA   NA   NA   NA   NA
 ```
 
-```r
+``` r
 round(detCov1[1:3,],3)
 ```
 
@@ -166,7 +166,7 @@ round(detCov1[1:3,],3)
 The final step in data formatting is to construct the `unmarkedFrame`.
 
 
-```r
+``` r
 umf <- unmarkedFrameOccu(y=y, siteCovs=site_cov, obsCovs=obs_cov)
 ```
 
@@ -183,7 +183,7 @@ The RSR() function requires as input at least one coordinate vector (typically y
 If we set the `plot_site` argument to an integer, `RSR` will return a map highlighting that site and its neighbors under the current threshold setting:
 
 
-```r
+``` r
 with(site_cov, RSR(x, y, threshold=1, plot_site=300))
 ```
 
@@ -193,7 +193,7 @@ With `threshold=1` and our coordinate grid, site 300 has just 4 neighbors.
 Now consider `threshold=10`:
 
 
-```r
+``` r
 with(site_cov, RSR(x, y, threshold=10, plot_site=300))
 ```
 
@@ -215,7 +215,7 @@ The formula syntax is identical to normal `ubms` and (and `unmarked`) models, ex
 We also include two fixed detection and two fixed occupancy covariates.
 
 
-```r
+``` r
 #Double formula: first part is for detection, second for occupancy
 form <- ~detCov1 + detCov2 ~habCov1 + habCov2 + RSR(x, y, threshold=1)
 ```
@@ -224,7 +224,7 @@ We will then fit the model in Stan with `stan_occu()`, using 3 parallel cores.
 This will take Stan a few minutes with default MCMC settings.
 
 
-```r
+``` r
 fit_ubms <- stan_occu(form, umf, chains=3, cores=3, seed=123)
 ```
 
@@ -238,7 +238,7 @@ The solution is to run the model for more iterations, but this is good enough fo
 Look at the parameter estimates:
 
 
-```r
+``` r
 fit_ubms
 ```
 
@@ -249,23 +249,23 @@ fit_ubms
 ##     cores = 3, seed = 123)
 ## 
 ## Occupancy (logit-scale):
-##             Estimate    SD    2.5%  97.5% n_eff  Rhat
-## (Intercept)   -1.068 0.231 -1.5520 -0.646   947 1.001
-## habCov12      -0.216 0.320 -0.8350  0.405  2381 1.000
-## habCov13      -0.264 0.321 -0.9002  0.362  2244 0.999
-## habCov2        1.104 0.181  0.7612  1.493  1035 1.000
-## RSR [tau]      0.140 0.057  0.0599  0.274   205 1.015
+##             Estimate     SD   2.5%  97.5% n_eff  Rhat
+## (Intercept)   -1.056 0.2236 -1.509 -0.635  1542 1.002
+## habCov12      -0.215 0.3128 -0.832  0.384  2339 0.999
+## habCov13      -0.261 0.3221 -0.886  0.375  2121 0.999
+## habCov2        1.090 0.1705  0.771  1.434  1389 1.001
+## RSR [tau]      0.144 0.0529  0.071  0.276   248 1.006
 ## 
 ## Detection (logit-scale):
-##             Estimate    SD   2.5% 97.5% n_eff Rhat
-## (Intercept)    1.712 0.355  1.061 2.413  1783    1
-## detCov1        0.115 0.210 -0.288 0.528  4778    1
-## detCov21       1.188 0.538  0.152 2.285  2360    1
-## detCov22       1.385 0.552  0.347 2.508  2439    1
-## detCov23      -0.219 0.476 -1.156 0.731  2230    1
+##             Estimate    SD   2.5% 97.5% n_eff  Rhat
+## (Intercept)    1.736 0.375  1.038 2.532  1806 1.000
+## detCov1        0.109 0.214 -0.293 0.510  4609 1.000
+## detCov21       1.175 0.544  0.160 2.278  2263 1.000
+## detCov22       1.363 0.580  0.246 2.559  2331 1.000
+## detCov23      -0.249 0.488 -1.235 0.714  2234 0.999
 ## 
-## LOOIC: 668.955
-## Runtime: 2.828 min
+## LOOIC: 668.831
+## Runtime: 2.036 min
 ```
 
 The precision term (tau, $\tau$) associated with the spatial random effect is the final row of the occupancy model estimates.
@@ -275,7 +275,7 @@ There also appears to be a strong effect of `habCov2` on occupancy.
 We can quickly visualize marginal effects of fixed covariates with `plot_effects`.
 
 
-```r
+``` r
 plot_effects(fit_ubms, "state")
 ```
 
@@ -284,7 +284,7 @@ plot_effects(fit_ubms, "state")
 You can extract predicted occupancy values for each site (including sites never actually sampled) using the `predict` function:
 
 
-```r
+``` r
 # "state" to get state/occupancy process, as opposed to "det"
 psi <- predict(fit_ubms, "state")
 head(psi)
@@ -292,12 +292,12 @@ head(psi)
 
 ```
 ##   Predicted         SD       2.5%     97.5%
-## 1 0.1406819 0.04367637 0.06798461 0.2395582
-## 2 0.2353870 0.08364601 0.10436390 0.4261004
-## 3 0.3613298 0.11519917 0.16951184 0.6225812
-## 4 0.4581433 0.12669375 0.23324167 0.7257790
-## 5 0.4564998 0.12228635 0.22897164 0.7091163
-## 6 0.3849536 0.11732801 0.17920393 0.6357226
+## 1 0.1431907 0.04554381 0.06928728 0.2453479
+## 2 0.2378141 0.08682981 0.10409517 0.4370658
+## 3 0.3617458 0.11947600 0.16084996 0.6211602
+## 4 0.4577439 0.12923964 0.22673143 0.7246516
+## 5 0.4549725 0.12532278 0.22459356 0.7163457
+## 6 0.3863041 0.11822055 0.17525150 0.6382941
 ```
 
 ## Plotting
@@ -306,7 +306,7 @@ It is much more interesting to see how predicted occupancy varies across the stu
 `ubms` has a built-in function for generating such a map, `plot_spatial`.
 
 
-```r
+``` r
 plot_spatial(fit_ubms)
 ```
 
@@ -317,7 +317,7 @@ The plot also shows the location of sampled sites and whether the species was ev
 You can also look at the spatial distribution of random effects $\eta$:
 
 
-```r
+``` r
 plot_spatial(fit_ubms, "eta")
 ```
 
@@ -328,7 +328,7 @@ plot_spatial(fit_ubms, "eta")
 It is important to confirm that the spatial random effect is actually improving the predictive power of the model; if it isn't, we ought to remove it.
 To check this, first fit a similar model without the RSR:
 
-```r
+``` r
 fit_nonspatial <- stan_occu(~detCov1 + detCov2 ~habCov1 + habCov2, umf,
                             chains=3, seed=123)
 ```
@@ -338,21 +338,21 @@ fit_nonspatial <- stan_occu(~detCov1 + detCov2 ~habCov1 + habCov2, umf,
 Combine the models to compare into a `fitList` (note: they must have the same number of chains and MCMC iterations):
 
 
-```r
+``` r
 fl <- fitList(fit_ubms, fit_nonspatial)
 ```
 
 Then, compare the spatial and non-spatial models with leave-one-out cross-validation (LOO)[@Vehtari_2017] using the `modSel()` function:
 
 
-```r
+``` r
 round(modSel(fl),2)
 ```
 
 ```
-##                   elpd nparam elpd_diff se_diff weight
-## fit_ubms       -334.48  47.09       0.0    0.00      1
-## fit_nonspatial -380.68   8.57     -46.2    8.32      0
+##                   elpd nparam elpd_diff se_diff
+## fit_ubms       -334.42  46.18      0.00    0.00
+## fit_nonspatial -380.45   8.34    -46.04    8.25
 ```
 
 A measure of predictive accuracy (`elpd`) is shown for each model, and the model with the highest predictive accuracy is listed first.
@@ -369,7 +369,7 @@ To show this, we will fit the same model in `stocc` and compare the occupancy pr
 The code for fitting the model in `stocc` is taken directly from the package demo.
 
 
-```r
+``` r
 set.seed(123)
 names <- list(
   visit=list(site="site",obs="obs"),
@@ -391,7 +391,7 @@ fit_stocc <- spatial.occupancy(
 Here's a similar plot of predicted occupancy across the study area:
 
 
-```r
+``` r
 # Predicted occupancy
 psi_stocc <- fit_stocc$occupancy.df$psi.est
 

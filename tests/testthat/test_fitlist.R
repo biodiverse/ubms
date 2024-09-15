@@ -63,9 +63,8 @@ test_that("modSel creates selection table for ubmsFitList",{
   fl1 <- fitList(fit, fit_null)
   ms <- suppressWarnings(modSel(fl1))
   expect_is(ms, "data.frame")
-  expect_equal(names(ms), c("elpd","nparam","elpd_diff","se_diff","weight"))
+  expect_equal(names(ms), c("elpd","nparam","elpd_diff","se_diff"))
   expect_equal(ms$elpd_diff[1], 0)
-  expect_equal(ms$weight[1], 1, tol=1e-7)
 })
 
 test_that("[ method works for ubmsFitList",{
