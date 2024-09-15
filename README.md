@@ -4,8 +4,6 @@
 
 [![R build
 status](https://github.com/kenkellner/ubms/workflows/R-CMD-check/badge.svg)](https://github.com/kenkellner/ubms/actions)
-[![Codecov test
-coverage](https://codecov.io/gh/kenkellner/ubms/branch/master/graph/badge.svg)](https://codecov.io/gh/kenkellner/ubms?branch=master)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/ubms)](https://cran.r-project.org/web/packages/ubms/index.html)
 <!-- badges: end -->
@@ -54,96 +52,6 @@ Github:
 devtools::install_github("kenkellner/ubms")
 ```
 
-## Example
+## Package Overview
 
-Simulate occupancy data including a random effect on occupancy:
-
-``` r
-library(ubms)
-
-set.seed(123)
-dat_occ <- data.frame(x1=rnorm(500))
-dat_p <- data.frame(x2=rnorm(500*5))
-
-y <- matrix(NA, 500, 5)
-z <- rep(NA, 500)
-
-b <- c(0.4, -0.5, 0.3, 0.5)
-
-re_fac <- factor(sample(letters[1:26], 500, replace=T))
-dat_occ$group <- re_fac
-re <- rnorm(26, 0, 1.2)
-re_idx <- as.numeric(re_fac)
-
-idx <- 1
-for (i in 1:500){
-  z[i] <- rbinom(1,1, plogis(b[1] + b[2]*dat_occ$x1[i] + re[re_idx[i]]))
-  for (j in 1:5){
-    y[i,j] <- z[i]*rbinom(1,1, 
-                    plogis(b[3] + b[4]*dat_p$x2[idx]))
-    idx <- idx + 1
-  }
-}
-```
-
-Create `unmarked` frame:
-
-``` r
-umf <- unmarkedFrameOccu(y=y, siteCovs=dat_occ, obsCovs=dat_p)
-```
-
-Fit a model with a random intercept, using 3 parallel cores:
-
-``` r
-(fm <- stan_occu(~x2 ~x1 + (1|group), umf, chains=3, cores=3, seed=123))
-```
-
-    ## 
-    ## Call:
-    ## stan_occu(formula = ~x2 ~ x1 + (1 | group), data = umf, chains = 3, 
-    ##     cores = 3, refresh = 0, seed = 123)
-    ## 
-    ## Occupancy (logit-scale):
-    ##                 Estimate    SD   2.5%  97.5% n_eff  Rhat
-    ## (Intercept)        0.318 0.290 -0.254  0.887   926 1.001
-    ## x1                -0.461 0.114 -0.683 -0.237  4428 0.999
-    ## sigma [1|group]    1.337 0.261  0.911  1.924  2112 1.002
-    ## 
-    ## Detection (logit-scale):
-    ##             Estimate     SD  2.5% 97.5% n_eff Rhat
-    ## (Intercept)    0.383 0.0607 0.265 0.503  4539    1
-    ## x2             0.586 0.0591 0.470 0.704  4963    1
-    ## 
-    ## LOOIC: 2267.291
-    ## Runtime: 27.948 sec
-
-Examine residuals for occupancy and detection submodels (following
-[Wright et al. 2019](https://doi.org/10.1002/ecy.2703)). Each panel
-represents a draw from the posterior distribution.
-
-``` r
-plot(fm)
-```
-
-![](README_figs/README-resids-1.png)<!-- -->
-
-Assess model goodness-of-fit with a posterior predictive check, using
-the MacKenzie-Bailey chi-square test:
-
-``` r
-fm_fit <- gof(fm, draws=500)
-plot(fm_fit)
-```
-
-![](README_figs/README-gof-1.png)<!-- -->
-
-Look at the marginal effect of `x2` on detection:
-
-``` r
-plot_effects(fm, "det")
-```
-
-![](README_figs/README-marginal-1.png)<!-- -->
-
-A more detailed vignette for the package is available
-[here](https://kenkellner.com/blog/ubms-vignette.html).
+A detailed vignette for the package is available [here](https://cran.r-project.org/web/packages/ubms/vignettes/ubms.html).

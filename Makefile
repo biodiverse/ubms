@@ -19,13 +19,6 @@ test:
 document:
 	Rscript -e "devtools::document()"
 
-README:
-	Rscript -e "rmarkdown::render('README.Rmd')"
-	pandoc README.md -o README.html
-	firefox README.html
-	sleep 3
-	rm README.html
-
 vignettes: vignettes/random-effects.Rmd vignettes/JAGS-comparison.Rmd vignettes/spatial-models.Rmd vignettes/grouse-example.Rmd
 	touch test.png; mv *.png vignettes; rm vignettes/test.png
 	Rscript -e "devtools::build_vignettes()"
