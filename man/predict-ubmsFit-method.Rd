@@ -20,7 +20,7 @@
 
 \item{submodel}{Submodel to predict from, for example \code{"det"}}
 
-\item{newdata}{Optional data frame or RasterStack of covariates to generate
+\item{newdata}{Optional data frame, SpatRaster, or RasterStack of covariates to generate
 predictions from. If not provided (the default), predictions are
 generated from the original data}
 
@@ -44,9 +44,9 @@ If \code{newdata} was a data frame: A data frame with one row per
   For parameters with more than one dimension, the rows are in site-major
   order, or site-year-observation for dynamic models.
 
-  If \code{newdata} was a RasterStack, returns a RasterStack with four
-  layers corresponding to the four columns above with the same projection
-  as the original RasterStack.
+  If \code{newdata} was a SpatRaster/RasterStack, returns a SpatRaster/RasterStack 
+  with four layers corresponding to the four columns above with the same projection
+  as the original SpatRaster/RasterStack.
 }
 \description{
 This method generates predicted parameter values for the original dataset

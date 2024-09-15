@@ -6,7 +6,7 @@
 #'
 #' @param object A fitted model of class \code{ubmsFit}
 #' @param submodel Submodel to predict from, for example \code{"det"}
-#' @param newdata Optional data frame or RasterStack of covariates to generate
+#' @param newdata Optional data frame, SpatRaster, or RasterStack of covariates to generate
 #'   predictions from. If not provided (the default), predictions are
 #'   generated from the original data
 #' @param transform If \code{TRUE}, back-transform the predictions to their
@@ -25,9 +25,9 @@
 #'   For parameters with more than one dimension, the rows are in site-major
 #'   order, or site-year-observation for dynamic models.
 #'
-#'   If \code{newdata} was a RasterStack, returns a RasterStack with four
-#'   layers corresponding to the four columns above with the same projection
-#'   as the original RasterStack.
+#'   If \code{newdata} was a SpatRaster/RasterStack, returns a SpatRaster/RasterStack 
+#'   with four layers corresponding to the four columns above with the same projection
+#'   as the original SpatRaster/RasterStack.
 #'
 #' @aliases predict
 #' @method predict ubmsFit
@@ -41,6 +41,8 @@ setMethod("predict", "ubmsFit",
 
   if(inherits(newdata, c("RasterLayer", "RasterStack"))){
     return(predict_raster(object, submodel, newdata, transform, re.form, level))
+  } else if(inherits(newdata, "SpatRaster")){
+    return(predict_terra(object, submodel, newdata, transform, re.form, level))
   }
 
   samples <- 1:nsamples(object)
@@ -66,6 +68,19 @@ predict_raster <- function(object, submodel, inp_rast, transform, re.form, level
                predict(object, submodel, newdata=df_dat, transform=transform,
                        re.form=re.form, level=level))
   out <- raster::rasterFromXYZ(out, crs=raster::crs(inp_rast))
+  names(out)[3:4] <- c("Lower","Upper")
+  out
+}
+
+predict_terra <- function(object, submodel, inp_rast, transform, re.form, level){
+  if(!requireNamespace("terra", quietly=TRUE)){
+    stop('Package "terra" is not installed', call.=FALSE)
+  }
+  df_dat <- terra::as.data.frame(inp_rast, xy=TRUE)
+  out <- cbind(df_dat[,1:2,drop=FALSE],
+               predict(object, submodel, newdata=df_dat, transform=transform,
+                       re.form=re.form, level=level))
+  out <- terra::rast(out, type="xyz", crs=terra::crs(inp_rast))
   names(out)[3:4] <- c("Lower","Upper")
   out
 }

@@ -97,8 +97,11 @@ test_that("traceplot method works for ubmsFit",{
   expect_is(tr, "gg")
 })
 
-test_that("predicting map works for ubmsFit",{
+test_that("predicting with raster works for ubmsFit",{
   skip_on_ci()
+  skip_if_not(requireNamespace("raster"))
+
+  set.seed(123)
   r <- raster::raster(matrix(rnorm(30), ncol=5, nrow=6))
   names(r) <- "x1"
   r2 <- r
@@ -110,6 +113,24 @@ test_that("predicting map works for ubmsFit",{
   pr_rast2 <- predict(fit, "state", newdata=rs, re.form=NA)
   expect_is(pr_rast2, "RasterBrick")
   expect_equal(length(pr_rast2), 30*4)
+})
+
+test_that("predicting with terra works for ubmsFit",{
+  skip_on_ci()
+  skip_if_not(requireNamespace("terra"))
+  
+  set.seed(123)
+  r <- terra::rast(matrix(rnorm(30), ncol=5, nrow=6))
+  names(r) <- "x1"
+  r2 <- r
+  names(r2) <- "x2"
+  rs <- c(r, r2)
+  pr_terra <- predict(fit, "state", newdata=r, re.form=NA)
+  expect_is(pr_terra, "SpatRaster")
+  expect_equal(length(terra::values(pr_terra)), 30*4)
+  pr_terra2 <- predict(fit, "state", newdata=rs, re.form=NA)
+  expect_is(pr_terra2, "SpatRaster")
+  expect_equal(length(terra::values(pr_terra2)), 30*4)
 })
 
 test_that("getP method works for ubmsFit",{
