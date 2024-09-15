@@ -78,7 +78,7 @@ setMethod("model_frame", "ubmsSubmodel",
           function(object, newdata=NULL, ...){
 
   data <- object@data
-  formula <- lme4::nobars(object@formula)
+  formula <- reformulas::nobars(object@formula)
   mf <- model.frame(formula, data, na.action=stats::na.pass)
 
   if(is.null(newdata)) return(mf)
@@ -91,7 +91,7 @@ setMethod("model_frame", "ubmsSubmodel",
 setMethod("model.matrix", "ubmsSubmodel",
           function(object, newdata=NULL, na.rm=FALSE, warn=FALSE, ...){
   mf <- model_frame(object, newdata)
-  formula <- lme4::nobars(object@formula)
+  formula <- reformulas::nobars(object@formula)
   out <- model.matrix(formula, mf)
   if(na.rm) out <- out[!object@missing,,drop=FALSE]
   if(warn & !all(is.na(out))){
@@ -137,12 +137,12 @@ get_xlev <- function(data, model_frame){
 }
 
 get_reTrms <- function(formula, data, newdata=NULL){
-  fb <- lme4::findbars(formula)
-  mf <- model.frame(lme4::subbars(formula), data, na.action=stats::na.pass)
-  if(is.null(newdata)) return(lme4::mkReTrms(fb, mf, drop.unused.levels=FALSE))
+  fb <- reformulas::findbars(formula)
+  mf <- model.frame(reformulas::subbars(formula), data, na.action=stats::na.pass)
+  if(is.null(newdata)) return(reformulas::mkReTrms(fb, mf, drop.unused.levels=FALSE))
   new_mf <- model.frame(stats::terms(mf), newdata, na.action=stats::na.pass,
                         xlev=get_xlev(data, mf))
-  lme4::mkReTrms(fb, new_mf, drop.unused.levels=FALSE)
+  reformulas::mkReTrms(fb, new_mf, drop.unused.levels=FALSE)
 }
 
 Z_matrix <- function(object, newdata=NULL, na.rm=FALSE, ...){
@@ -150,7 +150,7 @@ Z_matrix <- function(object, newdata=NULL, na.rm=FALSE, ...){
   formula <- object@formula
   check_formula(formula, data)
 
-  if(is.null(lme4::findbars(formula))) return(matrix(0,0,0))
+  if(is.null(reformulas::findbars(formula))) return(matrix(0,0,0))
 
   Zt <- get_reTrms(formula, data, newdata)$Zt
   Z <- t(as.matrix(Zt))
@@ -161,10 +161,10 @@ Z_matrix <- function(object, newdata=NULL, na.rm=FALSE, ...){
 }
 
 check_formula <- function(formula, data){
-  rand <- lme4::findbars(formula)
+  rand <- reformulas::findbars(formula)
   if(is.null(rand)) return(invisible())
 
-  char <- paste(lme4::findbars(formula)[[1]], collapse=" ")
+  char <- paste(reformulas::findbars(formula)[[1]], collapse=" ")
   if(grepl(":|/", char)){
     stop("Nested random effects (using / and :) are not supported",
          call.=FALSE)
@@ -217,7 +217,7 @@ setGeneric("has_random", function(object){
 })
 
 setMethod("has_random", "ubmsSubmodel", function(object){
-  !is.null(lme4::findbars(object@formula))
+  !is.null(reformulas::findbars(object@formula))
 })
 
 #Check if submodel has intercept term

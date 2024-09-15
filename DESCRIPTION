@@ -10,12 +10,12 @@ Depends:
 Imports:
     ggplot2 (>= 2.0.0),
     gridExtra,
-    lme4,
     loo,
     Matrix (>= 1.5-0),
     methods,
     pbapply,
     Rcpp (>= 0.12.0),
+    reformulas,
     rlang,
     RSpectra,
     rstan (>= 2.26.0),
