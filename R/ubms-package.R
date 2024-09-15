@@ -2,8 +2,6 @@
 #'
 #' Unmarked Bayesian Models using Stan
 #'
-#' @docType package
-#'
 #' @author Ken Kellner
 #'
 #' @import Rcpp

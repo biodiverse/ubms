@@ -33,7 +33,7 @@
 #' oven_fit <- stan_multinomPois(~1~scale(ufc), ovenFrame, chains=3, iter=300)
 #' }
 #'
-#' @seealso \code{\link{multinomPois}}, \code{\link{unmarkedFrameMPois}}
+#' @seealso \code{\link[unmarked]{multinomPois}}, \code{\link[unmarked]{unmarkedFrameMPois}}
 #' @export
 stan_multinomPois <- function(formula,
                               data,

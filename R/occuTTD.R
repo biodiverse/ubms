@@ -75,7 +75,7 @@
 #' Kery, Marc, and J. Andrew Royle. 2016. Applied Hierarchical Modeling in
 #' Ecology, Volume 1. Academic Press.
 #'
-#' @seealso \code{\link{occuTTD}}, \code{\link{unmarkedFrameOccuTTD}}
+#' @seealso \code{\link[unmarked]{occuTTD}}, \code{\link[unmarked]{unmarkedFrameOccuTTD}}
 #' @include fit.R
 #' @export
 stan_occuTTD <- function(psiformula=~1,

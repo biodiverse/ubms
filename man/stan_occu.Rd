@@ -69,5 +69,5 @@ MacKenzie DI, Nichols JD, Lachman GB, Droege S, Royle JA,
  probabilities are less than one. Ecology 83: 2248-2255.
 }
 \seealso{
-\code{\link{occu}}, \code{\link{unmarkedFrameOccu}}
+\code{\link[unmarked]{occu}}, \code{\link[unmarked]{unmarkedFrameOccu}}
 }

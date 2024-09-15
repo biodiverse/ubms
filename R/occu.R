@@ -39,7 +39,7 @@
 #'  Langtimm CA. 2002. Estimating site occupancy rates when detection
 #'  probabilities are less than one. Ecology 83: 2248-2255.
 #'
-#' @seealso \code{\link{occu}}, \code{\link{unmarkedFrameOccu}}
+#' @seealso \code{\link[unmarked]{occu}}, \code{\link[unmarked]{unmarkedFrameOccu}}
 #' @include fit.R
 #' @export
 stan_occu <- function(formula,

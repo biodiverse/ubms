@@ -47,7 +47,7 @@
 #' @references MacKenzie DI, Nicholas JD, Hines JE, Knutson MG, Franklin AB.
 #'             2003. Ecology 84: 2200-2207.
 #'
-#' @seealso \code{\link{colext}}, \code{\link{unmarkedMultFrame}}
+#' @seealso \code{\link[unmarked]{colext}}, \code{\link[unmarked]{unmarkedMultFrame}}
 #' @export
 stan_colext <- function(psiformula = ~1,
                         gammaformula = ~1,

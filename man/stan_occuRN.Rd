@@ -72,5 +72,5 @@ Royle JA, Nichols JD. 2003. Estimating abundance from
  repeated presence-absence data or point counts. Ecology 84: 777-790.
 }
 \seealso{
-\code{\link{occuRN}}, \code{\link{unmarkedFrameOccu}}
+\code{\link[unmarked]{occuRN}}, \code{\link[unmarked]{unmarkedFrameOccu}}
 }

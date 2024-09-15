@@ -91,5 +91,5 @@ MacKenzie DI, Nicholas JD, Hines JE, Knutson MG, Franklin AB.
             2003. Ecology 84: 2200-2207.
 }
 \seealso{
-\code{\link{colext}}, \code{\link{unmarkedMultFrame}}
+\code{\link[unmarked]{colext}}, \code{\link[unmarked]{unmarkedMultFrame}}
 }

@@ -55,7 +55,7 @@
 #' @references Royle, J. A., Dawson, D. K., & Bates, S. (2004). Modeling
 #'  abundance effects in distance sampling. Ecology 85: 1591-1597.
 #'
-#' @seealso \code{\link{distsamp}}, \code{\link{unmarkedFrameDS}}
+#' @seealso \code{\link[unmarked]{distsamp}}, \code{\link[unmarked]{unmarkedFrameDS}}
 #' @export
 stan_distsamp <- function(formula,
                           data,

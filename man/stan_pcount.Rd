@@ -73,5 +73,5 @@ Royle JA. 2004. N-mixture models for estimating populaiton size
  from spatially replicated counts. Biometrics 60: 105-108.
 }
 \seealso{
-\code{\link{pcount}}, \code{\link{unmarkedFramePCount}}
+\code{\link[unmarked]{pcount}}, \code{\link[unmarked]{unmarkedFramePCount}}
 }
