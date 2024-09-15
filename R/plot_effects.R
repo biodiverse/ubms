@@ -98,11 +98,9 @@ marg_numeric_plot <- function(object, submodel, covariate, quant,
     plot_df$lower <- stats::lowess(plot_df$lower, f=smooth)[[2]]
     plot_df$upper <- stats::lowess(plot_df$upper, f=smooth)[[2]]
   }
-  
-  covariate <- sym("covariate"); mn <- sym("mn")
-  lower <- sym("lower"); upper <- sym("upper")
-  ggplot(data=plot_df, aes(x={{covariate}}, y={{mn}})) +
-    geom_ribbon(aes(ymin={{lower}}, ymax={{upper}}), alpha=0.3) +
+ 
+  ggplot(data=plot_df, aes(x=.data[["covariate"]], y=.data[["mn"]])) +
+    geom_ribbon(aes(ymin=.data[["lower"]], ymax=.data[["upper"]]), alpha=0.3) +
     geom_line() +
     labs(x = covariate, y = sm@name) +
     plot_theme() +
@@ -119,11 +117,9 @@ marg_factor_plot <- function(object, submodel, covariate, quant, draws){
 
   plot_df <- get_margplot_data(object, submodel, covariate, quant,
                                samples, newdata)
-  
-  covariate <- sym("covariate"); mn <- sym("mn")
-  lower <- sym("lower"); upper <- sym("upper")
-  ggplot(data=plot_df, aes(x={{covariate}}, y={{mn}})) +
-    geom_errorbar(aes(ymin={{lower}}, ymax={{upper}}), width=0.4) +
+
+  ggplot(data=plot_df, aes(x=.data[["covariate"]], y=.data[["mn"]])) +
+    geom_errorbar(aes(ymin=.data[["lower"]], ymax=.data[["upper"]]), width=0.4) +
     geom_point(size=2) +
     labs(x = covariate, y = sm@name) +
     plot_theme() +

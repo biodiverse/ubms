@@ -52,9 +52,8 @@ setMethod("plot_posteriors", "ubmsFit", function(object, pars=NULL, density=FALS
   plot_dat$parameter <- factor(plot_dat$parameter, levels=pars)
 
   if(density){
-    samples <- sym("samples"); chain <- sym("chain")
     out <- ggplot(data=plot_dat) +
-      stat_density(aes(x={{samples}}, col={{chain}}), geom="line",
+      stat_density(aes(x=.data[["samples"]], col=.data[["chain"]]), geom="line",
                    position="identity", ...) +
       labs(x="Value", y="Density") +
       facet_wrap("parameter", scales="free") +
@@ -62,9 +61,8 @@ setMethod("plot_posteriors", "ubmsFit", function(object, pars=NULL, density=FALS
       theme(strip.text=element_text(size=12),
             strip.background=element_rect("white"))
   } else {
-    samples <- sym("samples")
     out <- ggplot(data=plot_dat) +
-      geom_histogram(aes(x={{samples}}),fill='gray90',col='black', ...) +
+      geom_histogram(aes(x=.data[["samples"]]),fill='gray90',col='black', ...) +
       labs(x="Value", y="Count") +
       facet_wrap("parameter", scales="free") +
       plot_theme() +

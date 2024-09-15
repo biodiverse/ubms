@@ -129,9 +129,8 @@ plot_pearson_residuals <- function(x, res, xlab, name){
             })
   pl_dat <- do.call("rbind", pl_dat)
   pl_dat <- pl_dat[stats::complete.cases(pl_dat),]
-  
-  x <- sym("x"); y <- sym("y")
-  ggplot(data=pl_dat, aes(x={{x}}, y={{y}})) +
+ 
+  ggplot(data=pl_dat, aes(x=.data[["x"]], y=.data[["y"]])) +
     geom_hline(aes(yintercept=0), linetype=2) +
     geom_point() +
     facet_wrap("ind") +
@@ -146,14 +145,12 @@ plot_binned_residuals <- function(x, res, xlab, name, nbins){
                   get_binned_residuals(x[i,], res[i,], i, nbins)})
   pl_dat <- do.call("rbind", pl_dat)
   pl_dat <- pl_dat[stats::complete.cases(pl_dat),]
-  
-  x_bar <- sym("x_bar"); y_bar <- sym("y_bar")
-  y_lo <- sym("y_lo"); y_hi <- sym("y_hi")
-  ggplot(data=pl_dat, aes(x={{x_bar}}, y={{y_bar}})) +
-    geom_ribbon(aes(ymin={{y_lo}}, ymax={{y_hi}}), alpha=0.1) +
+
+  ggplot(data=pl_dat, aes(x=.data[["x_bar"]], y=.data[["y_bar"]])) +
+    geom_ribbon(aes(ymin=.data[["y_lo"]], ymax=.data[["y_hi"]]), alpha=0.1) +
     geom_hline(aes(yintercept=0), linetype=2) +
-    geom_line(aes(y={{y_hi}}), col='gray', linewidth=1.1) +
-    geom_line(aes(y={{y_lo}}), col='gray', linewidth=1.1)+
+    geom_line(aes(y=.data[["y_hi"]]), col='gray', linewidth=1.1) +
+    geom_line(aes(y=.data[["y_lo"]]), col='gray', linewidth=1.1)+
     geom_point() +
     facet_wrap("ind") +
     ggtitle(paste(name, "submodel residuals plot")) +

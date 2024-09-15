@@ -8,6 +8,14 @@
 \description{
 Unmarked Bayesian Models using Stan
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://kenkellner.com/ubms/}
+  \item Report bugs at \url{https://github.com/kenkellner/ubms/issues}
+}
+
+}
 \author{
 Ken Kellner
 }
