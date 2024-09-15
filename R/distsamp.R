@@ -422,28 +422,27 @@ setMethod("hist", "ubmsFitDistsamp", function(x, draws=30, ...){
   samples <- get_samples(x, draws)
   hist_data <- get_hist_data(x)
   mean_line <- get_mean_line(x)
-  
-  xval <- sym("x"); val <- sym("val"); ind <- sym("ind"); dens <- sym("density")
-  out <- ggplot(hist_data, aes(x={{xval}})) +
-    geom_histogram(aes(y=after_stat({{dens}})),fill='transparent',
+ 
+  out <- ggplot(hist_data, aes(x=.data[["x"]])) +
+    geom_histogram(aes(y=after_stat(.data[["density"]])),fill='transparent',
                    col='black',breaks=x@response@dist_breaks)
 
   #Adjust the histogram height to match the density line
   bar_height <- ggplot2::ggplot_build(out)$data[[1]]$y[1]
   adj_factor <- max(mean_line$val, na.rm=TRUE) / bar_height
 
-  out <- ggplot(hist_data, aes(x={{xval}})) +
-    geom_histogram(aes(y=after_stat({{dens}})*adj_factor),fill='transparent',
+  out <- ggplot(hist_data, aes(x=.data[["x"]])) +
+    geom_histogram(aes(y=after_stat(.data[["density"]])*adj_factor),fill='transparent',
                    col='black',breaks=x@response@dist_breaks)
 
   if(draws > 0){
     sample_lines <- get_sample_lines(x, samples)
     out <- out +
-      geom_line(data=sample_lines, aes(x={{xval}}, y={{val}}, group={{ind}}),
+      geom_line(data=sample_lines, aes(x=.data[["x"]], y=.data[["val"]], group=.data[["ind"]]),
               alpha=0.3)
   }
   out +
-    geom_line(data=mean_line, aes(x={{xval}}, y={{val}}), col='red') +
+    geom_line(data=mean_line, aes(x=.data[["x"]], y=.data[["val"]]), col='red') +
     labs(x=paste0("Distance (", x@response@units_in,")"), y="Density") +
     theme_bw() +
     theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(),

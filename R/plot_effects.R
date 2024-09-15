@@ -38,7 +38,7 @@ setMethod("plot_effects", "ubmsFit", function(object, submodel, covariate=NULL,
     plots <- list(marginal_covariate_plot(object, submodel, covariate, level,
                                           draws, smooth))
   } else {
-    vars <- all.vars(remove_offset(lme4::nobars(sm@formula)))
+    vars <- all.vars(remove_offset(reformulas::nobars(sm@formula)))
     if(length(vars) == 0) stop("No covariates in this submodel")
     plots <- lapply(vars, function(x){
                     marginal_covariate_plot(object, submodel, x, level,
@@ -73,7 +73,7 @@ marginal_covariate_plot <- function(object, submodel, covariate, level=0.95,
                                     draws, smooth=NULL){
   sm <- object[submodel]
   quant <- c((1-level)/2, level+(1-level)/2)
-  vars <- all.vars(lme4::nobars(sm@formula))
+  vars <- all.vars(reformulas::nobars(sm@formula))
   stopifnot(covariate %in% vars)
   is_factor <- inherits(sm@data[[covariate]], "factor")
   if(is_factor){
@@ -98,11 +98,9 @@ marg_numeric_plot <- function(object, submodel, covariate, quant,
     plot_df$lower <- stats::lowess(plot_df$lower, f=smooth)[[2]]
     plot_df$upper <- stats::lowess(plot_df$upper, f=smooth)[[2]]
   }
-  
-  covariate <- sym("covariate"); mn <- sym("mn")
-  lower <- sym("lower"); upper <- sym("upper")
-  ggplot(data=plot_df, aes(x={{covariate}}, y={{mn}})) +
-    geom_ribbon(aes(ymin={{lower}}, ymax={{upper}}), alpha=0.3) +
+ 
+  ggplot(data=plot_df, aes(x=.data[["covariate"]], y=.data[["mn"]])) +
+    geom_ribbon(aes(ymin=.data[["lower"]], ymax=.data[["upper"]]), alpha=0.3) +
     geom_line() +
     labs(x = covariate, y = sm@name) +
     plot_theme() +
@@ -119,11 +117,9 @@ marg_factor_plot <- function(object, submodel, covariate, quant, draws){
 
   plot_df <- get_margplot_data(object, submodel, covariate, quant,
                                samples, newdata)
-  
-  covariate <- sym("covariate"); mn <- sym("mn")
-  lower <- sym("lower"); upper <- sym("upper")
-  ggplot(data=plot_df, aes(x={{covariate}}, y={{mn}})) +
-    geom_errorbar(aes(ymin={{lower}}, ymax={{upper}}), width=0.4) +
+
+  ggplot(data=plot_df, aes(x=.data[["covariate"]], y=.data[["mn"]])) +
+    geom_errorbar(aes(ymin=.data[["lower"]], ymax=.data[["upper"]]), width=0.4) +
     geom_point(size=2) +
     labs(x = covariate, y = sm@name) +
     plot_theme() +
@@ -131,7 +127,7 @@ marg_factor_plot <- function(object, submodel, covariate, quant, draws){
 }
 
 get_baseline_df <- function(submodel){
-  vars <- all.vars(lme4::nobars(submodel@formula))
+  vars <- all.vars(reformulas::nobars(submodel@formula))
   out <- lapply(vars, function(x, data){
                  if(col_is_factor(x, data)){
                    return(factor(levels(data[[x]])[1], levels=levels(data[[x]])))

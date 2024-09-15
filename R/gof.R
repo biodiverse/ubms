@@ -16,16 +16,12 @@ setMethod("show", "ubmsGOF", function(object){
 #' @importFrom ggplot2 ggplot aes geom_abline geom_point theme_bw labs
 #' @importFrom ggplot2 facet_wrap theme element_blank element_text element_rect
 #' @importFrom ggplot2 geom_label unit ggtitle
-#' @importFrom rlang sym
 setMethod("plot", "ubmsGOF", function(x, ...){
-  obs <- sym("obs")
-  sim <- sym("sim")
-  lab <- sym("lab")
   ppval <- data.frame(lab=paste("P =", round(x@post_pred_p, 3)))
-  ggplot(x@samples, aes(x={{obs}}, y={{sim}})) +
+  ggplot(x@samples, aes(x=.data[["obs"]], y=.data[["sim"]])) +
     geom_abline(aes(intercept=0, slope=1), linewidth=1.2, col='red') +
     geom_point(alpha=0.4) +
-    geom_label(data=ppval, aes(x=-Inf, y=Inf, label={{lab}}),
+    geom_label(data=ppval, aes(x=-Inf, y=Inf, label=.data[["lab"]]),
                hjust=-0.2, vjust=1.4, size=5,
                fill='white', label.size=0,
                label.padding=unit(0.1, "lines")) +

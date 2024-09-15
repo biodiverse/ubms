@@ -131,13 +131,13 @@ get_sparse_Z <- function(Z){
 }
 
 get_group_vars <- function(formula){
-  rand <- lme4::findbars(formula)
+  rand <- reformulas::findbars(formula)
   ifelse(is.null(rand), 0, length(rand))
 }
 
 get_nrandom <- function(formula, data){
   check_formula(formula, data)
-  rand <- lme4::findbars(formula)
+  rand <- reformulas::findbars(formula)
   if(length(rand)==0) return(as.array(0))
 
   out <- sapply(rand, function(x){
