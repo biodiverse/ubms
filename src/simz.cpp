@@ -8,9 +8,9 @@ using namespace arma;
 arma::imat simz_pcount(arma::mat y, arma::mat lam_post, arma::cube p_post,
                        unsigned K, arma::ivec Kmin, arma::ivec kvals){
 
-  int M = y.n_rows;
-  int J = y.n_cols;
-  int nsamples = lam_post.n_cols;
+  unsigned M = y.n_rows;
+  unsigned J = y.n_cols;
+  unsigned nsamples = lam_post.n_cols;
 
   vec kprob(K+1);
   double pp, bp;
@@ -54,9 +54,9 @@ arma::imat simz_pcount(arma::mat y, arma::mat lam_post, arma::cube p_post,
 arma::imat simz_occuRN(arma::mat y, arma::mat lam_post, arma::cube r_post,
                        unsigned K, arma::ivec Kmin, arma::ivec kvals){
 
-  int M = y.n_rows;
-  int J = y.n_cols;
-  int nsamples = lam_post.n_cols;
+  unsigned M = y.n_rows;
+  unsigned J = y.n_cols;
+  unsigned nsamples = lam_post.n_cols;
 
   vec kprob(K+1);
   double pp, bp;
@@ -108,9 +108,9 @@ double dmultinom(arma::rowvec x, arma::rowvec prob){
 arma::imat simz_multinom(arma::mat y, arma::mat lam_post, arma::cube p_post,
                          unsigned K, arma::ivec Kmin, arma::ivec kvals){
 
-  int M = y.n_rows;
-  int J = y.n_cols;
-  int nsamples = lam_post.n_cols;
+  unsigned M = y.n_rows;
+  unsigned J = y.n_cols;
+  unsigned nsamples = lam_post.n_cols;
 
   vec kprob(K+1);
   mat yblank = zeros(M, 1); //Fill this with zeros??? maybe just make this imat (same with y)?
