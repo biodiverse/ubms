@@ -38,6 +38,9 @@ to the (mean-0) random effect to get the complete random intercept or slope.
 In this way the output is more like the output of \code{lme4::coef}
 and not \code{lme4::ranef}. You can turn this off and return just the
 mean-0 random effect by setting argument \code{add_mean = FALSE}.
+
+If you run \code{ranef} on a submodel with a spatial random effect,
+the function will return estimates of parameter \code{eta}.
 }
 \seealso{
 \code{\link[lme4]{ranef}}, \code{\link{posterior_predict}}

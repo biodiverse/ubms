@@ -11,6 +11,9 @@
 #' and not \code{lme4::ranef}. You can turn this off and return just the
 #' mean-0 random effect by setting argument \code{add_mean = FALSE}.
 #'
+#' If you run \code{ranef} on a submodel with a spatial random effect,
+#' the function will return estimates of parameter \code{eta}.
+#'
 #' @param object A fitted model of class \code{ubmsFit}
 #' @param submodel The name of the submodel, as a character string, for
 #'  which to generate the random effects
@@ -33,6 +36,29 @@ setMethod("ranef","ubmsFit", function(object, submodel, summary=FALSE,
           add_mean = TRUE, ...){
 
   sm <- object[submodel]
+
+  qu <- function(x, q) as.numeric(stats::quantile(x, q))
+
+  # If this is a spatial submodel return eta
+  if(has_spatial(sm)){
+    b <- extract(object, "b_state")$b_state
+    Kmat <- spatial_matrices(sm)$Kmat
+    
+    if(summary){
+      eta_post <- Kmat %*% t(b)
+      out <- data.frame(
+        Estimate=rowMeans(eta_post),
+        SD=apply(eta_post, 1, stats::sd),
+        `2.5%`=apply(eta_post, 1, qu, q=0.025),
+        `97.5%`=apply(eta_post, 1, qu, q=0.975),
+        check.names=FALSE
+      )
+    } else {
+      out <- drop(Kmat %*% colMeans(b))
+    }
+    return(list(eta = out))
+  }
+
   if(!has_random(sm)){
     stop("No random effects terms in this submodel", call.=FALSE)
   }
@@ -61,7 +87,6 @@ setMethod("ranef","ubmsFit", function(object, submodel, summary=FALSE,
 
     fac_lvls <- levels(re$flist[[fac]])
     if(summary){
-      qu <- function(x, q) as.numeric(stats::quantile(x, q))
       out <- data.frame(
         Estimate=colMeans(re_samples),
         SD=apply(re_samples, 2, stats::sd),

@@ -213,3 +213,15 @@ test_that("extract_log_lik method works",{
 test_that("kfold errors when used on spatial model",{
   expect_error(kfold(fit))
 })
+
+test_that("ranef run on spatial submodel returns eta", {
+  
+  eta <- ranef(fit, 'state')
+  expect_equal(names(eta), "eta")
+  expect_equal(length(eta$eta), numSites(umf20))
+
+  eta_sum <- ranef(fit, 'state', summary=TRUE)
+  expect_is(eta_sum$eta, "data.frame")
+  expect_equal(eta_sum$eta$Estimate, eta$eta, tol=1e-5)
+
+})
