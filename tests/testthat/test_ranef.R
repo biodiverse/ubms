@@ -69,6 +69,15 @@ test_that("ranef works with multiple random effects",{
   r2 <- ranef(fit3, "state", summary=TRUE)
 })
 
+test_that("setting add_mean = FALSE works", {
+  r <- expect_message(ranef(fit, 'state'))
+  r2 <- expect_no_message(ranef(fit, 'state', add_mean=FALSE))
+ 
+  # manually add the mean
+  r2_mn <- coef(fit)[1] + r2$x2[[1]] 
+  expect_equal(r$x2[[1]], r2_mn)
+})
+
 test_that("combine_same_name combines lists properly",{
   test1 <- list(a=list(a1=c(1,1)), a=list(a2=c(2,2)), b=list(b1=c(1,1)))
   expect_equal(length(test1$a), 1)

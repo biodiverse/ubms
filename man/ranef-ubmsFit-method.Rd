@@ -5,7 +5,7 @@
 \alias{ranef}
 \title{Extract Random Effects}
 \usage{
-\S4method{ranef}{ubmsFit}(object, submodel, summary = FALSE, ...)
+\S4method{ranef}{ubmsFit}(object, submodel, summary = FALSE, add_mean = TRUE, ...)
 }
 \arguments{
 \item{object}{A fitted model of class \code{ubmsFit}}
@@ -15,6 +15,9 @@ which to generate the random effects}
 
 \item{summary}{If \code{TRUE}, calculate mean, SD, and 95% uncertainty interval
 for each random effect term}
+
+\item{add_mean}{If \code{TRUE} (the default) add the overall intercept or
+slope mean and return the complete random intercept or slope.}
 
 \item{...}{Currently ignored}
 }
@@ -28,6 +31,13 @@ Extract random effects from a \code{ubmsFit} model. Note that this function
 works like \code{ranef} for \code{merMod} objects from \code{lme4}, not like
 \code{ranef} for \code{unmarkedFit} objects. To get functionality similar
 to that of \code{unmarkedFit}, use \code{posterior_predict}.
+}
+\details{
+Note: by default this function adds the overall intercept or slope
+to the (mean-0) random effect to get the complete random intercept or slope.
+In this way the output is more like the output of \code{lme4::coef}
+and not \code{lme4::ranef}. You can turn this off and return just the
+mean-0 random effect by setting argument \code{add_mean = FALSE}.
 }
 \seealso{
 \code{\link[lme4]{ranef}}, \code{\link{posterior_predict}}

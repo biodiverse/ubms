@@ -5,11 +5,19 @@
 #' \code{ranef} for \code{unmarkedFit} objects. To get functionality similar
 #' to that of \code{unmarkedFit}, use \code{posterior_predict}.
 #'
+#' Note: by default this function adds the overall intercept or slope
+#' to the (mean-0) random effect to get the complete random intercept or slope.
+#' In this way the output is more like the output of \code{lme4::coef}
+#' and not \code{lme4::ranef}. You can turn this off and return just the
+#' mean-0 random effect by setting argument \code{add_mean = FALSE}.
+#'
 #' @param object A fitted model of class \code{ubmsFit}
 #' @param submodel The name of the submodel, as a character string, for
 #'  which to generate the random effects
 #' @param summary If \code{TRUE}, calculate mean, SD, and 95% uncertainty interval
 #'  for each random effect term
+#' @param add_mean If \code{TRUE} (the default) add the overall intercept or
+#'  slope mean and return the complete random intercept or slope.
 #' @param ... Currently ignored
 #'
 #' @return If \code{summary=FALSE}, a list of random effect values; if
@@ -21,7 +29,8 @@
 #' @include fit.R
 #' @importFrom unmarked ranef
 #' @export
-setMethod("ranef","ubmsFit", function(object, submodel, summary=FALSE, ...){
+setMethod("ranef","ubmsFit", function(object, submodel, summary=FALSE,
+          add_mean = TRUE, ...){
 
   sm <- object[submodel]
   if(!has_random(sm)){
@@ -42,7 +51,8 @@ setMethod("ranef","ubmsFit", function(object, submodel, summary=FALSE, ...){
     re_samples <- re_samples[,b_ind[1]:b_ind[2]]
 
     #Add mean value if this is an effects parameterization
-    if(trm %in% beta_names(sm)){
+    if(trm %in% beta_names(sm) & add_mean){
+      message("Adding the mean to get the complete random slope/intercept")
       beta_ind <- which(beta_names(sm) == trm)
       mn_samples <- extract(object, paste0("beta_",submodel))[[1]]
       mn_samples <- mn_samples[,beta_ind]
