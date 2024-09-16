@@ -32,8 +32,8 @@ Description: Fit Bayesian hierarchical models of animal abundance and occurrence
     Carpenter et al. (2017) <doi:10.18637/jss.v076.i01>;
     Fiske and Chandler (2011) <doi:10.18637/jss.v043.i10>.
 License: GPL (>=3)
-URL: https://kenkellner.com/ubms/
-BugReports: https://github.com/kenkellner/ubms/issues
+URL: https://hmecology.github.io/ubms/
+BugReports: https://github.com/hmecology/ubms/issues
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 Biarch: true
