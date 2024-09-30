@@ -1,6 +1,6 @@
 Package: ubms
-Version: 1.2.6.9002
-Date: 2024-09-16
+Version: 1.2.6.9003
+Date: 2024-09-30
 Title: Bayesian Models for Data from Unmarked Animals using 'Stan'
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))
@@ -32,8 +32,8 @@ Description: Fit Bayesian hierarchical models of animal abundance and occurrence
     Carpenter et al. (2017) <doi:10.18637/jss.v076.i01>;
     Fiske and Chandler (2011) <doi:10.18637/jss.v043.i10>.
 License: GPL (>=3)
-URL: https://hmecology.github.io/ubms/
-BugReports: https://github.com/hmecology/ubms/issues
+URL: https://biodiverse.github.io/ubms/
+BugReports: https://github.com/biodiverse/ubms/issues
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 Biarch: true

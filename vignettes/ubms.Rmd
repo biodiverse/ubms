@@ -43,7 +43,7 @@ It provides a nearly identical interface to the popular `unmarked` package [@Fis
 Instead of using maximum likelihood to fit models (as with `unmarked`), 
 models are fit in a Bayesian framework using [Stan](https://mc-stan.org/) [@Carpenter_2017].
 It is generally expected that you are already familiar with `unmarked` when using `ubms`.
-You can download `ubms`, report issues, or help with development on [Github](https://github.com/hmecology/ubms).
+You can download `ubms`, report issues, or help with development on [Github](https://github.com/biodiverse/ubms).
 
 ## Why should you use it?
 

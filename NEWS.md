@@ -1,3 +1,11 @@
+# ubms 1.2.7
+
+* Package links now go to biodiverse Github org
+* Use reformulas instead of lme4
+* Return eta from ranef when submodel has spatial component
+* Support terra format rasters in predict
+* Minor bugfixes
+
 # ubms 1.2.6
 
 * Fix deprecated Stan code
