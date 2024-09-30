@@ -6,7 +6,7 @@
 #'
 #' @param formula Double right-hand side formula describing covariates of
 #'  detection and occupancy in that order
-#' @param data A \code{\link{unmarkedFrameDS}} object
+#' @param data A \code{\link[unmarked]{unmarkedFrameDS}} object
 #' @param keyfun One of the following detection functions:
 #'  \code{"halfnorm"} for half-normal, \code{"exp"} for negative exponential,
 #'  or \code{"hazard"} for hazard-rate (see warning below)
@@ -24,7 +24,7 @@
 #' @param prior_intercept_scale Prior distribution for the intercept of the
 #'  scale parameter (i.e., log(scale)) for Hazard-rate models
 #' @param prior_sigma Prior distribution on random effect standard deviations
-#' @param ... Arguments passed to the \code{\link{stan}} call, such as
+#' @param ... Arguments passed to the \code{\link[rstan]{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
 #' @return \code{ubmsFitDistsamp} object describing the model fit.

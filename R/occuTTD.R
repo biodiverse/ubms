@@ -12,7 +12,7 @@
 #'  Currently ignored as dynamic models are not yet supported.
 #' @param detformula Right-hand sided formula for mean time-to-detection.
 #' @param data \code{unmarkedFrameOccuTTD} object that supplies the data
-#'  (see \code{\link{unmarkedFrameOccuTTD}}).
+#'  (see \code{\link[unmarked]{unmarkedFrameOccuTTD}}).
 #' @param ttdDist Distribution to use for time-to-detection; either
 #'  \code{"exp"} for the exponential, or \code{"weibull"} for the Weibull,
 #'  which adds an additional shape parameter \eqn{k}.
@@ -33,7 +33,7 @@
 #' @param log_lik If \code{TRUE}, Stan will save pointwise log-likelihood values
 #'  in the output. This can greatly increase the size of the model. If
 #'  \code{FALSE}, the values are calculated post-hoc from the posteriors
-#' @param ... Arguments passed to the \code{\link{stan}} call, such as
+#' @param ... Arguments passed to the \code{\link[rstan]{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
 #' @return \code{ubmsFitOccuTTD} object describing the model fit.

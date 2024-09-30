@@ -8,7 +8,7 @@
 #' @param gammaformula Right-hand sided formula for colonization probability
 #' @param epsilonformula Right-hand sided formula for extinction probability
 #' @param pformula Right-hand sided formula for detection probability
-#' @param data A \code{\link{unmarkedMultFrame}} object
+#' @param data A \code{\link[unmarked]{unmarkedMultFrame}} object
 #' @param prior_intercept_psi Prior distribution for the intercept of the
 #'  psi (initial occupancy probability) model; see \code{?priors} for options
 #' @param prior_coef_psi Prior distribution for the regression coefficients of
@@ -29,7 +29,7 @@
 #' @param log_lik If \code{TRUE}, Stan will save pointwise log-likelihood values
 #'  in the output. This can greatly increase the size of the model. If
 #'  \code{FALSE}, the values are calculated post-hoc from the posteriors
-#' @param ... Arguments passed to the \code{\link{stan}} call, such as
+#' @param ... Arguments passed to the \code{\link[rstan]{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
 #' @return \code{ubmsFitColext} object describing the model fit.

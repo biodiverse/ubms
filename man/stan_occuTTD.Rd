@@ -35,7 +35,7 @@ Currently ignored as dynamic models are not yet supported.}
 \item{detformula}{Right-hand sided formula for mean time-to-detection.}
 
 \item{data}{\code{unmarkedFrameOccuTTD} object that supplies the data
-(see \code{\link{unmarkedFrameOccuTTD}}).}
+(see \code{\link[unmarked]{unmarkedFrameOccuTTD}}).}
 
 \item{ttdDist}{Distribution to use for time-to-detection; either
 \code{"exp"} for the exponential, or \code{"weibull"} for the Weibull,
@@ -66,7 +66,7 @@ shape parameter (i.e., log(shape)) for Weibull TTD models}
 in the output. This can greatly increase the size of the model. If
 \code{FALSE}, the values are calculated post-hoc from the posteriors}
 
-\item{...}{Arguments passed to the \code{\link{stan}} call, such as
+\item{...}{Arguments passed to the \code{\link[rstan]{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}
 }
 \value{

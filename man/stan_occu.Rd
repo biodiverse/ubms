@@ -20,7 +20,7 @@ stan_occu(
 \item{formula}{Double right-hand side formula describing covariates of
 detection and occupancy in that order}
 
-\item{data}{A \code{\link{unmarkedFrameOccu}} object}
+\item{data}{A \code{\link[unmarked]{unmarkedFrameOccu}} object}
 
 \item{prior_intercept_state}{Prior distribution for the intercept of the
 state (occupancy probability) model; see \code{?priors} for options}
@@ -40,7 +40,7 @@ the detection model}
 in the output. This can greatly increase the size of the model. If
 \code{FALSE}, the values are calculated post-hoc from the posteriors}
 
-\item{...}{Arguments passed to the \code{\link{stan}} call, such as
+\item{...}{Arguments passed to the \code{\link[rstan]{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}
 }
 \value{

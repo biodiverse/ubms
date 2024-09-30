@@ -5,7 +5,7 @@
 #'
 #' @param formula Double right-hand side formula describing covariates of
 #'  detection and abundance in that order
-#' @param data A \code{\link{unmarkedFramePCount}} object
+#' @param data A \code{\link[unmarked]{unmarkedFramePCount}} object
 #' @param K Integer upper index of integration for N-mixture. This should be
 #'  set high enough so that it does not affect the parameter estimates.
 #'  Note that computation time will increase with K.
@@ -22,7 +22,7 @@
 #' @param log_lik If \code{TRUE}, Stan will save pointwise log-likelihood values
 #'  in the output. This can greatly increase the size of the model. If
 #'  \code{FALSE}, the values are calculated post-hoc from the posteriors
-#' @param ... Arguments passed to the \code{\link{stan}} call, such as
+#' @param ... Arguments passed to the \code{\link[rstan]{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
 #' @return \code{ubmsFitPcount} object describing the model fit.

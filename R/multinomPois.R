@@ -5,7 +5,7 @@
 #'
 #' @param formula Double right-hand side formula describing covariates of
 #'  detection and abundance in that order
-#' @param data A \code{\link{unmarkedFrameMPois}} object
+#' @param data A \code{\link[unmarked]{unmarkedFrameMPois}} object
 #' @param prior_intercept_state Prior distribution for the intercept of the
 #'  state (abundance) model; see \code{?priors} for options
 #' @param prior_coef_state Prior distribution for the regression coefficients of
@@ -18,7 +18,7 @@
 #' @param log_lik If \code{TRUE}, Stan will save pointwise log-likelihood values
 #'  in the output. This can greatly increase the size of the model. If
 #'  \code{FALSE}, the values are calculated post-hoc from the posteriors
-#' @param ... Arguments passed to the \code{\link{stan}} call, such as
+#' @param ... Arguments passed to the \code{\link[rstan]{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
 #' @return \code{ubmsFitMultinomPois} object describing the model fit.
