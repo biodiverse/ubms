@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ubms</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.7</span>
       </span>
     </div>
 
@@ -69,7 +69,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/kenkellner/ubms/" class="external-link">
+  <a href="https://github.com/biodiverse/ubms/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -91,7 +91,7 @@
                         <h4 data-toc-skip class="author">Ken Kellner</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/kenkellner/ubms/blob/HEAD/vignettes/JAGS-comparison.Rmd" class="external-link"><code>vignettes/JAGS-comparison.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/biodiverse/ubms/blob/HEAD/vignettes/JAGS-comparison.Rmd" class="external-link"><code>vignettes/JAGS-comparison.Rmd</code></a></small>
       <div class="hidden name"><code>JAGS-comparison.Rmd</code></div>
 
     </div>
@@ -140,8 +140,8 @@
 </h2>
 <p>I combined the covariates and simulated data into an <code>unmarkedFrame</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://kenkellner.com/ubms/" class="external-link">ubms</a></span><span class="op">)</span></span>
-<span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://hmecology.github.io/unmarked/reference/unmarkedFrameOccu.html" class="external-link">unmarkedFrameOccu</a></span><span class="op">(</span>y<span class="op">=</span><span class="va">y</span>, siteCovs<span class="op">=</span><span class="va">dat_occ</span>, obsCovs<span class="op">=</span><span class="va">dat_p</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://biodiverse.github.io/ubms/" class="external-link">ubms</a></span><span class="op">)</span></span>
+<span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/unmarked/man/unmarkedFrameOccu.html" class="external-link">unmarkedFrameOccu</a></span><span class="op">(</span>y<span class="op">=</span><span class="va">y</span>, siteCovs<span class="op">=</span><span class="va">dat_occ</span>, obsCovs<span class="op">=</span><span class="va">dat_p</span><span class="op">)</span></span></code></pre></div>
 <p>Using <code>stan_occu</code>, I fit a model with a random effect of group on occupancy (<code>(1|group)</code>). I probably did not use enough iterations but it’s fine for this example.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ubms_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stan_occu.html">stan_occu</a></span><span class="op">(</span><span class="op">~</span><span class="va">x2</span><span class="op">~</span><span class="va">x1</span><span class="op">+</span><span class="op">(</span><span class="fl">1</span><span class="op">|</span><span class="va">group</span><span class="op">)</span>, <span class="va">umf</span>, chains<span class="op">=</span><span class="fl">3</span>, iter<span class="op">=</span><span class="fl">300</span>, cores<span class="op">=</span><span class="fl">3</span>, seed<span class="op">=</span><span class="fl">123</span><span class="op">)</span></span></code></pre></div>
@@ -294,7 +294,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer>

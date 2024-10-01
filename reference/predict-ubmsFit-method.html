@@ -19,7 +19,7 @@ a customizable uncertainty interval are also calculated."><!-- mathjax --><scrip
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ubms</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.7</span>
       </span>
     </div>
 
@@ -50,7 +50,7 @@ a customizable uncertainty interval are also calculated."><!-- mathjax --><scrip
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/kenkellner/ubms/" class="external-link">
+  <a href="https://github.com/biodiverse/ubms/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -65,7 +65,7 @@ a customizable uncertainty interval are also calculated."><!-- mathjax --><scrip
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Predict parameter values from a fitted model</h1>
-    <small class="dont-index">Source: <a href="https://github.com/kenkellner/ubms/blob/HEAD/R/predict.R" class="external-link"><code>R/predict.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/biodiverse/ubms/blob/HEAD/R/predict.R" class="external-link"><code>R/predict.R</code></a></small>
     <div class="hidden name"><code>predict-ubmsFit-method.Rd</code></div>
     </div>
 
@@ -101,7 +101,7 @@ a customizable uncertainty interval are also calculated.</p>
 
 
 <dt id="arg-newdata">newdata<a class="anchor" aria-label="anchor" href="#arg-newdata"></a></dt>
-<dd><p>Optional data frame or RasterStack of covariates to generate
+<dd><p>Optional data frame, SpatRaster, or RasterStack of covariates to generate
 predictions from. If not provided (the default), predictions are
 generated from the original data</p></dd>
 
@@ -133,9 +133,9 @@ effects") are included. If <code>NA</code>, they are ignored</p></dd>
   3-4) Lower and upper bounds of the specified uncertainty interval</p>
 <p>For parameters with more than one dimension, the rows are in site-major
   order, or site-year-observation for dynamic models.</p>
-<p>If <code>newdata</code> was a RasterStack, returns a RasterStack with four
-  layers corresponding to the four columns above with the same projection
-  as the original RasterStack.</p>
+<p>If <code>newdata</code> was a SpatRaster/RasterStack, returns a SpatRaster/RasterStack
+  with four layers corresponding to the four columns above with the same projection
+  as the original SpatRaster/RasterStack.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -154,7 +154,7 @@ effects") are included. If <code>NA</code>, they are ignored</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

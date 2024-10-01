@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ubms</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.7</span>
       </span>
     </div>
 
@@ -69,7 +69,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/kenkellner/ubms/" class="external-link">
+  <a href="https://github.com/biodiverse/ubms/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -93,7 +93,7 @@
                         <h4 data-toc-skip class="author">Ken Kellner</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/kenkellner/ubms/blob/HEAD/vignettes/ubms.Rmd" class="external-link"><code>vignettes/ubms.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/biodiverse/ubms/blob/HEAD/vignettes/ubms.Rmd" class="external-link"><code>vignettes/ubms.Rmd</code></a></small>
       <div class="hidden name"><code>ubms.Rmd</code></div>
 
     </div>
@@ -106,7 +106,7 @@
 <div class="section level3">
 <h3 id="what-is-ubms">What is ubms?<a class="anchor" aria-label="anchor" href="#what-is-ubms"></a>
 </h3>
-<p><code>ubms</code> is an R package for fitting models of wildlife occurrence and abundance to with datasets where animals are not individually marked. It provides a nearly identical interface to the popular <code>unmarked</code> package <span class="citation">(Fiske, Chandler, and others <a href="#ref-Fiske_2011" role="doc-biblioref">2011</a>)</span>. Instead of using maximum likelihood to fit models (as with <code>unmarked</code>), models are fit in a Bayesian framework using <a href="https://mc-stan.org/" class="external-link">Stan</a> <span class="citation">(Carpenter et al. <a href="#ref-Carpenter_2017" role="doc-biblioref">2017</a>)</span>. It is generally expected that you are already familiar with <code>unmarked</code> when using <code>ubms</code>. You can download <code>ubms</code>, report issues, or help with development on <a href="https://github.com/kenkellner/ubms" class="external-link">Github</a>.</p>
+<p><code>ubms</code> is an R package for fitting models of wildlife occurrence and abundance to with datasets where animals are not individually marked. It provides a nearly identical interface to the popular <code>unmarked</code> package <span class="citation">(Fiske, Chandler, and others <a href="#ref-Fiske_2011" role="doc-biblioref">2011</a>)</span>. Instead of using maximum likelihood to fit models (as with <code>unmarked</code>), models are fit in a Bayesian framework using <a href="https://mc-stan.org/" class="external-link">Stan</a> <span class="citation">(Carpenter et al. <a href="#ref-Carpenter_2017" role="doc-biblioref">2017</a>)</span>. It is generally expected that you are already familiar with <code>unmarked</code> when using <code>ubms</code>. You can download <code>ubms</code>, report issues, or help with development on <a href="https://github.com/biodiverse/ubms" class="external-link">Github</a>.</p>
 </div>
 <div class="section level3">
 <h3 id="why-should-you-use-it">Why should you use it?<a class="anchor" aria-label="anchor" href="#why-should-you-use-it"></a>
@@ -148,7 +148,7 @@
 <span><span class="co">## [43] "date023" "date031" "date032" "date033" "date041" "date042" "date043"</span></span>
 <span><span class="co">## [50] "date051" "date052" "date053" "date061" "date062" "date063" "date071"</span></span>
 <span><span class="co">## [57] "date072" "date073"</span></span></code></pre>
-<p>Check <code><a href="https://hmecology.github.io/unmarked/reference/crossbill.html" class="external-link">?crossbill</a></code> for details about each column. The first three columns <code>id</code>, <code>ele</code>, and <code>forest</code> are site covariates.</p>
+<p>Check <code><a href="https://rdrr.io/pkg/unmarked/man/crossbill.html" class="external-link">?crossbill</a></code> for details about each column. The first three columns <code>id</code>, <code>ele</code>, and <code>forest</code> are site covariates.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">site_covs</span> <span class="op">&lt;-</span> <span class="va">crossbill</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"id"</span>, <span class="st">"ele"</span>, <span class="st">"forest"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <p>The following 27 columns beginning with <code>det</code> are the binary detection/non-detection data; 9 years with 3 observations per year. For this example we want to fit a single-season occupancy model; thus we will use only the first three columns (year 1) of <code>det</code> as our response variable <code>y</code>.</p>
@@ -167,7 +167,7 @@
 <code class="sourceCode R"><span><span class="va">date</span> <span class="op">&lt;-</span> <span class="va">crossbill</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"date991"</span>,<span class="st">"date992"</span>,<span class="st">"date993"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <p>Finally, we build our <code>unmarkedFrame</code> object holding our detection/non-detection data, site covariates, and observation covariates. Since we will conduct a single-season occupancy analysis, we need to use <code>unmarkedFrameOccu</code> specifically. The resulting <code>unmarkedFrame</code> can be used by both <code>unmarked</code> and <code>ubms</code>.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://hmecology.github.io/unmarked/reference/unmarkedFrameOccu.html" class="external-link">unmarkedFrameOccu</a></span><span class="op">(</span>y<span class="op">=</span><span class="va">y</span>, siteCovs<span class="op">=</span><span class="va">site_covs</span>, obsCovs<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>date<span class="op">=</span><span class="va">date</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/unmarked/man/unmarkedFrameOccu.html" class="external-link">unmarkedFrameOccu</a></span><span class="op">(</span>y<span class="op">=</span><span class="va">y</span>, siteCovs<span class="op">=</span><span class="va">site_covs</span>, obsCovs<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>date<span class="op">=</span><span class="va">date</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">umf</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Data frame representation of unmarkedFrame object.</span></span>
 <span><span class="co">##    y.1 y.2 y.3 id  ele forest date.1 date.2 date.3</span></span>
@@ -190,7 +190,7 @@
 </h4>
 <p>First, we fit a null model (no covariates) in <code>unmarked</code> using the <code>occu</code> function. The <code>occu</code> function requires as input a double formula (for detection and occupancy, respectively) along with our <code>unmarkedFrame</code>.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="op">(</span><span class="va">fit_unm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://hmecology.github.io/unmarked/reference/occu.html" class="external-link">occu</a></span><span class="op">(</span><span class="op">~</span><span class="fl">1</span><span class="op">~</span><span class="fl">1</span>, data<span class="op">=</span><span class="va">umf</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">fit_unm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/unmarked/man/occu.html" class="external-link">occu</a></span><span class="op">(</span><span class="op">~</span><span class="fl">1</span><span class="op">~</span><span class="fl">1</span>, data<span class="op">=</span><span class="va">umf</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## </span></span>
 <span><span class="co">## Call:</span></span>
 <span><span class="co">## occu(formula = ~1 ~ 1, data = umf)</span></span>
@@ -212,7 +212,7 @@
 </h4>
 <p>Next, we fit the same model in <code>ubms</code>. The equivalent to <code>occu</code> in <code>ubms</code> is <code>stan_occu</code>. Functions in <code>ubms</code> generally use this <code>stan_</code> prefix, based on the approach used in package <a href="https://cran.r-project.org/package=rstanarm" class="external-link">rstanarm</a> for GLMs. We need to provide the same arguments to <code>stan_occu</code>. In addition, we will specify that we want 3 MCMC chains (<code>chains=3</code>), with 500 iterations per chain (<code>iter=500</code>) of which the first half will be warmup iterations. It is beyond the scope of this vignette to discuss the appropriate number or length of chains; see <a href="https://mc-stan.org/docs/2_24/stan-users-guide/index.html" class="external-link">the Stan user’s guide</a> for more details. Generally 4 chains of 2000 iterations each is recommended (of which 1000 per chain are warmups). Thus, 500 iterations per chain is probably not enough, but to keep things running quickly it is sufficient for this vignette. Note that if you are more familiar with BUGS or JAGS, Stan generally requires a smaller number of iterations to reach convergence thanks to its default NUTS sampler <span class="citation">(Hoffman and Gelman <a href="#ref-Hoffman_2014" role="doc-biblioref">2014</a>)</span>. If you have a good multi-core CPU, you can run chains in parallel. Tell Stan how many parallel cores you want to use by assigning a value to the <code>cores</code> argument.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://kenkellner.com/ubms/" class="external-link">ubms</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://biodiverse.github.io/ubms/" class="external-link">ubms</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="op">(</span><span class="va">fit_stan</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stan_occu.html">stan_occu</a></span><span class="op">(</span><span class="op">~</span><span class="fl">1</span><span class="op">~</span><span class="fl">1</span>, data<span class="op">=</span><span class="va">umf</span>, chains<span class="op">=</span><span class="fl">3</span>, iter<span class="op">=</span><span class="fl">500</span>, cores<span class="op">=</span><span class="fl">3</span>, seed<span class="op">=</span><span class="fl">123</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## </span></span>
@@ -229,7 +229,7 @@
 <span><span class="co">##    -0.638 0.228 -1.11 -0.21   267    1</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## LOOIC: 512.113</span></span>
-<span><span class="co">## Runtime: 1.585 sec</span></span></code></pre>
+<span><span class="co">## Runtime: 1.556 sec</span></span></code></pre>
 </div>
 <div class="section level4">
 <h4 id="compare-results">Compare results<a class="anchor" aria-label="anchor" href="#compare-results"></a>
@@ -261,9 +261,9 @@
 <span><span class="co">##    -0.638 0.228 -1.11 -0.21   267    1</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## LOOIC: 512.113</span></span>
-<span><span class="co">## Runtime: 1.585 sec</span></span></code></pre>
+<span><span class="co">## Runtime: 1.556 sec</span></span></code></pre>
 <p>The first part (under <code>Call:</code>) is the command we used to get this model output. Underneath are two tables, one per submodel, corresponding to the occupancy and detection parts of the model. Within each table there is one row per parameter in the submodel. Since <code>fit_stan</code> had no covariates, there is only an intercept term for each submodel. Model parameters in this summary table are always shown on the appropriate transformed scale, in this case logit. To get the corresponding probabilities, you can use the <code>predict</code> function, which we will demonstrate later.</p>
-<p>For each parameter, the mean and standard deviation of the posterior distribution are given. Unlike <code>unmarked</code> output, there is no <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math> or <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>-value. Instead, there is a 95% <a href="https://statmodeling.stat.columbia.edu/2016/11/26/reminder-instead-confidence-interval-lets-say-uncertainty-interval/" class="external-link">uncertainty interval</a> provided.</p>
+<p>For each parameter, the mean and standard deviation of the posterior distribution are given. Unlike <code>unmarked</code> output, there is no <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math> or <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>-value. Instead, there is a 95% uncertainty interval provided.</p>
 <p>The final two columns in each summary table <code>n_eff</code> and <code>Rhat</code> are MCMC diagnostics. We will discuss their meaning later.</p>
 </div>
 <div class="section level4">
@@ -314,10 +314,10 @@
 <code class="sourceCode R"><span><span class="va">mods</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fitList-ubmsFit-method.html">fitList</a></span><span class="op">(</span><span class="va">fit_null</span>, <span class="va">fit_global</span><span class="op">)</span></span></code></pre></div>
 <p>Then we generate a model selection table:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://hmecology.github.io/unmarked/reference/modSel.html" class="external-link">modSel</a></span><span class="op">(</span><span class="va">mods</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##                elpd nparam elpd_diff se_diff weight</span></span>
-<span><span class="co">## fit_global -236.428  5.616     0.000   0.000  0.953</span></span>
-<span><span class="co">## fit_null   -256.056  2.614   -19.628   6.635  0.047</span></span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/unmarked/man/modSel.html" class="external-link">modSel</a></span><span class="op">(</span><span class="va">mods</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                elpd nparam elpd_diff se_diff</span></span>
+<span><span class="co">## fit_global -236.428  5.616     0.000   0.000</span></span>
+<span><span class="co">## fit_null   -256.056  2.614   -19.628   6.635</span></span></code></pre>
 <p>Instead of AIC, models are compared using leave-one-out cross-validation (LOO) <span class="citation">(Vehtari, Gelman, and Gabry <a href="#ref-Vehtari_2017" role="doc-biblioref">2017</a>)</span> via the <code>loo</code> package. Based on this cross-validation, the expected predictive accuracy (<code>elpd</code>) for each model is calculated. The model with the largest <code>elpd</code> (<code>fit_global</code>) performed best. The <code>elpd_diff</code> column shows the difference in <code>elpd</code> between a model and the top model; if this difference is several times larger than the standard error of the difference (<code>se_diff</code>), we are confident the model with the larger <code>elpd</code> performed better. LOO model weights, analogous to AIC weights, are also calculated. We can see that the <code>fit_global</code> model is clearly the best performing model.</p>
 <p>You can obtain LOO information for a single model using the <code>loo</code> method:</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
@@ -372,7 +372,7 @@
 <span><span class="co">## scale(date)    0.551 0.168  0.227  0.889   741 1.00</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## LOOIC: 472.856</span></span>
-<span><span class="co">## Runtime: 2.143 sec</span></span></code></pre>
+<span><span class="co">## Runtime: 2.436 sec</span></span></code></pre>
 <div class="section level4">
 <h4 id="mcmc-diagnostics">MCMC diagnostics<a class="anchor" aria-label="anchor" href="#mcmc-diagnostics"></a>
 </h4>
@@ -413,7 +413,7 @@
 <code class="sourceCode R"><span><span class="va">prop0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">sim_y</span>, <span class="fl">1</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">==</span><span class="fl">0</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>and compare that to the proportion of zeros in the actual dataset.</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">actual_prop0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://hmecology.github.io/unmarked/reference/unmarkedFrame-class.html" class="external-link">getY</a></span><span class="op">(</span><span class="va">fit_top</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">actual_prop0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/unmarked/man/unmarkedFrame-class.html" class="external-link">getY</a></span><span class="op">(</span><span class="va">fit_top</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Compare</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">prop0</span>, col<span class="op">=</span><span class="st">'gray'</span><span class="op">)</span></span>
@@ -549,7 +549,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer>

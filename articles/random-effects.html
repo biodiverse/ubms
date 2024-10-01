@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ubms</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.7</span>
       </span>
     </div>
 
@@ -69,7 +69,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/kenkellner/ubms/" class="external-link">
+  <a href="https://github.com/biodiverse/ubms/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -91,7 +91,7 @@
                         <h4 data-toc-skip class="author">Ken Kellner</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/kenkellner/ubms/blob/HEAD/vignettes/random-effects.Rmd" class="external-link"><code>vignettes/random-effects.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/biodiverse/ubms/blob/HEAD/vignettes/random-effects.Rmd" class="external-link"><code>vignettes/random-effects.Rmd</code></a></small>
       <div class="hidden name"><code>random-effects.Rmd</code></div>
 
     </div>
@@ -123,7 +123,7 @@
 </h3>
 <p>We will use the <code>crossbill</code> dataset to illustrate a stacked occupancy model with a site-level random effect. The <code>crossbill</code> dataset comes packaged with <code>ubms</code> via <code>unmarked</code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://kenkellner.com/ubms/" class="external-link">ubms</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://biodiverse.github.io/ubms/" class="external-link">ubms</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">crossbill</span><span class="op">)</span></span></code></pre></div>
 <p>The <code>crossbill</code> dataset is a <code>data.frame</code> with many columns. It contains 9 years of detection/non-detection data for the European crossbill (<em>Loxia curvirostra</em>) in Switzerland <span class="citation">(Schmid, Zbinden, and Keller <a href="#ref-Schmid_2004" role="doc-biblioref">2004</a>)</span>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -140,7 +140,7 @@
 <span><span class="co">## [43] "date023" "date031" "date032" "date033" "date041" "date042" "date043"</span></span>
 <span><span class="co">## [50] "date051" "date052" "date053" "date061" "date062" "date063" "date071"</span></span>
 <span><span class="co">## [57] "date072" "date073"</span></span></code></pre>
-<p>Check <code><a href="https://hmecology.github.io/unmarked/reference/crossbill.html" class="external-link">?crossbill</a></code> for details about each column. The first three columns <code>id</code>, <code>ele</code>, and <code>forest</code> are site covariates.</p>
+<p>Check <code><a href="https://rdrr.io/pkg/unmarked/man/crossbill.html" class="external-link">?crossbill</a></code> for details about each column. The first three columns <code>id</code>, <code>ele</code>, and <code>forest</code> are site covariates.</p>
 <p>The following 27 columns beginning with <code>det</code> are the binary detection/non-detection data; 9 years with 3 observations per year. The final 27 columns beginning with <code>date</code> are the Julian dates for each observation.</p>
 </div>
 <div class="section level3">
@@ -203,7 +203,7 @@
 <pre><code><span><span class="co">## [1] 801   5</span></span></code></pre>
 <p>With our stacked datasets constructed, we build our <code>unmarkedFrame</code>:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">umf_stack</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://hmecology.github.io/unmarked/reference/unmarkedFrameOccu.html" class="external-link">unmarkedFrameOccu</a></span><span class="op">(</span>y<span class="op">=</span><span class="va">y_stack</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, siteCovs<span class="op">=</span><span class="va">sc_stack</span>,</span>
+<code class="sourceCode R"><span><span class="va">umf_stack</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/unmarked/man/unmarkedFrameOccu.html" class="external-link">unmarkedFrameOccu</a></span><span class="op">(</span>y<span class="op">=</span><span class="va">y_stack</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, siteCovs<span class="op">=</span><span class="va">sc_stack</span>,</span>
 <span>                         obsCovs<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>date<span class="op">=</span><span class="va">date_stack</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">umf_stack</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Data frame representation of unmarkedFrame object.</span></span>
@@ -310,7 +310,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer>

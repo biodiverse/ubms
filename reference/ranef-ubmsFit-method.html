@@ -20,7 +20,7 @@ to that of unmarkedFit, use posterior_predict."><!-- mathjax --><script src="htt
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ubms</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.7</span>
       </span>
     </div>
 
@@ -51,7 +51,7 @@ to that of unmarkedFit, use posterior_predict."><!-- mathjax --><script src="htt
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/kenkellner/ubms/" class="external-link">
+  <a href="https://github.com/biodiverse/ubms/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -66,7 +66,7 @@ to that of unmarkedFit, use posterior_predict."><!-- mathjax --><script src="htt
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Extract Random Effects</h1>
-    <small class="dont-index">Source: <a href="https://github.com/kenkellner/ubms/blob/HEAD/R/ranef.R" class="external-link"><code>R/ranef.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/biodiverse/ubms/blob/HEAD/R/ranef.R" class="external-link"><code>R/ranef.R</code></a></small>
     <div class="hidden name"><code>ranef-ubmsFit-method.Rd</code></div>
     </div>
 
@@ -79,7 +79,7 @@ to that of <code>unmarkedFit</code>, use <code>posterior_predict</code>.</p>
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S4 method for class 'ubmsFit'</span></span>
-<span><span class="fu">ranef</span><span class="op">(</span><span class="va">object</span>, <span class="va">submodel</span>, summary <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">ranef</span><span class="op">(</span><span class="va">object</span>, <span class="va">submodel</span>, summary <span class="op">=</span> <span class="cn">FALSE</span>, add_mean <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -100,6 +100,11 @@ which to generate the random effects</p></dd>
 for each random effect term</p></dd>
 
 
+<dt id="arg-add-mean">add_mean<a class="anchor" aria-label="anchor" href="#arg-add-mean"></a></dt>
+<dd><p>If <code>TRUE</code> (the default) add the overall intercept or
+slope mean and return the complete random intercept or slope.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Currently ignored</p></dd>
 
@@ -109,6 +114,16 @@ for each random effect term</p></dd>
     <p>If <code>summary=FALSE</code>, a list of random effect values; if
  <code>TRUE</code>, a data frame with columns for random effect mean, SD, and
  95<!-- % uncertainty interval lower and upper bounds. --></p>
+    </div>
+    <div id="details">
+    <h2>Details</h2>
+    <p>Note: by default this function adds the overall intercept or slope
+to the (mean-0) random effect to get the complete random intercept or slope.
+In this way the output is more like the output of <code>lme4::coef</code>
+and not <code><a href="https://rdrr.io/pkg/nlme/man/random.effects.html" class="external-link">lme4::ranef</a></code>. You can turn this off and return just the
+mean-0 random effect by setting argument <code>add_mean = FALSE</code>.</p>
+<p>If you run <code>ranef</code> on a submodel with a spatial random effect,
+the function will return estimates of parameter <code>eta</code>.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -127,7 +142,7 @@ for each random effect term</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

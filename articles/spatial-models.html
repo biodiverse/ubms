@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ubms</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.7</span>
       </span>
     </div>
 
@@ -69,7 +69,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/kenkellner/ubms/" class="external-link">
+  <a href="https://github.com/biodiverse/ubms/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -91,7 +91,7 @@
                         <h4 data-toc-skip class="author">Ken Kellner</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/kenkellner/ubms/blob/HEAD/vignettes/spatial-models.Rmd" class="external-link"><code>vignettes/spatial-models.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/biodiverse/ubms/blob/HEAD/vignettes/spatial-models.Rmd" class="external-link"><code>vignettes/spatial-models.Rmd</code></a></small>
       <div class="hidden name"><code>spatial-models.Rmd</code></div>
 
     </div>
@@ -110,7 +110,7 @@
 </h2>
 <p>We will adapt the demo code and dataset available in R package <code>stocc</code> to fit a spatial occupancy model, which will also facilitate a comparison between <code>stocc</code> and <code>ubms</code> results. The <code>stocc</code> package was an extremely valuable guide when implementing RSRs in <code>ubms</code>, and contains many other useful features related to spatial occupancy modeling.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://kenkellner.com/ubms/" class="external-link">ubms</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://biodiverse.github.io/ubms/" class="external-link">ubms</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">stocc</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="format-the-input-data">Format the input data<a class="anchor" aria-label="anchor" href="#format-the-input-data"></a>
@@ -187,7 +187,7 @@
 <span><span class="co">## [3,]     NA     NA     NA     NA   NA   NA   NA</span></span></code></pre>
 <p>The final step in data formatting is to construct the <code>unmarkedFrame</code>.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://hmecology.github.io/unmarked/reference/unmarkedFrameOccu.html" class="external-link">unmarkedFrameOccu</a></span><span class="op">(</span>y<span class="op">=</span><span class="va">y</span>, siteCovs<span class="op">=</span><span class="va">site_cov</span>, obsCovs<span class="op">=</span><span class="va">obs_cov</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">umf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/unmarked/man/unmarkedFrameOccu.html" class="external-link">unmarkedFrameOccu</a></span><span class="op">(</span>y<span class="op">=</span><span class="va">y</span>, siteCovs<span class="op">=</span><span class="va">site_cov</span>, obsCovs<span class="op">=</span><span class="va">obs_cov</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="choose-rsr-options">Choose RSR options<a class="anchor" aria-label="anchor" href="#choose-rsr-options"></a>
@@ -228,23 +228,23 @@
 <span><span class="co">##     cores = 3, seed = 123)</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## Occupancy (logit-scale):</span></span>
-<span><span class="co">##             Estimate    SD    2.5%  97.5% n_eff  Rhat</span></span>
-<span><span class="co">## (Intercept)   -1.068 0.231 -1.5520 -0.646   947 1.001</span></span>
-<span><span class="co">## habCov12      -0.216 0.320 -0.8350  0.405  2381 1.000</span></span>
-<span><span class="co">## habCov13      -0.264 0.321 -0.9002  0.362  2244 0.999</span></span>
-<span><span class="co">## habCov2        1.104 0.181  0.7612  1.493  1035 1.000</span></span>
-<span><span class="co">## RSR [tau]      0.140 0.057  0.0599  0.274   205 1.015</span></span>
+<span><span class="co">##             Estimate     SD   2.5%  97.5% n_eff  Rhat</span></span>
+<span><span class="co">## (Intercept)   -1.056 0.2236 -1.509 -0.635  1542 1.002</span></span>
+<span><span class="co">## habCov12      -0.215 0.3128 -0.832  0.384  2339 0.999</span></span>
+<span><span class="co">## habCov13      -0.261 0.3221 -0.886  0.375  2121 0.999</span></span>
+<span><span class="co">## habCov2        1.090 0.1705  0.771  1.434  1389 1.001</span></span>
+<span><span class="co">## RSR [tau]      0.144 0.0529  0.071  0.276   248 1.006</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## Detection (logit-scale):</span></span>
-<span><span class="co">##             Estimate    SD   2.5% 97.5% n_eff Rhat</span></span>
-<span><span class="co">## (Intercept)    1.712 0.355  1.061 2.413  1783    1</span></span>
-<span><span class="co">## detCov1        0.115 0.210 -0.288 0.528  4778    1</span></span>
-<span><span class="co">## detCov21       1.188 0.538  0.152 2.285  2360    1</span></span>
-<span><span class="co">## detCov22       1.385 0.552  0.347 2.508  2439    1</span></span>
-<span><span class="co">## detCov23      -0.219 0.476 -1.156 0.731  2230    1</span></span>
+<span><span class="co">##             Estimate    SD   2.5% 97.5% n_eff  Rhat</span></span>
+<span><span class="co">## (Intercept)    1.736 0.375  1.038 2.532  1806 1.000</span></span>
+<span><span class="co">## detCov1        0.109 0.214 -0.293 0.510  4609 1.000</span></span>
+<span><span class="co">## detCov21       1.175 0.544  0.160 2.278  2263 1.000</span></span>
+<span><span class="co">## detCov22       1.363 0.580  0.246 2.559  2331 1.000</span></span>
+<span><span class="co">## detCov23      -0.249 0.488 -1.235 0.714  2234 0.999</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## LOOIC: 668.955</span></span>
-<span><span class="co">## Runtime: 2.828 min</span></span></code></pre>
+<span><span class="co">## LOOIC: 668.831</span></span>
+<span><span class="co">## Runtime: 2.036 min</span></span></code></pre>
 <p>The precision term (tau, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>τ</mi><annotation encoding="application/x-tex">\tau</annotation></semantics></math>) associated with the spatial random effect is the final row of the occupancy model estimates. Smaller values of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>τ</mi><annotation encoding="application/x-tex">\tau</annotation></semantics></math> imply greater variability in the spatial random effect.</p>
 <p>There also appears to be a strong effect of <code>habCov2</code> on occupancy. We can quickly visualize marginal effects of fixed covariates with <code>plot_effects</code>.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
@@ -256,12 +256,12 @@
 <span><span class="va">psi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict-ubmsFit-method.html">predict</a></span><span class="op">(</span><span class="va">fit_ubms</span>, <span class="st">"state"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">psi</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##   Predicted         SD       2.5%     97.5%</span></span>
-<span><span class="co">## 1 0.1406819 0.04367637 0.06798461 0.2395582</span></span>
-<span><span class="co">## 2 0.2353870 0.08364601 0.10436390 0.4261004</span></span>
-<span><span class="co">## 3 0.3613298 0.11519917 0.16951184 0.6225812</span></span>
-<span><span class="co">## 4 0.4581433 0.12669375 0.23324167 0.7257790</span></span>
-<span><span class="co">## 5 0.4564998 0.12228635 0.22897164 0.7091163</span></span>
-<span><span class="co">## 6 0.3849536 0.11732801 0.17920393 0.6357226</span></span></code></pre>
+<span><span class="co">## 1 0.1431907 0.04554381 0.06928728 0.2453479</span></span>
+<span><span class="co">## 2 0.2378141 0.08682981 0.10409517 0.4370658</span></span>
+<span><span class="co">## 3 0.3617458 0.11947600 0.16084996 0.6211602</span></span>
+<span><span class="co">## 4 0.4577439 0.12923964 0.22673143 0.7246516</span></span>
+<span><span class="co">## 5 0.4549725 0.12532278 0.22459356 0.7163457</span></span>
+<span><span class="co">## 6 0.3863041 0.11822055 0.17525150 0.6382941</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="plotting">Plotting<a class="anchor" aria-label="anchor" href="#plotting"></a>
@@ -286,12 +286,12 @@
 <p>Combine the models to compare into a <code>fitList</code> (note: they must have the same number of chains and MCMC iterations):</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fitList-ubmsFit-method.html">fitList</a></span><span class="op">(</span><span class="va">fit_ubms</span>, <span class="va">fit_nonspatial</span><span class="op">)</span></span></code></pre></div>
-<p>Then, compare the spatial and non-spatial models with leave-one-out cross-validation (LOO)<span class="citation">(Vehtari, Gelman, and Gabry <a href="#ref-Vehtari_2017" role="doc-biblioref">2017</a>)</span> using the <code><a href="https://hmecology.github.io/unmarked/reference/modSel.html" class="external-link">modSel()</a></code> function:</p>
+<p>Then, compare the spatial and non-spatial models with leave-one-out cross-validation (LOO)<span class="citation">(Vehtari, Gelman, and Gabry <a href="#ref-Vehtari_2017" role="doc-biblioref">2017</a>)</span> using the <code><a href="https://rdrr.io/pkg/unmarked/man/modSel.html" class="external-link">modSel()</a></code> function:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://hmecology.github.io/unmarked/reference/modSel.html" class="external-link">modSel</a></span><span class="op">(</span><span class="va">fl</span><span class="op">)</span>,<span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##                   elpd nparam elpd_diff se_diff weight</span></span>
-<span><span class="co">## fit_ubms       -334.48  47.09       0.0    0.00      1</span></span>
-<span><span class="co">## fit_nonspatial -380.68   8.57     -46.2    8.32      0</span></span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/unmarked/man/modSel.html" class="external-link">modSel</a></span><span class="op">(</span><span class="va">fl</span><span class="op">)</span>,<span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                   elpd nparam elpd_diff se_diff</span></span>
+<span><span class="co">## fit_ubms       -334.42  46.18      0.00    0.00</span></span>
+<span><span class="co">## fit_nonspatial -380.45   8.34    -46.04    8.25</span></span></code></pre>
 <p>A measure of predictive accuracy (<code>elpd</code>) is shown for each model, and the model with the highest predictive accuracy is listed first. The difference in <code>elpd</code> between the top and model and each subsequent model (<code>elpd_diff</code>), along with a measure of the uncertainty of that difference (<code>se_diff</code>), are also shown. If the magnitude of <code>elpd_diff</code> is large relative to the associated uncertainty, we can conclude that there is a difference in predictive power between the two models. In this case <code>elpd_diff</code> between the spatial (<code>fit_ubms</code>) and non-spatial (<code>fit_nonspatial</code>) models is several times the size of <code>se_diff</code>, so including the spatial random effect appears to improve model predictive accuracy.</p>
 </div>
 </div>
@@ -306,11 +306,11 @@
 <span>  site<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>site<span class="op">=</span><span class="st">"site"</span>, coords<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>,<span class="st">"y"</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit_stocc</span> <span class="op">&lt;-</span> <span class="fu">spatial.occupancy</span><span class="op">(</span></span>
+<span><span class="va">fit_stocc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/stocc/man/spatial.occupancy.html" class="external-link">spatial.occupancy</a></span><span class="op">(</span></span>
 <span>  detection.model <span class="op">=</span> <span class="op">~</span> <span class="va">detCov1</span> <span class="op">+</span> <span class="va">detCov2</span>,</span>
 <span>  occupancy.model <span class="op">=</span> <span class="op">~</span> <span class="va">habCov1</span> <span class="op">+</span> <span class="va">habCov2</span>,</span>
 <span>  spatial.model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>model<span class="op">=</span><span class="st">"rsr"</span>, threshold<span class="op">=</span><span class="fl">1.01</span>, moran.cut<span class="op">=</span><span class="fl">0.1</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">habData</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  so.data <span class="op">=</span> <span class="fu">make.so.data</span><span class="op">(</span><span class="va">visitData</span>, <span class="va">habData</span>, <span class="va">names</span><span class="op">)</span>,</span>
+<span>  so.data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/stocc/man/make.so.data.html" class="external-link">make.so.data</a></span><span class="op">(</span><span class="va">visitData</span>, <span class="va">habData</span>, <span class="va">names</span><span class="op">)</span>,</span>
 <span>  prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a.tau<span class="op">=</span><span class="fl">0.5</span>, b.tau<span class="op">=</span><span class="fl">0.00005</span>, Q.b<span class="op">=</span><span class="fl">0.1</span>, Q.g<span class="op">=</span><span class="fl">0.1</span><span class="op">)</span>,</span>
 <span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>burnin<span class="op">=</span><span class="fl">1000</span><span class="op">/</span><span class="fl">5</span>, iter<span class="op">=</span><span class="fl">4000</span><span class="op">/</span><span class="fl">5</span>, thin<span class="op">=</span><span class="fl">5</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
@@ -320,7 +320,7 @@
 <span><span class="va">psi_stocc</span> <span class="op">&lt;-</span> <span class="va">fit_stocc</span><span class="op">$</span><span class="va">occupancy.df</span><span class="op">$</span><span class="va">psi.est</span></span>
 <span></span>
 <span><span class="co"># Sites that were sampled at least once</span></span>
-<span><span class="va">sampled</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://hmecology.github.io/unmarked/reference/unmarkedFrame-class.html" class="external-link">getY</a></span><span class="op">(</span><span class="va">umf</span><span class="op">)</span>, <span class="fl">1</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/any.html" class="external-link">any</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">sampled</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/unmarked/man/unmarkedFrame-class.html" class="external-link">getY</a></span><span class="op">(</span><span class="va">umf</span><span class="op">)</span>, <span class="fl">1</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/any.html" class="external-link">any</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">habData</span>, psi<span class="op">=</span><span class="va">psi_stocc</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">plot_data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span>,y<span class="op">=</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -375,7 +375,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer>
